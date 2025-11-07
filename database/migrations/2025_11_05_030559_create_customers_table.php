@@ -18,8 +18,11 @@ return new class extends Migration
             $table->string('thai_pin')->nullable()->unique();
             $table->string('email')->nullable()->unique();
             $table->string('address')->nullable();
+            $table->string('expo_push_token')->nullable();
+            $table->timestamp('push_token_updated_at')->nullable();
             $table->timestamps();
             $table->index('phone_number');
+            $table->index('expo_push_token');
         });
     }
 

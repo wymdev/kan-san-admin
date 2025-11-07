@@ -384,6 +384,30 @@
                 </li>
                 <li class="menu-item hs-accordion">
                     <a class="hs-accordion-toggle menu-link" href="javascript:void(0)">
+                        <span class="menu-icon"><i data-lucide="monitor-smartphone"></i></span>
+                        <span class="menu-text"> Mobile Configuration </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul class="sub-menu hs-accordion-content hidden">
+                        <li class="menu-item">
+                            <a class="menu-link" href="{{ route('daily-quotes.index') }}">
+                                <span class="menu-text">Daily Notificatoin</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a class="menu-link" href="{{ route('announcements.index') }}">
+                                <span class="menu-text">Announcement</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a class="menu-link" href="{{ route('app-banners.index') }}">
+                                <span class="menu-text">Banner</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="menu-item hs-accordion">
+                    <a class="hs-accordion-toggle menu-link" href="javascript:void(0)">
                         <span class="menu-icon"><i data-lucide="folders"></i></span>
                         <span class="menu-text"> Misc </span>
                         <span class="menu-arrow"></span>

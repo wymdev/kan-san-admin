@@ -17,6 +17,66 @@ class CustomerAuthController extends Controller
     /**
      * Register a new customer
      */
+
+    /**
+     * Store or update Expo push token for the customer
+     */
+    public function storePushToken(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'expo_push_token' => 'required|string|starts_with:ExponentPushToken',
+            ], [
+                'expo_push_token.required' => 'Push token is required.',
+                'expo_push_token.starts_with' => 'Invalid push token format.',
+            ]);
+
+            $customer = $request->user();
+
+            // Store in device_push_tokens table
+            $pushToken = DevicePushToken::updateOrCreate(
+                ['token' => $validated['expo_push_token']],
+                [
+                    'customer_id' => $customer->id,
+                    'is_active' => true,
+                    'last_seen_at' => now(),
+                ]
+            );
+
+            // Also update customer record for backward compatibility
+            $customer->update([
+                'expo_push_token' => $validated['expo_push_token'],
+                'push_token_updated_at' => now(),
+            ]);
+
+            \Log::info("Push token updated for customer {$customer->id}", [
+                'token_id' => $pushToken->id,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Push token stored successfully',
+                'data' => [
+                    'customer_id' => $customer->id,
+                    'token_updated_at' => $pushToken->updated_at,
+                ],
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to store push token',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
     public function register(Request $request)
     {
         $validated = $request->validate([

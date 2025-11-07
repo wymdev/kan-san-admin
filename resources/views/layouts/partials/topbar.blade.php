@@ -397,13 +397,13 @@
                         <div class="border-t border-default-200 -mx-2 my-1"></div>
                         <form action="{{ route('logout') }}" method="POST" style="display: none;" id="logout-form">
                             @csrf
+                        
+                            <a class="flex items-center gap-x-3.5 py-1.5 font-medium px-3 text-default-600 hover:bg-default-150 rounded cursor-pointer"
+                            href="#" onclick="document.getElementById('logout-form').submit(); return false;">
+                                <i class="size-4" data-lucide="log-out"></i>
+                                Sign Out
+                            </a>
                         </form>
-
-                        <a class="flex items-center gap-x-3.5 py-1.5 font-medium px-3 text-default-600 hover:bg-default-150 rounded cursor-pointer"
-                        href="#" onclick="document.getElementById('logout-form').submit(); return false;">
-                            <i class="size-4" data-lucide="log-out"></i>
-                            Sign Out
-                        </a>
                     </div>
                 </div>
             </div>

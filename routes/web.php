@@ -9,6 +9,11 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\DrawInfoController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\AppConfigController;
+use App\Http\Controllers\AppBannerController;
+use App\Http\Controllers\AppPageController;
+use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\DailyQuoteController;
 use Illuminate\Support\Facades\Route;
 
 // Guest routes
@@ -32,21 +37,35 @@ Route::middleware(['auth','sanitizeInput', 'fileTypeCheck','throttle:9,10'])->gr
 Route::middleware(['auth', 'otp.verified','sanitizeInput', 'fileTypeCheck'])->group(function () {
     Route::get('/', [RoutingController::class, 'index'])->name('root');
     Route::get('/dashboard', [RoutingController::class, 'index'])->name('dashboard');
+    
+    // User & Role Management
     Route::resource('roles', RoleController::class);
     Route::resource('users', UserController::class);
     Route::resource('customers', CustomerController::class);
+    
+    // Lottery System
     Route::resource('tickets', TicketController::class);
     Route::resource('drawinfos', DrawInfoController::class);
 
     // Purchase Management (Read Only)
     Route::resource('purchases', TicketPurchaseController::class)->only(['index', 'show']);
-    
-    // Purchase Actions (approve/reject)
     Route::post('/purchases/{purchase}/approve', [TicketPurchaseController::class, 'approve'])
          ->name('purchases.approve');
     Route::post('/purchases/{purchase}/reject', [TicketPurchaseController::class, 'reject'])
          ->name('purchases.reject');
+
+    // Mobile App Configuration
+    Route::resource('app-configs', AppConfigController::class);
+    Route::resource('app-banners', AppBannerController::class);
+    Route::resource('app-pages', AppPageController::class);
     
+    // Announcements & Daily Quotes
+    Route::resource('announcements', AnnouncementController::class);
+    Route::resource('daily-quotes', DailyQuoteController::class);
+    Route::post('/daily-quotes/{quote}/send-now', [DailyQuoteController::class, 'sendNow'])
+         ->name('daily-quotes.send-now');
+    
+    // Catch-all routing
     Route::get('/{first}', [RoutingController::class, 'root'])->name('first');
     Route::get('/{first}/{second}', [RoutingController::class, 'secondLevel'])->name('second');
     Route::get('/{first}/{second}/{third}', [RoutingController::class, 'thirdLevel'])->name('third');

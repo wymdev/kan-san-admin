@@ -15,6 +15,10 @@ return [
     */
     'api_key' => env('API_KEY'),
 
+    'expo' => [
+        'access_token' => env('EXPO_ACCESS_TOKEN'),
+    ],
+
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\CustomerAuthController;
+use App\Http\Controllers\Api\PushTokenController;
 use App\Http\Controllers\Api\LotteryTicketController;
 use App\Http\Controllers\Api\DrawInfoController;
 use App\Http\Controllers\Api\CustomerPurchaseController;
@@ -10,8 +11,32 @@ use Illuminate\Support\Facades\Route;
 Route::get('public-tickets', [LotteryTicketController::class, 'index'])
     ->middleware(['sanitizeInput', 'fileTypeCheck', 'throttle:20,1']);
 
-Route::get('draw-results/upcoming', [DrawInfoController::class, 'index'])
+Route::get('upcoming-draw-date', [DrawInfoController::class, 'index'])
     ->middleware(['sanitizeInput', 'fileTypeCheck', 'throttle:20,1']);
+
+// Public endpoints - App Configuration & Content
+Route::get('/config', [AppConfigApiController::class, 'index'])
+    ->middleware(['sanitizeInput', 'fileTypeCheck', 'throttle:30,1']);
+
+Route::get('/config/{key}', [AppConfigApiController::class, 'show'])
+    ->middleware(['sanitizeInput', 'fileTypeCheck', 'throttle:30,1']);
+
+Route::get('/banners', [AppBannerApiController::class, 'index'])
+    ->middleware(['sanitizeInput', 'fileTypeCheck', 'throttle:20,1']);
+
+Route::get('/pages/{slug}', [AppPageApiController::class, 'show'])
+    ->middleware(['sanitizeInput', 'fileTypeCheck', 'throttle:20,1']);
+
+Route::get('/pages/by-type/{type}', [AppPageApiController::class, 'byType'])
+    ->middleware(['sanitizeInput', 'fileTypeCheck', 'throttle:20,1']);
+
+// NEW: Public Push Token Endpoints (NO AUTHENTICATION)
+Route::prefix('push-tokens')->group(function () {
+    Route::post('/register', [PushTokenController::class, 'registerAnonymous'])
+        ->middleware(['sanitizeInput', 'fileTypeCheck', 'throttle:10,1']);
+    Route::post('/deactivate', [PushTokenController::class, 'deactivate'])
+        ->middleware(['sanitizeInput', 'fileTypeCheck', 'throttle:10,1']);
+});
 
 // Customer Auth endpoints
 Route::prefix('auth')->group(function () {
@@ -23,6 +48,11 @@ Route::prefix('auth')->group(function () {
         ->middleware(['sanitizeInput', 'fileTypeCheck', 'throttle:3,15']);
     Route::post('/welcome-email', [CustomerAuthController::class, 'sendWelcomeEmail'])
         ->middleware(['sanitizeInput', 'fileTypeCheck', 'throttle:2,60']);
+    
+    // Link token to authenticated user
+    Route::post('/link-push-token', [PushTokenController::class, 'linkToCustomer'])
+        ->middleware(['auth:sanctum', 'sanitizeInput', 'fileTypeCheck']);
+    
 });
 
 // CUSTOMER ROUTES WITH TOKEN (auth:sanctum required)

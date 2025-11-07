@@ -24,7 +24,7 @@ class DrawInfoController extends Controller
         $now = now();
         $draw = DrawInfo::where('draw_date', '>=', $now)->orderBy('draw_date', 'asc')->first();
         if (!$draw) {
-            return response()->json(['message' => 'Not found'], 404);
+            return response()->json(['message' => 'Not Data found']);
         }
 
         return response()->json([

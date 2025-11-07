@@ -33,6 +33,7 @@ class PermissionTableSeeder extends Seeder
             'config-create',
             'config-edit',
             'config-delete',
+            'mobile-app-manage',
             'dashboard-admin',
             'dashboard-finance',
             'dashboard-application',
