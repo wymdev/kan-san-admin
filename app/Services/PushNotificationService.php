@@ -214,6 +214,73 @@ class PushNotificationService
         return $results;
     }
 
+    public function sendSingleNotification(array $message, int $customerId = null): bool
+    {
+        // Log notification (bind to customer_id)
+        PushNotificationLog::create([
+            'customer_id' => $customerId,
+            'notification_type' => $message['data']['type'] ?? 'other',
+            'title' => $message['title'],
+            'body' => $message['body'],
+            'payload' => $message['data'] ?? [],
+            'status' => 'pending',
+        ]);
+
+        try {
+            $response = Http::acceptJson()
+                ->withHeader('Authorization', 'Bearer ' . $this->expoAccessToken)
+                ->post($this->expoUrl, [$message]); // Expo expects an array
+
+            if ($response->successful()) {
+                $result = $response->json();
+                $resultData = $result['data'][0] ?? [];
+                if (($resultData['status'] ?? null) === 'ok') {
+                    PushNotificationLog::where('customer_id', $customerId)
+                        ->where('status', 'pending')
+                        ->latest()
+                        ->first()
+                        ?->update([
+                            'expo_ticket_id' => $resultData['id'] ?? null,
+                            'status' => 'sent',
+                        ]);
+                    return true;
+                } else {
+                    PushNotificationLog::where('customer_id', $customerId)
+                        ->where('status', 'pending')
+                        ->latest()
+                        ->first()
+                        ?->update([
+                            'status' => 'failed',
+                            'error_message' => $resultData['message'] ?? json_encode($resultData),
+                        ]);
+                    // Optionally clear invalid expo token from Customer model
+                    return false;
+                }
+            } else {
+                // HTTP error
+                PushNotificationLog::where('customer_id', $customerId)
+                    ->where('status', 'pending')
+                    ->latest()
+                    ->first()
+                    ?->update([
+                        'status' => 'failed',
+                        'error_message' => $response->body(),
+                    ]);
+                return false;
+            }
+        } catch (\Exception $e) {
+            PushNotificationLog::where('customer_id', $customerId)
+                ->where('status', 'pending')
+                ->latest()
+                ->first()
+                ?->update([
+                    'status' => 'failed',
+                    'error_message' => $e->getMessage(),
+                ]);
+            return false;
+        }
+    }
+
     /**
      * Get statistics
      */
@@ -242,6 +309,10 @@ class PushNotificationService
             ],
         ];
     }
+
+
+    
+
 
     /**
      * Clean up old inactive tokens

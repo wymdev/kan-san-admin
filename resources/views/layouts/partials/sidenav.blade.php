@@ -317,7 +317,7 @@
                     </ul>
                 </li> -->
 
-                <li class="menu-title">
+                <!-- <li class="menu-title">
                     <span>Orders</span>
                 </li>
                 <li class="menu-item hs-accordion">
@@ -327,13 +327,9 @@
                         <span class="menu-arrow"></span>
                     </a>
                     <ul class="sub-menu hs-accordion-content hidden">
-                        <li class="menu-item">
-                            <a class="menu-link" href="{{ route('purchases.index') }}">
-                                <span class="menu-text"> Order Management </span>
-                            </a>
-                        </li>
+                        
                     </ul>
-                </li>
+                </li> -->
 
                 <li class="menu-title">
                     <span>Lottery Portal</span>
@@ -346,8 +342,18 @@
                     </a>
                     <ul class="sub-menu hs-accordion-content hidden">
                         <li class="menu-item">
+                            <a class="menu-link" href="{{ route('purchases.index') }}">
+                                <span class="menu-text"> Order Management </span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
                             <a class="menu-link" href="{{ route('tickets.index') }}">
                                 <span class="menu-text"> Lottery Management </span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a class="menu-link" href="{{ route('draw_results.index') }}">
+                                <span class="menu-text"> Sync Results </span>
                             </a>
                         </li>
                         <li class="menu-item">
@@ -402,6 +408,11 @@
                         <li class="menu-item">
                             <a class="menu-link" href="{{ route('app-banners.index') }}">
                                 <span class="menu-text">Banner</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a class="menu-link" href="{{ route('app-versions.index') }}">
+                                <span class="menu-text">Versions Management</span>
                             </a>
                         </li>
                     </ul>

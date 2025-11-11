@@ -4,38 +4,61 @@ use App\Http\Controllers\Api\CustomerAuthController;
 use App\Http\Controllers\Api\PushTokenController;
 use App\Http\Controllers\Api\LotteryTicketController;
 use App\Http\Controllers\Api\DrawInfoController;
+use App\Http\Controllers\Api\AppVersionController;
 use App\Http\Controllers\Api\CustomerPurchaseController;
+use App\Http\Controllers\Api\CustomerNotificationController;
+use App\Http\Controllers\Api\DrawResultApiController;
 use Illuminate\Support\Facades\Route;
+
 
 // Public endpoints
 Route::get('public-tickets', [LotteryTicketController::class, 'index'])
-    ->middleware(['sanitizeInput', 'fileTypeCheck', 'throttle:20,1']);
+    ->middleware(['sanitizeInput', 'fileTypeCheck']);
 
 Route::get('upcoming-draw-date', [DrawInfoController::class, 'index'])
-    ->middleware(['sanitizeInput', 'fileTypeCheck', 'throttle:20,1']);
+    ->middleware(['sanitizeInput', 'fileTypeCheck']);
 
 // Public endpoints - App Configuration & Content
 Route::get('/config', [AppConfigApiController::class, 'index'])
-    ->middleware(['sanitizeInput', 'fileTypeCheck', 'throttle:30,1']);
+    ->middleware(['sanitizeInput', 'fileTypeCheck']);
 
 Route::get('/config/{key}', [AppConfigApiController::class, 'show'])
-    ->middleware(['sanitizeInput', 'fileTypeCheck', 'throttle:30,1']);
+    ->middleware(['sanitizeInput', 'fileTypeCheck']);
 
 Route::get('/banners', [AppBannerApiController::class, 'index'])
-    ->middleware(['sanitizeInput', 'fileTypeCheck', 'throttle:20,1']);
+    ->middleware(['sanitizeInput', 'fileTypeCheck']);
+
+Route::prefix('draw-results')->group(function () {
+    // GET /api/draw-results
+    // GET /api/draw-results?latest=true
+    // GET /api/draw-results?draw_date=YYYY-MM-DD
+    Route::get('/', [DrawResultApiController::class, 'index']);
+
+
+    // GET /api/draw-results/dates
+    Route::get('/dates', [DrawResultApiController::class, 'dates']);
+
+
+    // POST /api/draw-results/check
+    Route::post('/check', [DrawResultApiController::class, 'checkLottery']);
+});
+
+Route::post('/version/check', [AppVersionController::class, 'checkUpdate']);
+Route::get('/version/latest', [AppVersionController::class, 'getLatest']);
+Route::get('/version/history', [AppVersionController::class, 'history']);
 
 Route::get('/pages/{slug}', [AppPageApiController::class, 'show'])
-    ->middleware(['sanitizeInput', 'fileTypeCheck', 'throttle:20,1']);
+    ->middleware(['sanitizeInput', 'fileTypeCheck']);
 
 Route::get('/pages/by-type/{type}', [AppPageApiController::class, 'byType'])
-    ->middleware(['sanitizeInput', 'fileTypeCheck', 'throttle:20,1']);
+    ->middleware(['sanitizeInput', 'fileTypeCheck']);
 
 // NEW: Public Push Token Endpoints (NO AUTHENTICATION)
 Route::prefix('push-tokens')->group(function () {
     Route::post('/register', [PushTokenController::class, 'registerAnonymous'])
-        ->middleware(['sanitizeInput', 'fileTypeCheck', 'throttle:10,1']);
+        ->middleware(['sanitizeInput', 'fileTypeCheck']);
     Route::post('/deactivate', [PushTokenController::class, 'deactivate'])
-        ->middleware(['sanitizeInput', 'fileTypeCheck', 'throttle:10,1']);
+        ->middleware(['sanitizeInput', 'fileTypeCheck']);
 });
 
 // Customer Auth endpoints
@@ -71,5 +94,10 @@ Route::middleware(['auth:sanctum', 'sanitizeInput', 'fileTypeCheck'])->group(fun
         Route::post('/purchase', [CustomerPurchaseController::class, 'purchase']);
         Route::get('/purchases', [CustomerPurchaseController::class, 'myPurchases']);
         Route::get('/my-tickets', [CustomerPurchaseController::class, 'myTickets']);
+
+        Route::get('/noti', [CustomerNotificationController::class, 'index']);
+        Route::post('/noti/mark-read', [CustomerNotificationController::class, 'markAllRead']);
+        Route::post('/noti/{id}/mark-read', [CustomerNotificationController::class, 'markRead']);
+
     });
 });
