@@ -23,6 +23,23 @@ class PushNotificationService
      * Broadcast notification to ALL active users
      * (Both anonymous and authenticated)
      */
+    // public function broadcastAnnouncement(
+    //     string $title,
+    //     string $body,
+    //     array $data = []
+    // ): array {
+    //     $tokens = DevicePushToken::active()->get();
+
+    //     Log::info("Broadcasting announcement to {$tokens->count()} devices");
+
+    //     return $this->sendBatchToTokens(
+    //         tokens: $tokens,
+    //         title: $title,
+    //         body: $body,
+    //         type: 'announcement',
+    //         data: $data
+    //     );
+    // }
     public function broadcastAnnouncement(
         string $title,
         string $body,
@@ -32,11 +49,14 @@ class PushNotificationService
 
         Log::info("Broadcasting announcement to {$tokens->count()} devices");
 
+        // Extract type from data or default to 'announcement'
+        $type = $data['type'] ?? 'announcement';
+
         return $this->sendBatchToTokens(
             tokens: $tokens,
             title: $title,
             body: $body,
-            type: 'announcement',
+            type: $type, // Use dynamic type from data
             data: $data
         );
     }
@@ -217,6 +237,9 @@ class PushNotificationService
     public function sendSingleNotification(array $message, int $customerId = null): bool
     {
         // Log notification (bind to customer_id)
+
+        $notificationType = $message['data']['type'] ?? 'other';
+
         PushNotificationLog::create([
             'customer_id' => $customerId,
             'notification_type' => $message['data']['type'] ?? 'other',
