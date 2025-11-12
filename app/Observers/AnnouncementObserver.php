@@ -54,7 +54,7 @@ class AnnouncementObserver
                 data: array_merge($announcement->data ?? [], [
                     'announcement_id' => $announcement->id,
                     'type' => 'announcement',
-                    'category' => $announcement->type,
+                    'announcement_type' => $announcement->type,
                 ])
             );
 

@@ -63,6 +63,19 @@ class AnnouncementController extends Controller
             $validated['created_by'] = auth()->id();
             
             Announcement::create($validated);
+
+            // if ($validated['is_published'] ?? false) {
+            //     $this->pushService->broadcastAnnouncement(
+            //         title: $announcement->title,
+            //         body: $announcement->body,
+            //         data: [
+            //             'announcement_id' => $announcement->id,
+            //             'type' => 'announcement', // Added type
+            //             'announcement_type' => $announcement->type,
+            //         ]
+            //     );
+            //     $announcement->update(['is_sent' => true, 'sent_at' => now()]);
+            // }
             
             return redirect()->route('announcements.index')
                 ->with('success', 'Announcement created successfully! ' . 
