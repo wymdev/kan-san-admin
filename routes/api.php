@@ -75,6 +75,15 @@ Route::prefix('auth')->group(function () {
     // Link token to authenticated user
     Route::post('/link-push-token', [PushTokenController::class, 'linkToCustomer'])
         ->middleware(['auth:sanctum', 'sanitizeInput', 'fileTypeCheck']);
+        
+    // Push Token Management
+    Route::prefix('push-tokens')->group(function () {
+        // Get all active tokens for current customer
+        Route::get('/my-tokens', [PushTokenController::class, 'getCustomerTokens']);
+        
+        // Alternative endpoint (same as /auth/link-push-token)
+        Route::post('/link', [PushTokenController::class, 'linkToCustomer']);
+    });
     
 });
 

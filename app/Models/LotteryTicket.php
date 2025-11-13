@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class LotteryTicket extends Model
 {
@@ -19,7 +20,7 @@ class LotteryTicket extends Model
         'price' => 'decimal:2'
     ];
 
-    public function purchases()
+    public function purchases(): HasMany
     {
         return $this->hasMany(TicketPurchase::class);
     }
@@ -35,5 +36,26 @@ class LotteryTicket extends Model
                     ->where('stock', '>', 0)
                     ->whereDate('withdraw_date', '>=', now());
     }
-}
 
+    public function scopeUpcoming($query)
+    {
+        return $query->where('withdraw_date', '>=', now()->toDateString());
+    }
+
+    public function scopePast($query)
+    {
+        return $query->where('withdraw_date', '<', now()->toDateString());
+    }
+
+    /**
+     * Get the ticket number(s) as a string
+     * Handles both array and string formats
+     */
+    public function getTicketNumberAttribute()
+    {
+        if (is_array($this->numbers)) {
+            return implode(', ', $this->numbers);
+        }
+        return $this->numbers;
+    }
+}

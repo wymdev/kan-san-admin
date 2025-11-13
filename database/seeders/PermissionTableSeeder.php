@@ -30,6 +30,7 @@ class PermissionTableSeeder extends Seeder
             'payment-edit',
             'payment-delete',
             'payment-approve',
+            'lottery-check',
             'config-create',
             'config-edit',
             'config-delete',
