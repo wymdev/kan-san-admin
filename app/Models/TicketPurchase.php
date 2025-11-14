@@ -4,9 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Traits\LogsActivity;
 
 class TicketPurchase extends Model
 {
+    use LogsActivity;
+
+
     protected $fillable = [
         'customer_id', 'lottery_ticket_id', 'order_number', 'quantity',
         'total_price', 'status', 'payment_screenshot', 'rejection_reason',
@@ -86,5 +90,10 @@ class TicketPurchase extends Model
     {
         return $query->where('status', 'approved')
                     ->whereNull('checked_at');
+    }
+
+    public function getLogIdentifier(): string
+    {
+        return "Order #" . $this->order_number;
     }
 }

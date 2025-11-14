@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\LogsActivity;
 
 class DailyQuote extends Model
 {
     use SoftDeletes;
+
+    use LogsActivity;
 
     protected $fillable = [
         'quote',
@@ -50,5 +53,9 @@ class DailyQuote extends Model
                         $q->whereNull('scheduled_for')
                           ->orWhere('scheduled_for', '<=', today());
                     });
+    }
+    public function getLogIdentifier(): string
+    {
+        return $this->quote ?? "#" . $this->id;
     }
 }

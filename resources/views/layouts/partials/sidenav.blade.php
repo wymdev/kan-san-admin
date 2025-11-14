@@ -442,9 +442,16 @@
                 <li class="menu-item hs-accordion">
                     <a class="hs-accordion-toggle menu-link" href="javascript:void(0)">
                         <span class="menu-icon"><i data-lucide="shield-check"></i></span>
-                        <span class="menu-text"> Audit Logs </span>
+                        <span class="menu-text"> Application Logs </span>
                         <span class="menu-arrow"></span>
                     </a>
+                    <ul class="sub-menu hs-accordion-content hidden">
+                        <li class="menu-item">
+                            <a class="menu-link" href="{{ route('activity-logs.index') }}">
+                                <span class="menu-text">Logs</span>
+                            </a>
+                        </li>
+                    </ul>
                     <!-- <ul class="sub-menu hs-accordion-content hidden">
                         <li class="menu-item">
                             <a class="menu-link" href="{{ route('roles.index') }}">
