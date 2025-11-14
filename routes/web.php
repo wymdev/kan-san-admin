@@ -49,12 +49,31 @@ Route::middleware(['auth', 'otp.verified','sanitizeInput', 'fileTypeCheck'])->gr
     Route::resource('tickets', TicketController::class);
     Route::resource('drawinfos', DrawInfoController::class);
 
-    // Purchase Management (Read Only)
-    Route::resource('purchases', TicketPurchaseController::class)->only(['index', 'show']);
+    // ========================================
+    // PURCHASE MANAGEMENT - CORRECT ORDER
+    // ========================================
+    // IMPORTANT: Specific routes MUST come BEFORE resource routes with wildcards
+    
+    // Lottery checking routes (specific routes first)
+    Route::get('/purchases/check-results-page', [TicketPurchaseController::class, 'checkResultsPage'])
+         ->name('purchases.check-results-page');
+    Route::post('/purchases/check-results', [TicketPurchaseController::class, 'checkResults'])
+         ->name('purchases.check-results');
+    Route::post('/purchases/notify-results', [TicketPurchaseController::class, 'bulkNotifyResults'])
+         ->name('purchases.notify-results');
+    
+    // Purchase resource routes (only index and show)
+    Route::get('/purchases', [TicketPurchaseController::class, 'index'])
+         ->name('purchases.index');
+    Route::get('/purchases/{purchase}', [TicketPurchaseController::class, 'show'])
+         ->name('purchases.show');
+    
+    // Purchase action routes (with {purchase} parameter)
     Route::post('/purchases/{purchase}/approve', [TicketPurchaseController::class, 'approve'])
          ->name('purchases.approve');
     Route::post('/purchases/{purchase}/reject', [TicketPurchaseController::class, 'reject'])
          ->name('purchases.reject');
+    // ========================================
 
     // Mobile App Configuration
     Route::resource('app-configs', AppConfigController::class);

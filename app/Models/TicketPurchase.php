@@ -10,13 +10,21 @@ class TicketPurchase extends Model
     protected $fillable = [
         'customer_id', 'lottery_ticket_id', 'order_number', 'quantity',
         'total_price', 'status', 'payment_screenshot', 'rejection_reason',
-        'approved_by', 'approved_at',
+        'approved_by', 'approved_at', 'draw_result_id', 'prize_won', 'checked_at'
     ];
 
     protected $casts = [
         'total_price' => 'decimal:2',
         'approved_at' => 'datetime',
+        'checked_at' => 'datetime',
     ];
+
+    // Status constants
+    const STATUS_PENDING = 'pending';
+    const STATUS_APPROVED = 'approved';
+    const STATUS_REJECTED = 'rejected';
+    const STATUS_WON = 'won';
+    const STATUS_NOT_WON = 'not_won';
 
     public function customer(): BelongsTo
     {
@@ -31,6 +39,11 @@ class TicketPurchase extends Model
     public function approvedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function drawResult(): BelongsTo
+    {
+        return $this->belongsTo(DrawResult::class);
     }
 
     public static function generateOrderNumber(): string
@@ -51,5 +64,27 @@ class TicketPurchase extends Model
     public function scopeRejected($query)
     {
         return $query->where('status', 'rejected');
+    }
+
+    public function scopeWon($query)
+    {
+        return $query->where('status', 'won');
+    }
+
+    public function scopeNotWon($query)
+    {
+        return $query->where('status', 'not_won');
+    }
+
+    public function scopeUnchecked($query)
+    {
+        return $query->where('status', 'approved')
+                    ->whereNull('checked_at');
+    }
+
+    public function scopeNeedsChecking($query)
+    {
+        return $query->where('status', 'approved')
+                    ->whereNull('checked_at');
     }
 }
