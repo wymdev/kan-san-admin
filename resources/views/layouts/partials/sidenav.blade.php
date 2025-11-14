@@ -40,6 +40,11 @@
                             </a>
                         </li>
                         <li class="menu-item">
+                            <a class="menu-link" href="{{ route('cpanel.stats') }}">
+                                <span class="menu-text"> Server Matrix </span>
+                            </a>
+                        </li>
+                        <!-- <li class="menu-item">
                             <a class="menu-link" href="{{ route('second', ['dashboards', 'index']) }}">
                                 <span class="menu-text"> Ecommerce </span>
                             </a>
@@ -53,7 +58,7 @@
                             <a class="menu-link" href="{{ route('second', ['dashboards', 'hr']) }}">
                                 <span class="menu-text"> HR </span>
                             </a>
-                        </li>
+                        </li> -->
                     </ul>
                 </li>
                 <!-- <li class="menu-item hs-accordion">
@@ -374,7 +379,7 @@
                     </a>
                     <ul class="sub-menu hs-accordion-content hidden">
                         <li class="menu-item">
-                            <a class="menu-link" href="{{ route('second', ['dashboards', 'analytics']) }}">
+                            <a class="menu-link" href="{{ route('analytics.customers') }}">
                                 <span class="menu-text"> Analytics </span>
                             </a>
                         </li>
