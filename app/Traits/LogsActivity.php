@@ -108,15 +108,15 @@ trait LogsActivity
         }
         
         // Check default API guard
-        if (Auth::guard('api')->check()) {
-            $user = Auth::guard('api')->user();
-            return [
-                get_class($user),
-                $user->id,
-                'api',
-                'api'
-            ];
-        }
+        // if (Auth::guard('api')->check()) {
+        //     $user = Auth::guard('api')->user();
+        //     return [
+        //         get_class($user),
+        //         $user->id,
+        //         'api',
+        //         'api'
+        //     ];
+        // }
         
         // Check sanctum guard
         if (Auth::guard('sanctum')->check()) {
