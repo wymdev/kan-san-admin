@@ -13,16 +13,16 @@ return [
         ],
         
         // Add the customer guard for API authentication
-        'customer' => [
-            'driver' => 'token',  // or 'sanctum' if using Sanctum
-            'provider' => 'customers',
-        ],
-        
-        // Or if using Sanctum for customers:
         // 'customer' => [
-        //     'driver' => 'sanctum',
+        //     'driver' => 'token',  // or 'sanctum' if using Sanctum
         //     'provider' => 'customers',
         // ],
+        
+        // Or if using Sanctum for customers:
+        'customer' => [
+            'driver' => 'sanctum',
+            'provider' => 'customers',
+        ],
     ],
 
     'providers' => [
