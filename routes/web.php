@@ -17,6 +17,8 @@ use App\Http\Controllers\AppPageController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\DailyQuoteController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\CustomerAnalyticsController;
+use App\Http\Controllers\CpanelStatsController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -100,6 +102,16 @@ Route::middleware(['auth', 'otp.verified','sanitizeInput', 'fileTypeCheck'])->gr
     Route::get('/activity-logs/statistics', [ActivityLogController::class, 'statistics'])->name('activity-logs.statistics');
     Route::get('/activity-logs/{activityLog}', [ActivityLogController::class, 'show'])->name('activity-logs.show');
     Route::delete('/activity-logs/cleanup', [ActivityLogController::class, 'cleanup'])->name('activity-logs.cleanup');
+
+    Route::get('/analytics/customers', [CustomerAnalyticsController::class, 'index'])
+        ->name('analytics.customers');
+    
+    // Export Analytics Data
+    Route::get('/analytics/customers/export', [CustomerAnalyticsController::class, 'export'])
+        ->name('analytics.customers.export');
+
+    Route::get('/cpanel/stats', [CpanelStatsController::class, 'index'])->name('cpanel.stats');
+    Route::post('/cpanel/stats/refresh', [CpanelStatsController::class, 'refresh'])->name('cpanel.stats.refresh');
     
     // Catch-all routing
     Route::get('/{first}', [RoutingController::class, 'root'])->name('first');
