@@ -3,6 +3,8 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use App\Http\Middleware\LogAdminActivity;
+use App\Http\Middleware\LogCustomerActivity;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -22,8 +24,17 @@ return Application::configure(basePath: dirname(__DIR__))
             'otp.verified' => \App\Http\Middleware\OtpVerifiedMiddleware::class,
             'sanitizeInput' => \App\Http\Middleware\SanitizeInput::class,
             'fileTypeCheck' => \App\Http\Middleware\FileTypeCheck::class,
+            'log.admin' => LogAdminActivity::class,
+            'log.customer' => LogCustomerActivity::class,
         ]);
         $middleware->statefulApi();
+
+        $middleware->web(append: [
+            LogAdminActivity::class,
+        ]);
+        $middleware->api(append: [
+            LogCustomerActivity::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Handle validation exceptions for API

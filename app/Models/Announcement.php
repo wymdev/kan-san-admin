@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Traits\LogsActivity;
 
 class Announcement extends Model
 {
     use SoftDeletes;
+
+    use LogsActivity;
 
     protected $fillable = [
         'title',
@@ -62,5 +65,10 @@ class Announcement extends Model
                         $q->whereNull('scheduled_at')
                           ->orWhere('scheduled_at', '<=', now());
                     });
+    }
+
+    public function getLogIdentifier(): string
+    {
+        return $this->title ?? "#" . $this->id;
     }
 }

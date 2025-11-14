@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\DrawInfoController;
 use App\Http\Controllers\Api\AppVersionController;
 use App\Http\Controllers\Api\CustomerPurchaseController;
 use App\Http\Controllers\Api\CustomerNotificationController;
+use App\Http\Controllers\Api\ActivityLogApiController;
 use App\Http\Controllers\Api\DrawResultApiController;
 use Illuminate\Support\Facades\Route;
 
@@ -96,6 +97,9 @@ Route::middleware(['auth:sanctum', 'sanitizeInput', 'fileTypeCheck'])->group(fun
         Route::post('/refresh', [CustomerAuthController::class, 'refreshToken']);
         Route::post('/logout', [CustomerAuthController::class, 'logout']);
     });
+
+    Route::get('/activity-logs', [ActivityLogApiController::class, 'index']);
+    Route::post('/activity-logs', [ActivityLogApiController::class, 'store']);
 
     // Customer purchase actions
     Route::prefix('customer')->group(function () {

@@ -16,6 +16,8 @@ use App\Http\Controllers\AppBannerController;
 use App\Http\Controllers\AppPageController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\DailyQuoteController;
+use App\Http\Controllers\ActivityLogController;
+
 use Illuminate\Support\Facades\Route;
 
 // Guest routes
@@ -92,6 +94,12 @@ Route::middleware(['auth', 'otp.verified','sanitizeInput', 'fileTypeCheck'])->gr
     Route::resource('daily-quotes', DailyQuoteController::class);
     Route::post('/daily-quotes/{quote}/send-now', [DailyQuoteController::class, 'sendNow'])
          ->name('daily-quotes.send-now');
+
+
+    Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+    Route::get('/activity-logs/statistics', [ActivityLogController::class, 'statistics'])->name('activity-logs.statistics');
+    Route::get('/activity-logs/{activityLog}', [ActivityLogController::class, 'show'])->name('activity-logs.show');
+    Route::delete('/activity-logs/cleanup', [ActivityLogController::class, 'cleanup'])->name('activity-logs.cleanup');
     
     // Catch-all routing
     Route::get('/{first}', [RoutingController::class, 'root'])->name('first');

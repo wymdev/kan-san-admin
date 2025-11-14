@@ -3,14 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany; // ✅ Add this import
+use App\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Relations\HasMany; 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 class Customer extends Authenticatable
 {
-    use HasApiTokens, Notifiable;
+    use HasApiTokens, Notifiable , LogsActivity ;
 
     protected $fillable = [
         'phone_number',
@@ -93,5 +94,22 @@ class Customer extends Authenticatable
             ->where('is_active', true)
             ->pluck('token')
             ->toArray();
+    }
+
+    public function activities()
+    {
+        return $this->morphMany(ActivityLog::class, 'actor')
+            ->orderBy('created_at', 'desc');
+    }
+    
+    public function activityLogs()
+    {
+        return $this->morphMany(ActivityLog::class, 'loggable')
+            ->orderBy('created_at', 'desc');
+    }
+    
+    public function getLogIdentifier(): string
+    {
+        return $this->email ?? "#" . $this->id;
     }
 }
