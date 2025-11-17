@@ -250,19 +250,35 @@ class LotteryResultCheckerService
         // Get ticket numbers (can be array or string)
         $ticketNumbers = is_array($ticket->numbers) ? $ticket->numbers : [$ticket->numbers];
         
-        $prizes = $drawResult->prizes;
+        // Get normalized prizes using the accessor
+        $prizes = $drawResult->normalized_prizes;
+        
+        if (empty($prizes) || !is_array($prizes)) {
+            \Log::warning("DrawResult prizes is empty or not an array", [
+                'draw_result_id' => $drawResult->id,
+                'prizes_type' => gettype($prizes),
+            ]);
+            return false;
+        }
 
         // Check each ticket number
         foreach ($ticketNumbers as $ticketNumber) {
+            // Clean ticket number
+            $ticketNumber = str_replace(' ', '', $ticketNumber);
+            
             // Check each prize tier
             foreach ($prizes as $prizeName => $numbers) {
+                // Ensure numbers is an array
                 if (!is_array($numbers)) {
                     $numbers = [$numbers];
                 }
 
                 foreach ($numbers as $winningNumber) {
+                    // Clean winning number
+                    $winningNumber = str_replace(' ', '', $winningNumber);
+                    
                     // Exact match for main prizes
-                    if ($this->numbersMatch($ticketNumber, $winningNumber)) {
+                    if ($ticketNumber === $winningNumber) {
                         return [
                             'prize' => $this->formatPrizeName($prizeName),
                             'number' => $winningNumber
@@ -272,13 +288,16 @@ class LotteryResultCheckerService
             }
 
             // Check running numbers (last 2 or 3 digits)
-            if (isset($drawResult->running_numbers) && is_array($drawResult->running_numbers)) {
-                foreach ($drawResult->running_numbers as $runningType => $numbers) {
+            $runningNumbers = $drawResult->running_numbers;
+            if (is_array($runningNumbers)) {
+                foreach ($runningNumbers as $runningType => $numbers) {
                     if (!is_array($numbers)) {
                         $numbers = [$numbers];
                     }
 
                     foreach ($numbers as $runningNumber) {
+                        $runningNumber = str_replace(' ', '', $runningNumber);
+                        
                         if ($this->checkRunningNumber($ticketNumber, $runningNumber)) {
                             return [
                                 'prize' => $this->formatPrizeName($runningType),

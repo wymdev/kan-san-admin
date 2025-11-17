@@ -142,7 +142,7 @@ class CalendarApp {
         }
 
         this.calendarObj = new Calendar(this.calendarEl, {
-            timeZone: 'local',
+            timeZone: 'Asia/Bangkok',
             editable: true,
             droppable: true,
             selectable: true,
