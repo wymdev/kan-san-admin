@@ -2,17 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
-
 use App\Http\Controllers\Controller;
 use App\Models\DrawResult;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 
-
 class DrawResultApiController extends Controller
 {
-    // ... (nameMapping and prizeOrder arrays remain the same)
     private $nameMapping = [
         "รางวัลที่ 1" => "First Prize",
         "รางวัลข้างเคียงรางวัลที่ 1" => "1st Prize Neighbor",
@@ -24,7 +21,6 @@ class DrawResultApiController extends Controller
         "รางวัลเลขท้าย 3 ตัว" => "Back Three Digits",
         "รางวัลเลขท้าย 2 ตัว" => "Back Two Digits",
     ];
-
 
     private $prizeOrder = [
         "First Prize" => 1,
@@ -38,8 +34,6 @@ class DrawResultApiController extends Controller
         "Back Two Digits" => 9,
     ];
 
-
-    // ... (validateApiKey and index/dates methods remain the same)
     private function validateApiKey(Request $request)
     {
         $apiKey = $request->header('X-API-KEY');
@@ -52,16 +46,13 @@ class DrawResultApiController extends Controller
         return null;
     }
 
-
     public function index(Request $request)
     {
         if ($error = $this->validateApiKey($request)) return $error;
 
-
         $query = DrawResult::query()
             ->whereDate('draw_date', '<=', Carbon::now()->toDateString())
             ->orderBy('draw_date', 'desc');
-
 
         if ($request->boolean('latest')) {
             $result = $query->first();
@@ -70,38 +61,48 @@ class DrawResultApiController extends Controller
                 : response()->json(['success' => false, 'message' => 'No data found'], 404);
         }
 
-
         if ($request->filled('draw_date'))
             $query->whereDate('draw_date', $request->draw_date);
-
 
         $data = $query->paginate(15)->map(fn($r) => $this->formatDrawResult($r));
         return response()->json(['success' => true, 'data' => $data]);
     }
 
-
     public function dates(Request $request)
     {
         if ($error = $this->validateApiKey($request)) return $error;
-
-
-        $dates = DrawResult::whereDate('draw_date', '<=', Carbon::now()->toDateString())
-            ->orderBy('draw_date', 'desc')->pluck('draw_date');
-        $formatted = $dates->map(fn($d) => [
-            'draw_date' => $d,
-            'label' => Carbon::parse($d)->format('d M Y')
-        ]);
+        
+        // Get the latest draw date
+        $latestDate = DrawResult::whereDate('draw_date', '<=', Carbon::now()->toDateString())
+            ->orderBy('draw_date', 'desc')
+            ->first(['draw_date']);
+        
+        // Get all dates except the latest
+        $query = DrawResult::whereDate('draw_date', '<=', Carbon::now()->toDateString())
+            ->orderBy('draw_date', 'desc');
+        
+        // Only exclude if a latest date exists
+        if ($latestDate) {
+            $query->where('draw_date', '<', $latestDate->draw_date);
+        }
+        
+        $dates = $query->get(['draw_date']);
+        
+        $formatted = $dates->map(function($d) {
+            $dateOnly = Carbon::parse($d->draw_date)->format('Y-m-d');
+            return [
+                'draw_date' => $dateOnly,
+                'label' => Carbon::parse($d->draw_date)->format('d M Y')
+            ];
+        });
+        
         return response()->json(['success' => true, 'dates' => $formatted]);
     }
 
-
-    // MODIFIED: To handle multiple lottery numbers
     public function checkLottery(Request $request)
     {
         if ($error = $this->validateApiKey($request)) return $error;
 
-
-        // Validate that either 'lottery_number' (string) or 'lottery_numbers' (array) is present
         $validator = Validator::make($request->all(), [
             'lottery_number' => 'required_without:lottery_numbers|string|min:2|max:6',
             'lottery_numbers' => 'required_without:lottery_number|array',
@@ -109,45 +110,36 @@ class DrawResultApiController extends Controller
             'draw_date' => 'nullable|date_format:Y-m-d',
         ]);
 
-
         if ($validator->fails()) {
             return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
         }
 
-
-        // Normalize the input into an array
         $lotteryNumbers = $request->has('lottery_numbers')
             ? $request->lottery_numbers
             : [$request->lottery_number];
 
-
         $query = DrawResult::query()
             ->whereDate('draw_date', '<=', Carbon::now()->toDateString())
             ->orderBy('draw_date', 'desc');
-
 
         if ($request->filled('draw_date')) {
             $query->whereDate('draw_date', $request->draw_date);
         }
         $drawResult = $query->first();
 
-
         if (!$drawResult) {
             return response()->json(['success' => false, 'message' => 'Draw not found'], 404);
         }
 
-
         $results = [];
         foreach ($lotteryNumbers as $lotteryNumber) {
             $matchedPrizes = $this->checkNumberAgainstPrizes($lotteryNumber, $drawResult);
-
 
             usort($matchedPrizes, function ($a, $b) {
                 $orderA = $this->prizeOrder[$a['prize_name']] ?? 999;
                 $orderB = $this->prizeOrder[$b['prize_name']] ?? 999;
                 return $orderA <=> $orderB;
             });
-
 
             $results[] = [
                 'lottery_number' => $lotteryNumber,
@@ -156,16 +148,13 @@ class DrawResultApiController extends Controller
             ];
         }
 
-
         return response()->json([
             'success' => true,
-            'draw_date' => $drawResult->draw_date,
+            'draw_date' => Carbon::parse($drawResult->draw_date)->format('Y-m-d'),
             'results' => $results,
         ]);
     }
 
-
-    // MODIFIED: To include 'reward' in the matched prize
     private function checkNumberAgainstPrizes($lotteryNumber, $drawResult)
     {
         $prizes = json_decode($drawResult->prizes, true) ?: [];
@@ -174,16 +163,13 @@ class DrawResultApiController extends Controller
         $allPrizes = array_merge($prizes, $runningNumbers);
         $matchedPrizes = [];
 
-
         foreach ($allPrizes as $prize) {
             $prizeName = $this->nameMapping[$prize['name']] ?? $prize['name'];
             if (!isset($prize['number']) || !isset($prize['reward'])) continue;
 
-
             foreach ((array)$prize['number'] as $winningNumber) {
                 if (preg_match('/^x+$/', $winningNumber)) continue;
                 $winningLength = strlen($winningNumber);
-
 
                 // Exact match
                 if ($lotteryNumber === $winningNumber) {
@@ -194,7 +180,6 @@ class DrawResultApiController extends Controller
                         'match_type' => 'exact',
                     ];
                 }
-
 
                 if ($numberLength === 6) {
                     // Back 3
@@ -215,12 +200,11 @@ class DrawResultApiController extends Controller
         return $matchedPrizes;
     }
 
-
     private function formatDrawResult($result)
     {
-         return [
+        return [
             'id' => $result->id,
-            'draw_date' => $result->draw_date,
+            'draw_date' => Carbon::parse($result->draw_date)->format('Y-m-d'), // Format as YYYY-MM-DD only
             'date_th' => $result->date_th,
             'date_en' => $result->date_en,
             'prizes' => json_decode($result->prizes),
