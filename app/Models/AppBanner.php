@@ -33,7 +33,7 @@ class AppBanner extends Model
     public function getImageUrlAttribute()
     {
         return $this->image_path
-            ? \Storage::disk('public')->url($this->image_path)
+            ? url('storage/' . $this->image_path)
             : null;
     }
 
