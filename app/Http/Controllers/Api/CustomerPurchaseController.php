@@ -199,6 +199,66 @@ class CustomerPurchaseController extends Controller
     }
 
     /**
+     * Get single purchase detail (Authenticated)
+     */
+    public function purchaseDetail(Request $request, $id)
+    {
+        $customer = $request->user();
+
+        $purchase = TicketPurchase::with(['lotteryTicket', 'drawResult', 'approvedBy'])
+            ->where('customer_id', $customer->id)
+            ->find($id);
+
+        if (!$purchase) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Purchase not found or you do not have permission to view it.',
+            ], 404);
+        }
+
+        // Transform purchase to include all details
+        $data = [
+            'id' => $purchase->id,
+            'order_number' => $purchase->order_number,
+            'quantity' => $purchase->quantity,
+            'total_price' => $purchase->total_price,
+            'status' => $purchase->status,
+            'payment_screenshot' => $purchase->payment_screenshot ? url('storage/' . $purchase->payment_screenshot) : null,
+            'rejection_reason' => $purchase->rejection_reason,
+            'approved_at' => $purchase->approved_at,
+            'created_at' => $purchase->created_at,
+            'checked_at' => $purchase->checked_at,
+            'prize_won' => $purchase->prize_won,
+            'is_winner' => $purchase->status === 'won',
+            'lottery_ticket' => $purchase->lotteryTicket ? [
+                'id' => $purchase->lotteryTicket->id,
+                'ticket_name' => $purchase->lotteryTicket->ticket_name,
+                'ticket_type' => $purchase->lotteryTicket->ticket_type,
+                'numbers' => $purchase->lotteryTicket->numbers,
+                'bar_code' => $purchase->lotteryTicket->bar_code,
+                'period' => $purchase->lotteryTicket->period,
+                'price' => $purchase->lotteryTicket->price,
+                'withdraw_date' => $purchase->lotteryTicket->withdraw_date,
+                'left_icon' => $purchase->lotteryTicket->left_icon,
+            ] : null,
+            'draw_result' => $purchase->drawResult ? [
+                'id' => $purchase->drawResult->id,
+                'date_en' => $purchase->drawResult->date_en,
+                'period' => $purchase->drawResult->period,
+            ] : null,
+            'approved_by' => $purchase->approvedBy ? [
+                'id' => $purchase->approvedBy->id,
+                'name' => $purchase->approvedBy->name,
+            ] : null,
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data' => $data,
+        ]);
+    }
+
+    /**
      * Get customer approved tickets only (Authenticated)
      */
     public function myTickets(Request $request)

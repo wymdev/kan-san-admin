@@ -107,6 +107,7 @@ Route::middleware(['auth:sanctum', 'sanitizeInput', 'fileTypeCheck'])->group(fun
         Route::get('/tickets/available', [CustomerPurchaseController::class, 'availableTickets']);
         Route::post('/purchase', [CustomerPurchaseController::class, 'purchase']);
         Route::get('/purchases', [CustomerPurchaseController::class, 'myPurchases']);
+        Route::get('/purchases/{id}', [CustomerPurchaseController::class, 'purchaseDetail']);
         Route::get('/my-tickets', [CustomerPurchaseController::class, 'myTickets']);
 
         Route::get('/noti', [CustomerNotificationController::class, 'index']);
