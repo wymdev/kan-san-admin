@@ -145,13 +145,13 @@
                     
                     <div class="flex flex-col gap-y-1">
                         <div class="border-t border-default-200 -mx-2 my-1"></div>
+                        <a class="flex items-center gap-x-3.5 py-1.5 font-medium px-3 text-default-600 hover:bg-default-150 rounded cursor-pointer"
+                           href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            <i class="size-4" data-lucide="log-out"></i>
+                            Sign Out
+                        </a>
                         <form action="{{ route('logout') }}" method="POST" style="display: none;" id="logout-form">
                             @csrf
-                            <a class="flex items-center gap-x-3.5 py-1.5 font-medium px-3 text-default-600 hover:bg-default-150 rounded cursor-pointer"
-                               href="#" onclick="document.getElementById('logout-form').submit(); return false;">
-                                <i class="size-4" data-lucide="log-out"></i>
-                                Sign Out
-                            </a>
                         </form>
                     </div>
                 </div>
@@ -311,4 +311,60 @@ function markAllAsRead() {
     })
     .catch(error => console.error('Error marking all as read:', error));
 }
+
+// Sidebar Search Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('topbar-search');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            const sidebar = document.querySelector('.sidenav-menu');
+            
+            if (!sidebar) return;
+            
+            // Get all menu items
+            const menuItems = sidebar.querySelectorAll('.menu-link');
+            
+            menuItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                const parentLi = item.closest('li');
+                
+                if (searchTerm === '') {
+                    // Show all items when search is empty
+                    if (parentLi) {
+                        parentLi.style.display = '';
+                    }
+                } else {
+                    // Filter based on search term
+                    if (text.includes(searchTerm)) {
+                        if (parentLi) {
+                            parentLi.style.display = '';
+                            // Highlight matching text
+                            item.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
+                        }
+                    } else {
+                        if (parentLi) {
+                            parentLi.style.display = 'none';
+                        }
+                    }
+                }
+                
+                // Remove highlight when search is cleared
+                if (searchTerm === '') {
+                    item.style.backgroundColor = '';
+                }
+            });
+        });
+        
+        // Clear search on Escape key
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                searchInput.value = '';
+                searchInput.dispatchEvent(new Event('input'));
+                searchInput.blur();
+            }
+        });
+    }
+});
 </script>

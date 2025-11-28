@@ -23,6 +23,11 @@ use App\Http\Controllers\CpanelStatsController;
 
 use Illuminate\Support\Facades\Route;
 
+// Public pages (accessible without authentication)
+Route::get('/privacy-policy', [App\Http\Controllers\PublicPageController::class, 'privacyPolicy'])->name('privacy-policy');
+Route::get('/terms-conditions', [App\Http\Controllers\PublicPageController::class, 'termsConditions'])->name('terms-conditions');
+Route::get('/about-us', [App\Http\Controllers\PublicPageController::class, 'aboutUs'])->name('about-us');
+
 // Guest routes
 Route::middleware(['guest','sanitizeInput', 'fileTypeCheck','throttle:9,10'])->group(function () {
     Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
