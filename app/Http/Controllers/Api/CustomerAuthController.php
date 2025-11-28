@@ -65,6 +65,9 @@ class CustomerAuthController extends Controller
                 $this->bindPushToken($customer, $validated);
             }
 
+            // ✅ CREATE ADMIN NOTIFICATION
+            \App\Models\AdminNotification::createCustomerRegistration($customer);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Registration successful',

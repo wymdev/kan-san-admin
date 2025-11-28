@@ -17,6 +17,7 @@ use App\Http\Controllers\AppPageController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\DailyQuoteController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\AnalyticsDashboardController;
 use App\Http\Controllers\CustomerAnalyticsController;
 use App\Http\Controllers\CpanelStatsController;
 
@@ -41,8 +42,14 @@ Route::middleware(['auth','sanitizeInput', 'fileTypeCheck','throttle:9,10'])->gr
 
 // Protected routes - only after OTP verified
 Route::middleware(['auth', 'otp.verified','sanitizeInput', 'fileTypeCheck'])->group(function () {
-    Route::get('/', [RoutingController::class, 'index'])->name('root');
-    Route::get('/dashboard', [RoutingController::class, 'index'])->name('dashboard');
+    // Redirect to Analytics Dashboard
+    Route::get('/', function() {
+        return redirect()->route('analytics.index');
+    })->name('root');
+    
+    Route::get('/dashboard', function() {
+        return redirect()->route('analytics.index');
+    })->name('dashboard');
     
     // User & Role Management
     Route::resource('roles', RoleController::class);
@@ -103,6 +110,9 @@ Route::middleware(['auth', 'otp.verified','sanitizeInput', 'fileTypeCheck'])->gr
     Route::get('/activity-logs/{activityLog}', [ActivityLogController::class, 'show'])->name('activity-logs.show');
     Route::delete('/activity-logs/cleanup', [ActivityLogController::class, 'cleanup'])->name('activity-logs.cleanup');
 
+    // Main Analytics Dashboard
+    Route::get('/analytics', [AnalyticsDashboardController::class, 'index'])->name('analytics.index');
+
     Route::get('/analytics/customers', [CustomerAnalyticsController::class, 'index'])
         ->name('analytics.customers');
     
@@ -110,9 +120,23 @@ Route::middleware(['auth', 'otp.verified','sanitizeInput', 'fileTypeCheck'])->gr
     Route::get('/analytics/customers/export', [CustomerAnalyticsController::class, 'export'])
         ->name('analytics.customers.export');
 
+    // Admin Notifications
+    Route::prefix('notifications')->name('notifications.')->group(function() {
+        Route::get('/', [App\Http\Controllers\AdminNotificationController::class, 'index'])->name('index');
+        Route::get('/unread', [App\Http\Controllers\AdminNotificationController::class, 'unread'])->name('unread');
+        Route::post('/{id}/read', [App\Http\Controllers\AdminNotificationController::class, 'markAsRead'])->name('read');
+        Route::post('/read-all', [App\Http\Controllers\AdminNotificationController::class, 'markAllAsRead'])->name('read-all');
+        Route::delete('/{id}', [App\Http\Controllers\AdminNotificationController::class, 'destroy'])->name('destroy');
+    });
+
     Route::get('/cpanel/stats', [CpanelStatsController::class, 'index'])->name('cpanel.stats');
     Route::post('/cpanel/stats/refresh', [CpanelStatsController::class, 'refresh'])->name('cpanel.stats.refresh');
     
+    // Redirect legacy analytics route
+    Route::get('/dashboards/analytics', function() {
+        return redirect()->route('analytics.index');
+    });
+
     // Catch-all routing
     Route::get('/{first}', [RoutingController::class, 'root'])->name('first');
     Route::get('/{first}/{second}', [RoutingController::class, 'secondLevel'])->name('second');

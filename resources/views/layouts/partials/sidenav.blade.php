@@ -35,7 +35,7 @@
                     </a>
                     <ul class="sub-menu hs-accordion-content hidden">
                         <li class="menu-item">
-                            <a class="menu-link" href="{{ route('second', ['dashboards', 'analytics']) }}">
+                            <a class="menu-link" href="{{ route('analytics.index') }}">
                                 <span class="menu-text"> Analytics </span>
                             </a>
                         </li>

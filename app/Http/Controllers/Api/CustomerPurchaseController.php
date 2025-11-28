@@ -103,6 +103,9 @@ class CustomerPurchaseController extends Controller
 
             DB::commit();
 
+            // ✅ CREATE ADMIN NOTIFICATION
+            \App\Models\AdminNotification::createNewOrder($purchase, $customer);
+
             // Notify admins with permission
             $admins = \App\Models\User::permission('payment-approve')->get();
             foreach ($admins as $admin) {

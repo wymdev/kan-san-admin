@@ -1,27 +1,28 @@
 @extends('layouts.vertical', ['title' => 'Cpanel Performance'])
 
 @section('css')
-<!-- (Optional) Add extra CSS here -->
 @endsection
 
 @section('content')
-<div class="mb-7 flex items-center justify-between">
-    <div>
-        <h2 class="text-2xl font-bold text-default-800 mb-3">Cpanel Performance Overview</h2>
-        <p class="text-default-500 mb-6">Quick insight into your hosting resource usage and key stats.</p>
-    </div>
+@include('layouts.partials/page-title', ['subtitle' => 'Dashboards', 'title' => 'Cpanel Performance'])
+
+<div class="mb-5 flex items-center justify-between">
+    <p class="text-default-600">Monitor your hosting resource usage and server statistics</p>
     <button
         id="refresh-btn"
-        class="btn bg-primary text-white font-semibold px-4 py-2 rounded flex items-center"
+        class="btn bg-primary text-white hover:bg-primary-600"
         type="button"
     >
-        <svg class="w-5 h-5 mr-2 animate-spin hidden" id="refresh-spinner" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/><path d="M4 4v5h5M20 20v-5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg class="w-4 h-4 mr-2 animate-spin hidden" id="refresh-spinner" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        <i class="size-4 mr-2" id="refresh-icon" data-lucide="refresh-cw"></i>
         Refresh
     </button>
 </div>
 
 {{-- Resource Usage Cards --}}
-<div id="stats-cards" class="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-6 mb-8">
+<div id="stats-cards" class="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-5 mb-5">
     @foreach($stats as $stat)
     @php
         $colorMap = [
@@ -31,8 +32,8 @@
             'FTP Accounts' => 'info',
             'SQL Databases' => 'warning',
             'Subdomains' => 'primary',
-            'Addon Domains' => 'default',
-            'Parked Domains' => 'default',
+            'Addon Domains' => 'info',
+            'Parked Domains' => 'secondary',
         ];
         $iconMap = [
             'Bandwidth Usage' => 'activity',
@@ -47,26 +48,36 @@
         $color = $colorMap[$stat['name']] ?? 'secondary';
         $icon = $iconMap[$stat['name']] ?? 'bar-chart-2';
     @endphp
-    <div class="card shadow-md bg-{{$color}}15 rounded-md overflow-hidden stat-card" data-stat="{{ $stat['name'] }}">
-        <div class="card-body flex flex-col items-center py-6 px-4">
-            <div class="rounded-full size-14 bg-{{$color}}-800 flex items-center justify-center mb-2">
-                <i class="size-6 text-{{$color}}-50" data-lucide="{{$icon}}"></i>
+    <div class="card bg-{{$color}}/15 overflow-hidden stat-card" data-stat="{{ $stat['name'] }}">
+        <div class="card-body">
+            <i class="absolute top-0 size-32 text-{{$color}}/10 -end-10" data-lucide="{{$icon}}"></i>
+            <div class="btn btn-icon size-12 bg-{{$color}}">
+                <i class="size-6 text-white" data-lucide="{{$icon}}"></i>
             </div>
-            <h5 class="mt-3 mb-2 text-center text-default-800 font-bold text-xl">
+            @php
+                // Check if current value already contains unit (e.g., "3.22 GB")
+                $currentStr = (string)$stat['current'];
+                $hasUnitInCurrent = preg_match('/[A-Za-z]/', $currentStr);
+            @endphp
+            <h5 class="mt-5 mb-2 text-lg font-semibold">
                 <span class="counter-value" data-target="{{$stat['current']}}">{{$stat['current']}}</span>
-                @if($stat['unit']) <span class="ml-1">{{$stat['unit']}}</span> @endif
                 @if($stat['max'] && $stat['max'] != 'Unlimited')
-                    <span class="text-xs text-{{$color}}-700 ml-1">/ {{$stat['max']}} {{$stat['unit']}}</span>
+                    <span class="text-xs text-default-600"> / {{$stat['max']}}</span>
+                @endif
+                @if($stat['unit'] && !$hasUnitInCurrent) 
+                    <span class="text-sm"> {{$stat['unit']}}</span>
                 @endif
             </h5>
-            <p class="text-center text-sm text-default-600 font-medium mb-3">{{$stat['name']}}</p>
-            <div class="w-full bg-default-200 rounded-full h-2.5 mb-1">
-                <div class="bg-{{$color}}-600 h-2.5 rounded-full transition-all stat-progress"
+            <p class="text-sm text-default-700">{{$stat['name']}}</p>
+            <div class="w-full bg-default-200 rounded-full h-2 mt-3">
+                <div class="bg-{{$color}} h-2 rounded-full transition-all stat-progress"
                      style="width: {{$stat['percent'] ?? 0}}%"></div>
             </div>
+            <p class="text-xs text-default-600 mt-1">{{$stat['percent'] ?? 0}}% used</p>
             @if($stat['percent'] > 80)
-                <div class="text-xs text-danger mt-2 font-semibold">
-                    ⚠ High usage
+                <div class="mt-2 py-0.5 px-2.5 inline-flex items-center gap-x-1 text-xs font-medium bg-danger/15 text-danger rounded">
+                    <i class="size-3" data-lucide="alert-triangle"></i>
+                    High Usage
                 </div>
             @endif
         </div>
@@ -75,7 +86,7 @@
 </div>
 
 {{-- SYSTEM DETAILS --}}
-<div class="grid md:grid-cols-2 gap-6 mt-8">
+<div class="grid md:grid-cols-2 gap-5 mb-5">
 
     {{-- CPU Usage --}}
     @if(isset($cpu['data'][0]))
@@ -86,14 +97,23 @@
         $percent = ($used && $total) ? ($used / $total) * 100 : 0;
     @endphp
     <div class="card">
+        <div class="card-header">
+            <h6 class="card-title">CPU Usage</h6>
+        </div>
         <div class="card-body">
-            <h4 class="font-semibold text-lg mb-3">CPU Usage</h4>
-            <div class="text-2xl font-bold mb-2">{{ number_format($used, 1) }} / {{ $total }}</div>
-            <div class="w-full bg-default-200 rounded-full h-2.5 mb-1">
-                <div class="bg-primary-600 h-2.5 rounded-full transition-all"
+            <div class="flex items-center gap-3 mb-4">
+                <div class="btn btn-icon size-12 bg-primary">
+                    <i class="size-6 text-white" data-lucide="cpu"></i>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold">{{ number_format($used, 1) }} / {{ $total }}</h3>
+                    <p class="text-sm text-default-600">{{ number_format($percent) }}% utilized</p>
+                </div>
+            </div>
+            <div class="w-full bg-default-200 rounded-full h-3">
+                <div class="bg-primary h-3 rounded-full transition-all"
                     style="width: {{$percent}}%"></div>
             </div>
-            <span class="font-medium text-default-700">{{ number_format($percent) }}%</span>
         </div>
     </div>
     @endif
@@ -101,115 +121,98 @@
     {{-- Process List --}}
     @if(isset($procs['data']) && is_array($procs['data']))
     <div class="card">
-    <div class="card-body overflow-x-auto">
-    <h4 class="font-semibold text-lg mb-3">Top Processes</h4>
-    <table class="table-auto w-full text-sm">
-        <thead>
-            <tr>
-                <th>PID</th>
-                <th>User</th>
-                <th>CPU</th>
-                <th>Command</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach(array_slice($procs['data'], 0, 5) as $proc)
-                <tr>
-                    <td>{{ $proc['pid'] ?? '-' }}</td>
-                    <td>{{ $proc['user'] ?? '-' }}</td>
-                    <td>{{ $proc['cpu'] ?? '-' }}%</td>
-                    <td class="truncate" title="@if(isset($proc['command']) && is_array($proc['command'])){{ implode(', ', $proc['command']) }}@else{{ $proc['command'] ?? '-' }}@endif">
-                        @if(isset($proc['command']) && is_array($proc['command']))
-                            {{ implode(', ', $proc['command']) }}
-                        @else
-                            {{ \Illuminate\Support\Str::limit($proc['command'] ?? '-', 40) }}
-                        @endif
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
-    </div>
+        <div class="card-header">
+            <h6 class="card-title">Top Processes</h6>
+        </div>
+        <div class="overflow-x-auto">
+            <div class="min-w-full inline-block align-middle">
+                <div class="overflow-hidden">
+                    <table class="min-w-full divide-y divide-default-200">
+                        <thead class="bg-default-150">
+                            <tr class="text-default-600">
+                                <th class="px-3.5 py-3 text-start text-sm font-medium">PID</th>
+                                <th class="px-3.5 py-3 text-start text-sm font-medium">User</th>
+                                <th class="px-3.5 py-3 text-start text-sm font-medium">CPU</th>
+                                <th class="px-3.5 py-3 text-start text-sm font-medium">Command</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-default-200">
+                            @foreach(array_slice($procs['data'], 0, 5) as $proc)
+                                <tr class="text-default-800">
+                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">{{ $proc['pid'] ?? '-' }}</td>
+                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">{{ $proc['user'] ?? '-' }}</td>
+                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm font-semibold">{{ $proc['cpu'] ?? '-' }}%</td>
+                                    <td class="px-3.5 py-2.5 text-sm truncate max-w-xs" title="@if(isset($proc['command']) && is_array($proc['command'])){{ implode(', ', $proc['command']) }}@else{{ $proc['command'] ?? '-' }}@endif">
+                                        @if(isset($proc['command']) && is_array($proc['command']))
+                                            {{ implode(', ', $proc['command']) }}
+                                        @else
+                                            {{ \Illuminate\Support\Str::limit($proc['command'] ?? '-', 40) }}
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
     @endif
 
     {{-- Cron Jobs --}}
     @if(isset($cron['data']) && is_array($cron['data']))
     <div class="card">
+        <div class="card-header">
+            <h6 class="card-title">Cron Jobs</h6>
+        </div>
         <div class="card-body">
-            <h4 class="font-semibold text-lg mb-3">Cron Jobs</h4>
-            <ul class="list-disc ml-6">
+            <ul class="flex flex-col gap-3">
             @forelse($cron['data'] as $job)
-                <li>
-                  <span class="font-semibold">
-                    @if(isset($job['command']) && is_array($job['command']))
-                        {{ implode(', ', $job['command']) }}
-                    @else
-                        {{ $job['command'] ?? '-' }}
-                    @endif
-                  </span>
-                  <span class="text-default-600">
-                    ({{ $job['minute'] ?? '-' }} {{ $job['hour'] ?? '-' }} {{ $job['day'] ?? '-' }} {{ $job['month'] ?? '-' }} {{ $job['weekday'] ?? '-' }})
-                  </span>
+                <li class="flex items-start gap-3 text-sm">
+                    <div class="bg-warning/10 btn size-8">
+                        <i class="text-warning size-4" data-lucide="clock"></i>
+                    </div>
+                    <div class="grow">
+                        <h6 class="text-default-900 font-semibold">
+                            @if(isset($job['command']) && is_array($job['command']))
+                                {{ implode(', ', $job['command']) }}
+                            @else
+                                {{ $job['command'] ?? '-' }}
+                            @endif
+                        </h6>
+                        <p class="text-default-600 text-xs">
+                            {{ $job['minute'] ?? '-' }} {{ $job['hour'] ?? '-' }} {{ $job['day'] ?? '-' }} {{ $job['month'] ?? '-' }} {{ $job['weekday'] ?? '-' }}
+                        </p>
+                    </div>
                 </li>
             @empty
-                <li><span class="text-default-500">No cron jobs found</span></li>
+                <li class="text-default-500 text-center py-4">No cron jobs configured</li>
             @endforelse
             </ul>
         </div>
     </div>
     @endif
 
-    {{-- SSL Certificates --}}
-    <!-- @if(isset($ssl['data']) && count($ssl['data']))
-    <div class="card">
-    <div class="card-body">
-    <h4 class="font-semibold text-lg mb-3">SSL Certificates</h4>
-    <table class="table-auto w-full text-sm">
-        <thead>
-            <tr>
-                <th>Domain</th>
-                <th>Issuer</th>
-                <th>Expires</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($ssl['data'] as $cert)
-                <tr>
-                    <td>
-                        @if(isset($cert['domains']))
-                            @if(is_array($cert['domains']))
-                                {{ implode(', ', $cert['domains']) }}
-                            @else
-                                {{ $cert['domains'] }}
-                            @endif
-                        @else
-                            -
-                        @endif
-                    </td>
-                    <td>{{ $cert['issuer'] ?? '-' }}</td>
-                    <td>{{ $cert['expires'] ?? '-' }}</td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
-    </div>
-    </div>
-    @endif -->
-
     {{-- Domain Aliases --}}
     @if(isset($aliases['data']) && is_array($aliases['data']))
     <div class="card">
+        <div class="card-header">
+            <h6 class="card-title">Domain Aliases</h6>
+        </div>
         <div class="card-body">
-            <h4 class="font-semibold text-lg mb-3">Domain Aliases</h4>
-            <ul>
+            <ul class="flex flex-col gap-2">
                 @foreach($aliases['data'] as $alias)
-                    <li>
-                        @if(isset($alias['domain']) && is_array($alias['domain']))
-                            {{ implode(', ', $alias['domain']) }}
-                        @else
-                            {{ $alias['domain'] ?? '-' }}
-                        @endif
+                    <li class="flex items-center gap-3 text-sm">
+                        <div class="bg-success/10 btn size-8">
+                            <i class="text-success size-4" data-lucide="globe"></i>
+                        </div>
+                        <h6 class="text-default-900">
+                            @if(isset($alias['domain']) && is_array($alias['domain']))
+                                {{ implode(', ', $alias['domain']) }}
+                            @else
+                                {{ $alias['domain'] ?? '-' }}
+                            @endif
+                        </h6>
                     </li>
                 @endforeach
             </ul>
@@ -220,16 +223,23 @@
     {{-- PHP Versions --}}
     @if(isset($php['data']) && is_array($php['data']))
     <div class="card">
+        <div class="card-header">
+            <h6 class="card-title">PHP Versions</h6>
+        </div>
         <div class="card-body">
-            <h4 class="font-semibold text-lg mb-3">PHP Versions</h4>
-            <ul>
+            <ul class="flex flex-col gap-2">
                 @foreach($php['data'] as $ver)
-                    <li>
-                        @if(is_array($ver))
-                            {{ implode(', ', $ver) }}
-                        @else
-                            {{ $ver['version'] ?? $ver }}
-                        @endif
+                    <li class="flex items-center gap-3 text-sm">
+                        <div class="bg-secondary/10 btn size-8">
+                            <i class="text-secondary size-4" data-lucide="code"></i>
+                        </div>
+                        <h6 class="text-default-900">
+                            @if(is_array($ver))
+                                {{ implode(', ', $ver) }}
+                            @else
+                                {{ $ver['version'] ?? $ver }}
+                            @endif
+                        </h6>
                     </li>
                 @endforeach
             </ul>
@@ -240,72 +250,45 @@
     {{-- Server Connections --}}
     @if(isset($connections['data']))
     <div class="card">
+        <div class="card-header">
+            <h6 class="card-title">Server Connections</h6>
+        </div>
         <div class="card-body">
-            <h4 class="font-semibold text-lg mb-3">Server Connections</h4>
-            <ul>
-                <li>Current: {{ $connections['data']['connections']['current'] ?? '-' }}</li>
-                <li>Max: {{ $connections['data']['connections']['max'] ?? '-' }}</li>
-            </ul>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <p class="text-sm text-default-600 mb-1">Current</p>
+                    <h3 class="text-2xl font-bold text-default-900">{{ $connections['data']['connections']['current'] ?? '-' }}</h3>
+                </div>
+                <div>
+                    <p class="text-sm text-default-600 mb-1">Maximum</p>
+                    <h3 class="text-2xl font-bold text-default-900">{{ $connections['data']['connections']['max'] ?? '-' }}</h3>
+                </div>
+            </div>
         </div>
     </div>
     @endif
 
-    {{-- Backups --}}
-    <!-- @if(isset($backups['data']) && is_array($backups['data']))
-    <div class="card">
-        <div class="card-body">
-            <h4 class="font-semibold text-lg mb-3">Backups</h4>
-            <ul>
-                @foreach($backups['data'] as $backup)
-                    <li>
-                        @if(isset($backup['name']) && is_array($backup['name']))
-                            {{ implode(', ', $backup['name']) }}
-                        @else
-                            {{ $backup['name'] ?? '-' }}
-                        @endif
-                        ({{ $backup['date'] ?? '-' }})
-                    </li>
-                @endforeach
-            </ul>
-        </div>
-    </div> -->
-    <!-- @endif -->
-
-    {{-- AutoSSL Status --}}
-    <!-- @if(isset($autossl['data']) && is_array($autossl['data']))
-    <div class="card">
-        <div class="card-body">
-            <h4 class="font-semibold text-lg mb-3">AutoSSL Status</h4>
-            <ul>
-                @foreach($autossl['data'] as $log)
-                    <li>
-                        @if(isset($log['domain']) && is_array($log['domain']))
-                            {{ implode(', ', $log['domain']) }}
-                        @else
-                            {{ $log['domain'] ?? '-' }}
-                        @endif
-                        : {{ $log['status'] ?? '-' }}
-                    </li>
-                @endforeach
-            </ul>
-        </div>
-    </div>
-    @endif -->
-
     {{-- Email Disk Usage --}}
     @if(isset($emailDisk['data']) && is_array($emailDisk['data']))
     <div class="card">
+        <div class="card-header">
+            <h6 class="card-title">Email Disk Usage</h6>
+        </div>
         <div class="card-body">
-            <h4 class="font-semibold text-lg mb-3">Email Disk Usage</h4>
-            <ul>
+            <ul class="flex flex-col gap-3">
                 @foreach($emailDisk['data'] as $mail)
-                    <li>
-                        @if(isset($mail['mailbox']) && is_array($mail['mailbox']))
-                            {{ implode(', ', $mail['mailbox']) }}
-                        @else
-                            {{ $mail['mailbox'] ?? '-' }}
-                        @endif
-                        : {{ $mail['diskused'] ?? '-' }} {{ $mail['units'] ?? '' }}
+                    <li class="flex items-center gap-3 text-sm">
+                        <div class="bg-danger/10 btn size-8">
+                            <i class="text-danger size-4" data-lucide="mail"></i>
+                        </div>
+                        <h6 class="grow text-default-900">
+                            @if(isset($mail['mailbox']) && is_array($mail['mailbox']))
+                                {{ implode(', ', $mail['mailbox']) }}
+                            @else
+                                {{ $mail['mailbox'] ?? '-' }}
+                            @endif
+                        </h6>
+                        <p class="text-default-600">{{ $mail['diskused'] ?? '-' }} {{ $mail['units'] ?? '' }}</p>
                     </li>
                 @endforeach
             </ul>
@@ -334,11 +317,14 @@
     }
     animateCounters();
 
-    // Refresh button AJAX
+    // Refresh button
     document.getElementById('refresh-btn').addEventListener('click', async function() {
         const btn = this;
         const spinner = document.getElementById('refresh-spinner');
+        const icon = document.getElementById('refresh-icon');
+        
         spinner.classList.remove('hidden');
+        icon.classList.add('hidden');
         btn.setAttribute('disabled', true);
 
         try {
@@ -347,11 +333,19 @@
             });
             const html = await resp.text();
             document.getElementById('stats-cards').innerHTML = html;
+            
+            // Re-initialize Lucide icons
+            if(typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            
             animateCounters();
         } catch (err) {
-            alert('Failed to refresh stats!');
+            console.error('Refresh error:', err);
+            alert('Failed to refresh stats. Please try again.');
         } finally {
             spinner.classList.add('hidden');
+            icon.classList.remove('hidden');
             btn.removeAttribute('disabled');
         }
     });

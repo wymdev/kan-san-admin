@@ -1,688 +1,767 @@
-@extends('layouts.vertical', ['title' => 'Analytics'])
+@extends('layouts.vertical', ['title' => 'Analytics Dashboard'])
 
 @section('css')
+<style>
+    /* Counter Animation */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .stat-card {
+        animation: fadeInUp 0.6s ease-out;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stat-card:nth-child(4) { animation-delay: 0.4s; }
+</style>
 @endsection
 
 @section('content')
-    @include('layouts.partials/page-title', ['subtitle' => 'Dashboards', 'title' => 'Analytics'])
+    {{-- Header with Export/Refresh --}}
+    <div class="card mb-5">
+        <div class="card-body">
+            <div class="grid lg:grid-cols-12 grid-cols-1 gap-6 items-center">
+                <div class="lg:col-span-8 col-span-1">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="flex items-center justify-center size-12 rounded-xl bg-primary/10">
+                            <i class="size-6 text-primary" data-lucide="bar-chart-3"></i>
+                        </div>
+                        <div>
+                            <h5 class="text-xl font-bold text-default-900">Business Analytics Dashboard</h5>
+                            <p class="text-sm text-default-600">Comprehensive business insights and performance metrics</p>
+                        </div>
+                    </div>
+                    <p class="text-default-700 text-sm leading-relaxed">
+                        Monitor revenue, sales, customer behavior, and winning patterns. Track key metrics to grow your lottery business effectively.
+                    </p>
+                </div>
+                <div class="lg:col-span-4 col-span-1">
+                    <div class="grid grid-cols-2 gap-3">
+                        <button class="btn bg-primary text-white hover:bg-primary/90" type="button" onclick="window.print()">
+                            <i class="size-4 me-1" data-lucide="download"></i> Export
+                        </button>
+                        <button class="btn bg-default-100 text-default-700 hover:bg-default-200" type="button" onclick="window.location.reload()">
+                            <i class="size-4 me-1" data-lucide="refresh-cw"></i> Refresh
+                        </button>
+                    </div>
+                    <div class="mt-3 p-3 bg-success/5 rounded-lg border border-success/20">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-default-600">Last Updated</span>
+                            <span class="text-xs font-semibold text-success">Just now</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <div class="grid lg:grid-cols-3 grid-cols-1 gap-5 mb-5">
-        <div class="col-span-1">
-            <div class="grid md:grid-cols-2 grid-cols-1 gap-5">
-                <div class="card bg-success/15 overflow-hidden">
-                    <div class="card-body">
-                        <i class="absolute top-0 size-32 text-success/10 -end-10" data-lucide="kanban"></i>
-                        <div class="btn btn-icon size-12 bg-green-800">
-                            <i class="size-6 text-green-50" data-lucide="users"></i>
-                        </div>
-                        <h5 class="mt-5 mb-2 text-lg font-semibold">
-                            <span data-target="15876">15,876</span>
-                        </h5>
-                        <p class="text-sm text-default-700">Total Users</p>
-                    </div>
-                </div>
-                <div class="card bg-danger/15 overflow-hidden">
-                    <div class="card-body">
-                        <i class="absolute top-0 size-32 text-danger/10 -end-10" data-lucide="list-filter"></i>
-                        <div class="btn btn-icon bg-danger size-12">
-                            <i class="size-6 text-white" data-lucide="cog"></i>
-                        </div>
-                        <h5 class="mt-5 mb-2 text-lg font-semibold">
-                            <span data-target="15876">103.15k</span>
-                        </h5>
-                        <p class="text-sm text-default-700">Sessions</p>
-                    </div>
-                </div>
-                <div class="card bg-secondary/15 overflow-hidden">
-                    <div class="card-body">
-                        <i class="absolute top-0 size-32 text-secondary/10 -end-10" data-lucide="list-filter"></i>
-                        <div class="btn btn-icon bg-secondary size-12">
-                            <i class="size-6 text-sky-50" data-lucide="coins"></i>
-                        </div>
-                        <h5 class="mt-5 mb-2 text-lg font-semibold">
-                            <span class="counter-value" data-target="1">0</span>
-                            <span>M</span> <span class="counter-value" data-target="29">0</span>sec
-                        </h5>
-                        <p class="text-sm text-default-700">Avg. Visit Duration</p>
-                    </div>
-                </div>
-                <div class="card bg-info/15 overflow-hidden">
-                    <div class="card-body">
-                        <i class="absolute top-0 size-32 text-info/10 -end-10" data-lucide="kanban"></i>
-                        <div class="btn btn-icon bg-info size-12">
-                            <i class="size-6 text-purple-50" data-lucide="coins"></i>
-                        </div>
-                        <h5 class="mt-5 mb-2 text-lg font-semibold">
-                            <span class="counter-value" data-target="49.77">49.77</span>%
-                        </h5>
-                        <p class="text-sm text-default-700">Bounce Rate</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="lg:col-span-2 col-span-1">
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="card-title">Platform Perspective</h6>
-                    <div class="flex">
-                        <select class="form-input form-input-sm border-default-400 bg-transparent border-dashed">
-                            <option selected="">This Yearly</option>
-                            <option>1 Weekly</option>
-                            <option>1 Monthly</option>
-                            <option>3 Monthly</option>
-                            <option>6 Monthly</option>
-                            <option>This Yearly</option>
+    {{-- Advanced Filter Section --}}
+    <div class="card mb-5">
+        <div class="card-body">
+            <form method="GET" action="{{ route('analytics.index') }}">
+                <div class="grid lg:grid-cols-6 md:grid-cols-3 grid-cols-1 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-default-900 mb-2">
+                            <i class="size-3.5 me-1" data-lucide="calendar"></i> Time Period
+                        </label>
+                        <select name="period" class="form-select border-default-300" onchange="this.form.submit()">
+                            <option value="today" {{ $period == 'today' ? 'selected' : '' }}>Today</option>
+                            <option value="week" {{ $period == 'week' ? 'selected' : '' }}>Last 7 Days</option>
+                            <option value="month" {{ $period == 'month' ? 'selected' : '' }}>Last Month</option>
+                            <option value="3months" {{ $period == '3months' ? 'selected' : '' }}>Last 3 Months</option>
+                            <option value="6months" {{ $period == '6months' ? 'selected' : '' }}>Last 6 Months</option>
+                            <option value="year" {{ $period == 'year' ? 'selected' : '' }}>Last Year</option>
                         </select>
                     </div>
-                </div>
-                <div class="card-body">
-                    <div id="platformPerspective"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="grid lg:grid-cols-12 grid-cols-1 gap-5 mb-5">
-        <div class="lg:col-span-5 col-span-1">
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="card-title">Location-Based Response Times</h6>
-                    <button class="btn btn-sm bg-primary/20 text-primary text-nowrap hover:bg-primary hover:text-white"
-                        type="button">
-                        View More
-                        <i class="size-4" data-lucide="move-right"></i>
-                    </button>
-                </div>
-                <div class="card-body">
-                    <div id="responseTimes"></div>
-                </div>
-            </div>
-        </div>
-        <div class="lg:col-span-7 col-span-1">
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="card-title">Pages Interaction</h6>
-                    <button>
-                        <select class="bg-default-200 text-default-600 form-input form-input-sm">
-                            <option selected="">This Yearly</option>
-                            <option>1 Weekly</option>
-                            <option>1 Monthly</option>
-                            <option>3 Monthly</option>
-                            <option>6 Monthly</option>
-                            <option>This Yearly</option>
-                        </select>
-                    </button>
-                </div>
-                <div class="card-body">
-                    <div id="pagesInteraction"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="grid lg:grid-cols-3 grid-cols-1 gap-5 mb-5">
-        <div class="card">
-            <div class="card-header">
-                <div class="flex items-center gap-1.5">
-                    <h6 class="card-title">User Device</h6>
-                    <div class="hs-tooltip [--placement:top]">
-                        <button class="hs-tooltip-toggle" type="button">
-                            <i class="size-4 text-default-500 mt-2" data-lucide="info"></i>
-                            <span
-                                class="hs-tooltip-content max-w-80 hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible opacity-0 transition-opacity inline-block absolute invisible z-50 py-1 px-2 bg-default-900 text-xs font-medium text-default-100 rounded-md shadow-2xs"
-                                role="tooltip">
-                                You can see your number of desktop, mobile, and tablet users.
-                            </span>
+                    
+                    <div class="lg:col-span-2">
+                        <label class="block text-sm font-medium text-default-900 mb-2">
+                            <i class="size-3.5 me-1" data-lucide="search"></i> Quick Search
+                        </label>
+                        <input type="text" class="form-input border-default-300" placeholder="Search tickets, customers..." />
+                    </div>
+
+                    <div class="lg:col-span-3 flex items-end gap-2">
+                        <button type="button" onclick="window.location.reload()" class="btn bg-primary text-white flex-1">
+                            <i class="size-4 me-1" data-lucide="refresh-cw"></i> Refresh
+                        </button>
+                        <button type="button" onclick="window.print()" class="btn bg-success text-white flex-1">
+                            <i class="size-4 me-1" data-lucide="download"></i> Export
+                        </button>
+                        <button type="button" class="btn bg-default-150 text-default-700 hover:bg-default-200">
+                            <i class="size-4" data-lucide="settings"></i>
                         </button>
                     </div>
                 </div>
-                <div class="hs-dropdown relative inline-flex">
-                    <button aria-expanded="false" aria-haspopup="menu" aria-label="Dropdown"
-                        class="hs-dropdown-toggle btn size-7.5 hover:bg-default-150" hs-dropdown-placement="bottom-end"
-                        type="button">
-                        <i class="iconify lucide--ellipsis-vertical size-4 text-default-500"></i>
-                    </button>
-                    <div class="hs-dropdown-menu" role="menu">
-                        <a class="flex items-center gap-x-3.5 py-1.5 font-medium px-3 text-default-600 hover:bg-default-150 rounded"
-                            href="#">
-                            1 Weekly
-                        </a>
-                        <a class="flex items-center gap-x-3.5 py-1.5 font-medium px-3 text-default-600 hover:bg-default-150 rounded"
-                            href="#">
-                            1 Monthly
-                        </a>
-                        <a class="flex items-center gap-x-3.5 py-1.5 font-medium px-3 text-default-600 hover:bg-default-150 rounded"
-                            href="#">
-                            3 Monthly
-                        </a>
-                        <a class="flex items-center gap-x-3.5 py-1.5 font-medium px-3 text-default-600 hover:bg-default-150 rounded"
-                            href="#">
-                            6 Monthly
-                        </a>
-                        <a class="flex items-center gap-x-3.5 py-1.5 font-medium px-3 text-default-600 hover:bg-default-150 rounded"
-                            href="#">
-                            This Yearly
-                        </a>
-                    </div>
-                </div>
-            </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- Main KPI Cards - Compact Design --}}
+    <div class="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-5 mb-5">
+        {{-- Total Users --}}
+        <div class="stat-card card bg-gradient-to-br from-primary/10 to-primary/5 border-0 overflow-hidden hover:shadow-lg transition-shadow">
             <div class="card-body">
-                <div id="userDeviceCharts"></div>
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center justify-center rounded-xl size-14 bg-primary/20">
+                        <i class="size-7 text-primary" data-lucide="users"></i>
+                    </div>
+                    <span class="px-2.5 py-1 text-xs rounded-full {{ $kpis['userGrowth'] >= 0 ? 'bg-success/20 text-success' : 'bg-danger/20 text-danger' }} flex items-center gap-1">
+                        <i class="size-3" data-lucide="{{ $kpis['userGrowth'] >= 0 ? 'trending-up' : 'trending-down' }}"></i>
+                        {{ abs($kpis['userGrowth']) }}%
+                    </span>
+                </div>
+                <h5 class="text-3xl font-bold text-default-900 mb-1">
+                    <span class="counter-value" data-target="{{ $kpis['totalUsers'] }}">0</span>
+                </h5>
+                <p class="text-sm text-default-600 font-medium">Total Users</p>
+                <div class="mt-3 pt-3 border-t border-default-200">
+                    <p class="text-xs text-default-500">
+                        <i class="size-3 me-1" data-lucide="activity"></i>
+                        {{ $kpis['totalSessions'] }} active sessions
+                    </p>
+                </div>
             </div>
         </div>
-        <div class="card">
-            <div class="card-header">
-                <div class="flex items-center gap-1.5">
-                    <h6 class="card-title">Satisfaction Level</h6>
-                    <div class="hs-tooltip [--placement:top]">
-                        <button class="hs-tooltip-toggle" type="button">
-                            <i class="size-4 text-default-500 mt-2" data-lucide="info"></i>
-                            <span
-                                class="hs-tooltip-content max-w-80 hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible opacity-0 transition-opacity inline-block absolute invisible z-30 py-1 px-2 bg-default-900 text-xs font-medium text-default-100 rounded-md shadow-2xs"
-                                role="tooltip">
-                                The 1-to-5 satisfaction scale is used for measuring customer satisfaction
-                            </span>
-                        </button>
-                    </div>
-                </div>
-                <div class="hs-dropdown relative inline-flex">
-                    <button aria-expanded="false" aria-haspopup="menu" aria-label="Dropdown"
-                        class="hs-dropdown-toggle btn size-7.5 hover:bg-default-150" hs-dropdown-placement="bottom-end"
-                        type="button">
-                        <i class="iconify lucide--ellipsis-vertical size-4 text-default-500"></i>
-                    </button>
-                    <div class="hs-dropdown-menu" role="menu">
-                        <a class="flex items-center gap-x-3.5 py-1.5 font-medium px-3 text-default-600 hover:bg-default-150 rounded"
-                            href="#">
-                            1 Weekly
-                        </a>
-                        <a class="flex items-center gap-x-3.5 py-1.5 font-medium px-3 text-default-600 hover:bg-default-150 rounded"
-                            href="#">
-                            1 Monthly
-                        </a>
-                        <a class="flex items-center gap-x-3.5 py-1.5 font-medium px-3 text-default-600 hover:bg-default-150 rounded"
-                            href="#">
-                            3 Monthly
-                        </a>
-                        <a class="flex items-center gap-x-3.5 py-1.5 font-medium px-3 text-default-600 hover:bg-default-150 rounded"
-                            href="#">
-                            6 Monthly
-                        </a>
-                        <a class="flex items-center gap-x-3.5 py-1.5 font-medium px-3 text-default-600 hover:bg-default-150 rounded"
-                            href="#">
-                            This Yearly
-                        </a>
-                    </div>
-                </div>
-            </div>
+
+        {{-- Total Revenue --}}
+        <div class="stat-card card bg-gradient-to-br from-success/10 to-success/5 border-0 overflow-hidden hover:shadow-lg transition-shadow">
             <div class="card-body">
-                <div class="apex-charts" id="satisfactionRate"></div>
-                <p class="text-center text-15xl">Based on Likes 💖</p>
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center justify-center rounded-xl size-14 bg-success/20">
+                        <span class="text-2xl font-bold text-success">฿</span>
+                    </div>
+                    <span class="px-2.5 py-1 text-xs rounded-full {{ $kpis['revenueGrowth'] >= 0 ? 'bg-success/20 text-success' : 'bg-danger/20 text-danger' }} flex items-center gap-1">
+                        <i class="size-3" data-lucide="{{ $kpis['revenueGrowth'] >= 0 ? 'trending-up' : 'trending-down' }}"></i>
+                        {{ abs($kpis['revenueGrowth']) }}%
+                    </span>
+                </div>
+                <h5 class="text-3xl font-bold text-default-900 mb-1">
+                    ฿<span class="counter-value" data-target="{{ $kpis['totalRevenue'] }}" data-format="currency">0</span>
+                </h5>
+                <p class="text-sm text-default-600 font-medium">Total Revenue</p>
+                <div class="mt-3 pt-3 border-t border-default-200">
+                    <p class="text-xs text-default-500">
+                        <i class="size-3 me-1" data-lucide="trending-up"></i>
+                        Avg: ฿{{ number_format($salesData['avgOrderValue'], 2) }}
+                    </p>
+                </div>
             </div>
         </div>
-        <div class="card">
-            <div class="card-header">
-                <div class="flex items-center gap-1.5">
-                    <h6 class="card-title">Daily Visit Insights </h6>
-                    <div class="hs-tooltip [--placement:top]">
-                        <button class="hs-tooltip-toggle" type="button">
-                            <i class="size-4 text-default-500 mt-2" data-lucide="info"></i>
-                            <span
-                                class="hs-tooltip-content max-w-80 hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible opacity-0 transition-opacity inline-block absolute invisible z-30 py-1 px-2 bg-default-900 text-xs font-medium text-default-100 rounded-md shadow-2xs"
-                                role="tooltip">
-                                Analyst or business user discovering a pattern in data or a relationship between variables
-                            </span>
-                        </button>
+
+        {{-- Total Sales --}}
+        <div class="stat-card card bg-gradient-to-br from-warning/10 to-warning/5 border-0 overflow-hidden hover:shadow-lg transition-shadow">
+            <div class="card-body">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center justify-center rounded-xl size-14 bg-warning/20">
+                        <i class="size-7 text-warning" data-lucide="shopping-cart"></i>
                     </div>
+                    <span class="px-2.5 py-1 text-xs rounded-full bg-info/20 text-info flex items-center gap-1">
+                        <i class="size-3" data-lucide="clock"></i>
+                        {{ $salesData['pendingOrders'] }} pending
+                    </span>
                 </div>
-                <div class="hs-dropdown relative inline-flex">
-                    <button aria-expanded="false" aria-haspopup="menu" aria-label="Dropdown"
-                        class="hs-dropdown-toggle btn size-7.5 hover:bg-default-150" hs-dropdown-placement="bottom-end"
-                        type="button">
-                        <i class="iconify lucide--ellipsis-vertical size-4 text-default-500"></i>
-                    </button>
-                    <div class="hs-dropdown-menu" role="menu">
-                        <a class="flex items-center gap-x-3.5 py-1.5 font-medium px-3 text-default-600 hover:bg-default-150 rounded"
-                            href="#">
-                            1 Weekly
-                        </a>
-                        <a class="flex items-center gap-x-3.5 py-1.5 font-medium px-3 text-default-600 hover:bg-default-150 rounded"
-                            href="#">
-                            1 Monthly
-                        </a>
-                        <a class="flex items-center gap-x-3.5 py-1.5 font-medium px-3 text-default-600 hover:bg-default-150 rounded"
-                            href="#">
-                            3 Monthly
-                        </a>
-                        <a class="flex items-center gap-x-3.5 py-1.5 font-medium px-3 text-default-600 hover:bg-default-150 rounded"
-                            href="#">
-                            6 Monthly
-                        </a>
-                        <a class="flex items-center gap-x-3.5 py-1.5 font-medium px-3 text-default-600 hover:bg-default-150 rounded"
-                            href="#">
-                            This Yearly
-                        </a>
-                    </div>
+                <h5 class="text-3xl font-bold text-default-900 mb-1">
+                    <span class="counter-value" data-target="{{ $salesData['totalSales'] }}">0</span>
+                </h5>
+                <p class="text-sm text-default-600 font-medium">Total Orders</p>
+                <div class="mt-3 pt-3 border-t border-default-200">
+                    <p class="text-xs text-default-500">
+                        <i class="size-3 me-1" data-lucide="shopping-bag"></i>
+                        {{ $salesData['rejectedOrders'] }} rejected
+                    </p>
                 </div>
             </div>
+        </div>
+
+        {{-- Win Rate --}}
+        <div class="stat-card card bg-gradient-to-br from-purple-500/10 to-purple-500/5 border-0 overflow-hidden hover:shadow-lg transition-shadow">
             <div class="card-body">
-                <div class="apex-charts" id="dailyVisitInsightsChart"></div>
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center justify-center rounded-xl size-14 bg-purple-500/20">
+                        <i class="size-7 text-purple-500" data-lucide="trophy"></i>
+                    </div>
+                    <span class="px-2.5 py-1 text-xs rounded-full bg-purple-500/20 text-purple-600">
+                        <i class="size-3" data-lucide="award"></i> Win Rate
+                    </span>
+                </div>
+                <h5 class="text-3xl font-bold text-default-900 mb-1">
+                    <span class="counter-value" data-target="{{ $winningData['winRate'] }}">0</span>%
+                </h5>
+                <p class="text-sm text-default-600 font-medium">Customer Win Rate</p>
+                <div class="mt-3 pt-3 border-t border-default-200">
+                    <p class="text-xs text-default-500">
+                        <i class="size-3 me-1" data-lucide="gift"></i>
+                        ฿{{ number_format($winningData['totalPrizes'], 2) }} in prizes
+                    </p>
+                </div>
             </div>
         </div>
     </div>
-    <div class="grid grid-cols-1 gap-5 mb-5">
-        <div class="card">
-            <div class="card-header">
-                <h6 class="card-title">Products Statistics</h6>
-                <div class="flex gap-3 items-center">
-                    <div class="relative">
-                        <input class="form-input form-input-sm ps-9" placeholder="Search for...." type="email" />
-                        <div class="absolute inset-y-0 start-0 flex items-center ps-3">
-                            <i class="size-3.5 text-default-500" data-lucide="search"></i>
+
+    {{-- Quick Access Shortcuts Widget - Minimalist Premium Design --}}
+    <div class="card mb-6 overflow-hidden border-0 shadow-sm" style="background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);">
+        <div class="card-header bg-transparent border-b border-gray-100">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center justify-center size-10 rounded-lg bg-gray-900">
+                        <i class="size-5 text-white" data-lucide="zap"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-base font-semibold text-gray-900 tracking-tight">Quick Access</h6>
+                        <p class="text-xs text-gray-500 mt-0.5">Navigate to key areas</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-6">
+            <div class="grid lg:grid-cols-5 md:grid-cols-3 grid-cols-2 gap-4">
+                {{-- Lottery Management --}}
+                <a href="{{ route('tickets.index') }}" class="group relative">
+                    <div class="relative p-5 bg-white rounded-xl border border-gray-200 hover:border-gray-900 transition-all duration-300 hover:shadow-lg">
+                        <!-- Subtle gradient overlay -->
+                        <div class="absolute inset-0 bg-gradient-to-br from-gray-50 to-white opacity-0 group-hover:opacity-100 rounded-xl transition-opacity duration-300"></div>
+                        
+                        <div class="relative z-10">
+                            <!-- Icon -->
+                            <div class="flex items-center justify-center size-12 rounded-lg bg-gray-100 group-hover:bg-gray-900 transition-all duration-300 mb-3">
+                                <i class="size-6 text-gray-700 group-hover:text-white transition-colors duration-300" data-lucide="ticket"></i>
+                            </div>
+                            
+                            <!-- Title -->
+                            <h6 class="text-sm font-semibold text-gray-900 mb-1">Lottery</h6>
+                            <p class="text-xs text-gray-500">Tickets & draws</p>
+                            
+                            <!-- Arrow -->
+                            <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                <i class="size-4 text-gray-900" data-lucide="arrow-up-right"></i>
+                            </div>
                         </div>
                     </div>
-                    <button
-                        class="btn btn-sm bg-transparent text-primary border border-dashed border-primary hover:bg-primary/20">
-                        <i class="size-4 me-1" data-lucide="download"></i>Export
-                    </button>
-                </div>
-            </div>
-            <div class="overflow-x-auto">
-                <div class="min-w-full inline-block align-middle">
-                    <div class="overflow-hidden">
-                        <table class="min-w-full divide-y divide-default-200">
-                            <thead class="bg-default-150">
-                                <tr class="text-default-600">
-                                    <th class="py-3 text-start ps-4" scope="col">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
-                                    </th>
-                                    <th class="px-3.5 py-3 text-start text-sm font-medium" scope="col">Products</th>
-                                    <th class="px-3.5 py-3 text-start text-sm font-medium" scope="col">Price</th>
-                                    <th class="px-3.5 py-3 text-start text-sm font-medium" scope="col">Income</th>
-                                    <th class="px-3.5 py-3 text-start text-sm font-medium" scope="col">Sales</th>
-                                    <th class="px-3.5 py-3 text-start text-sm font-medium" scope="col">View</th>
-                                    <th class="px-3.5 py-3 text-start text-sm font-medium" scope="col">Click</th>
-                                    <th class="px-3.5 py-3 text-start text-sm font-medium whitespace-nowrap"
-                                        scope="col">
-                                        Click (%)
-                                    </th>
-                                    <th class="px-3.5 py-3 text-start text-sm font-medium" scope="col">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-default-200">
-                                <tr class="text-default-800">
-                                    <td class="py-2.5 ps-4">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
-                                    </td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">SmartTech Pro-4K Ultra HD TV</td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">$1,542.99</td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">$12.36k</td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">3,217</td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">21,451</td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">16,287</td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">39.56%</td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap">
-                                        <span
-                                            class="py-0.5 px-2.5 inline-flex items-center gap-x-1 text-xs font-medium bg-success/15 text-success rounded">
-                                            <i class="size-3" data-lucide="check-circle-2"></i>
-                                            Active
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr class="text-default-800">
-                                    <td class="py-2.5 ps-4">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
-                                    </td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">LuxeLeather Vintage
-                                        Messenger Bag
-                                    </td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">$699.99</td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">$22.88k</td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">7,321</td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">32,151</td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">27,485</td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">87.33%</td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap">
-                                        <span
-                                            class="py-0.5 px-2.5 inline-flex items-center gap-x-1 text-xs font-medium bg-success/15 text-success rounded">
-                                            <i class="size-3" data-lucide="check-circle-2"></i>
-                                            Active
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr class="text-default-800">
-                                    <td class="py-2.5 ps-4">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
-                                    </td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">InfinityGlow LED Desk Lamp
-                                    </td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">$324.77</td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">$21.10k</td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">8,245</td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">33,415</td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">25,430</td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">91.43%</td>
-                                    <td class="px-3.5 py-2.5 whitespace-nowrap">
-                                        <span
-                                            class="py-0.5 px-2.5 inline-flex items-center gap-x-1 text-xs font-medium bg-danger/15 text-danger rounded">
-                                            <i class="size-3" data-lucide="x-circle"></i> Unactive
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr class="text-default-800">
-                                    <td class="py-2.5 ps-4">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
-                                    </td>
-                                    <td class="px-3.5 py-2.5 text-sm">PowerPulse Wireless Earbuds</td>
-                                    <td class="px-3.5 py-2.5 text-sm">$99.00</td>
-                                    <td class="px-3.5 py-2.5 text-sm">$374</td>
-                                    <td class="px-3.5 py-2.5 text-sm">2,987</td>
-                                    <td class="px-3.5 py-2.5 text-sm">41,123</td>
-                                    <td class="px-3.5 py-2.5 text-sm">46,963</td>
-                                    <td class="px-3.5 py-2.5 text-sm">79.21%</td>
-                                    <td class="px-3.5 py-2.5">
-                                        <span
-                                            class="py-0.5 px-2.5 inline-flex items-center gap-x-1 text-xs font-medium bg-success/15 text-success rounded">
-                                            <i class="size-3" data-lucide="check-circle-2"></i>
-                                            Active
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr class="text-default-800">
-                                    <td class="py-2.5 ps-4">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
-                                    </td>
-                                    <td class="px-3.5 py-2.5 text-sm">AdventureQuest Outdoor Backpack</td>
-                                    <td class="px-3.5 py-2.5 text-sm">$107.00</td>
-                                    <td class="px-3.5 py-2.5 text-sm">$8.22</td>
-                                    <td class="px-3.5 py-2.5 text-sm">2,541</td>
-                                    <td class="px-3.5 py-2.5 text-sm">14,789</td>
-                                    <td class="px-3.5 py-2.5 text-sm">12,584</td>
-                                    <td class="px-3.5 py-2.5 text-sm">39.04%</td>
-                                    <td class="px-3.5 py-2.5">
-                                        <span
-                                            class="py-0.5 px-2.5 inline-flex items-center gap-x-1 text-xs font-medium bg-danger/15 text-danger rounded">
-                                            <i class="size-3" data-lucide="x-circle"></i> Unactive
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr class="text-default-800">
-                                    <td class="py-2.5 ps-4">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
-                                    </td>
-                                    <td class="px-3.5 py-2.5 text-sm">FitLifePro Fitness Tracker</td>
-                                    <td class="px-3.5 py-2.5 text-sm">$111.99</td>
-                                    <td class="px-3.5 py-2.5 text-sm">$42.2k</td>
-                                    <td class="px-3.5 py-2.5 text-sm">44,201</td>
-                                    <td class="px-3.5 py-2.5 text-sm">40,888</td>
-                                    <td class="px-3.5 py-2.5 text-sm">14,520</td>
-                                    <td class="px-3.5 py-2.5 text-sm">68.41%</td>
-                                    <td class="px-3.5 py-2.5">
-                                        <span
-                                            class="py-0.5 px-2.5 inline-flex items-center gap-x-1 text-xs font-medium bg-success/15 text-success rounded">
-                                            <i class="size-3" data-lucide="check-circle-2"></i>
-                                            Active
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr class="text-default-800">
-                                    <td class="py-2.5 ps-4">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
-                                    </td>
-                                    <td class="px-3.5 py-2.5 text-sm">ChefMaster Pro Cookware Set</td>
-                                    <td class="px-3.5 py-2.5 text-sm">$107.00</td>
-                                    <td class="px-3.5 py-2.5 text-sm">$8.22</td>
-                                    <td class="px-3.5 py-2.5 text-sm">2,541</td>
-                                    <td class="px-3.5 py-2.5 text-sm">14,789</td>
-                                    <td class="px-3.5 py-2.5 text-sm">12,584</td>
-                                    <td class="px-3.5 py-2.5 text-sm">39.04%</td>
-                                    <td class="px-3.5 py-2.5">
-                                        <span
-                                            class="py-0.5 px-2.5 inline-flex items-center gap-x-1 text-xs font-medium bg-danger/15 text-danger rounded">
-                                            <i class="size-3" data-lucide="x-circle"></i> Unactive
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr class="text-default-800">
-                                    <td class="py-2.5 ps-4">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
-                                    </td>
-                                    <td class="px-3.5 py-2.5 text-sm">PetPalace Pet Accessories</td>
-                                    <td class="px-3.5 py-2.5 text-sm">$1,542.99</td>
-                                    <td class="px-3.5 py-2.5 text-sm">$12.36k</td>
-                                    <td class="px-3.5 py-2.5 text-sm">3,217</td>
-                                    <td class="px-3.5 py-2.5 text-sm">21,451</td>
-                                    <td class="px-3.5 py-2.5 text-sm">16,287</td>
-                                    <td class="px-3.5 py-2.5 text-sm">39.56%</td>
-                                    <td class="px-3.5 py-2.5">
-                                        <span
-                                            class="py-0.5 px-2.5 inline-flex items-center gap-x-1 text-xs font-medium bg-success/15 text-success rounded">
-                                            <i class="size-3" data-lucide="check-circle-2"></i>
-                                            Active
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr class="text-default-800">
-                                    <td class="py-2.5 ps-4">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
-                                    </td>
-                                    <td class="px-3.5 py-2.5 text-sm">TravelSavvy Luggage Collection</td>
-                                    <td class="px-3.5 py-2.5 text-sm">$1,542.99</td>
-                                    <td class="px-3.5 py-2.5 text-sm">$12.36k</td>
-                                    <td class="px-3.5 py-2.5 text-sm">3,217</td>
-                                    <td class="px-3.5 py-2.5 text-sm">21,451</td>
-                                    <td class="px-3.5 py-2.5 text-sm">16,287</td>
-                                    <td class="px-3.5 py-2.5 text-sm">39.56%</td>
-                                    <td class="px-3.5 py-2.5">
-                                        <span
-                                            class="py-0.5 px-2.5 inline-flex items-center gap-x-1 text-xs font-medium bg-success/15 text-success rounded">
-                                            <i class="size-3" data-lucide="check-circle-2"></i>
-                                            Active
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr class="text-default-800">
-                                    <td class="py-2.5 ps-4">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
-                                    </td>
-                                    <td class="px-3.5 py-2.5 text-sm">MusicMuse Premium Headphones</td>
-                                    <td class="px-3.5 py-2.5 text-sm">$99.00</td>
-                                    <td class="px-3.5 py-2.5 text-sm">$374</td>
-                                    <td class="px-3.5 py-2.5 text-sm">2,987</td>
-                                    <td class="px-3.5 py-2.5 text-sm">41,123</td>
-                                    <td class="px-3.5 py-2.5 text-sm">46,963</td>
-                                    <td class="px-3.5 py-2.5 text-sm">79.21%</td>
-                                    <td class="px-3.5 py-2.5">
-                                        <span
-                                            class="py-0.5 px-2.5 inline-flex items-center gap-x-1 text-xs font-medium bg-success/15 text-success rounded">
-                                            <i class="size-3" data-lucide="check-circle-2"></i>
-                                            Active
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr class="text-default-800">
-                                    <td class="py-2.5 ps-4">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
-                                    </td>
-                                    <td class="px-3.5 py-2.5 text-sm">WellnessWonders Yoga Mat</td>
-                                    <td class="px-3.5 py-2.5 text-sm">$324.77</td>
-                                    <td class="px-3.5 py-2.5 text-sm">$21.10k</td>
-                                    <td class="px-3.5 py-2.5 text-sm">8,245</td>
-                                    <td class="px-3.5 py-2.5 text-sm">33,415</td>
-                                    <td class="px-3.5 py-2.5 text-sm">25,430</td>
-                                    <td class="px-3.5 py-2.5 text-sm">91.43%</td>
-                                    <td class="px-3.5 py-2.5">
-                                        <span
-                                            class="py-0.5 px-2.5 inline-flex items-center gap-x-1 text-xs font-medium bg-danger/15 text-danger rounded">
-                                            <i class="size-3" data-lucide="x-circle"></i> Unactive
-                                        </span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                </a>
+
+                {{-- Sync Results --}}
+                <a href="{{ route('draw_results.syncLatest') }}" class="group relative">
+                    <div class="relative p-5 bg-white rounded-xl border border-gray-200 hover:border-gray-900 transition-all duration-300 hover:shadow-lg">
+                        <div class="absolute inset-0 bg-gradient-to-br from-gray-50 to-white opacity-0 group-hover:opacity-100 rounded-xl transition-opacity duration-300"></div>
+                        
+                        <div class="relative z-10">
+                            <div class="flex items-center justify-center size-12 rounded-lg bg-gray-100 group-hover:bg-gray-900 transition-all duration-300 mb-3">
+                                <i class="size-6 text-gray-700 group-hover:text-white transition-colors duration-300" data-lucide="refresh-cw"></i>
+                            </div>
+                            <h6 class="text-sm font-semibold text-gray-900 mb-1">Sync Results</h6>
+                            <p class="text-xs text-gray-500">Update draws</p>
+                            <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                <i class="size-4 text-gray-900" data-lucide="arrow-up-right"></i>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="card-footer">
-                <p class="text-default-500 text-sm">Showing <b>07</b> of <b>11</b> Results</p>
-                <nav aria-label="Pagination" class="flex items-center gap-2">
-                    <button
-                        class="btn btn-sm border bg-transparent border-default-200 text-default-600 hover:bg-primary/10 hover:text-primary hover:border-primary/10"
-                        type="button">
-                        <i class="size-4 me-1" data-lucide="chevron-left"></i> Prev
-                    </button>
-                    <button
-                        class="btn size-7.5 bg-transparent border border-default-200 text-default-600 hover:bg-primary/10 hover:text-primary hover:border-primary/10"
-                        type="button">
-                        1
-                    </button>
-                    <button class="btn size-7.5 bg-primary text-white" type="button">
-                        2
-                    </button>
-                    <button
-                        class="btn size-7.5 bg-transparent border border-default-200 text-default-600 hover:bg-primary/10 hover:text-primary hover:border-primary/10"
-                        type="button">
-                        3
-                    </button>
-                    <button
-                        class="btn btn-sm border bg-transparent border-default-200 text-default-600 hover:bg-primary/10 hover:text-primary hover:border-primary/10"
-                        type="button">Next
-                        <i class="size-4 ms-1" data-lucide="chevron-right"></i>
-                    </button>
-                </nav>
+                </a>
+
+                {{-- Draw Date Management --}}
+                <a href="{{ route('drawinfos.index') }}" class="group relative">
+                    <div class="relative p-5 bg-white rounded-xl border border-gray-200 hover:border-gray-900 transition-all duration-300 hover:shadow-lg">
+                        <div class="absolute inset-0 bg-gradient-to-br from-gray-50 to-white opacity-0 group-hover:opacity-100 rounded-xl transition-opacity duration-300"></div>
+                        
+                        <div class="relative z-10">
+                            <div class="flex items-center justify-center size-12 rounded-lg bg-gray-100 group-hover:bg-gray-900 transition-all duration-300 mb-3">
+                                <i class="size-6 text-gray-700 group-hover:text-white transition-colors duration-300" data-lucide="calendar-days"></i>
+                            </div>
+                            <h6 class="text-sm font-semibold text-gray-900 mb-1">Draw Dates</h6>
+                            <p class="text-xs text-gray-500">Schedule draws</p>
+                            <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                <i class="size-4 text-gray-900" data-lucide="arrow-up-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+                {{-- Customer Management --}}
+                <a href="{{ route('customers.index') }}" class="group relative">
+                    <div class="relative p-5 bg-white rounded-xl border border-gray-200 hover:border-gray-900 transition-all duration-300 hover:shadow-lg">
+                        <div class="absolute inset-0 bg-gradient-to-br from-gray-50 to-white opacity-0 group-hover:opacity-100 rounded-xl transition-opacity duration-300"></div>
+                        
+                        <div class="relative z-10">
+                            <div class="flex items-center justify-center size-12 rounded-lg bg-gray-100 group-hover:bg-gray-900 transition-all duration-300 mb-3">
+                                <i class="size-6 text-gray-700 group-hover:text-white transition-colors duration-300" data-lucide="users-round"></i>
+                            </div>
+                            <h6 class="text-sm font-semibold text-gray-900 mb-1">Customers</h6>
+                            <p class="text-xs text-gray-500">User management</p>
+                            <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                <i class="size-4 text-gray-900" data-lucide="arrow-up-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+                {{-- Order Management --}}
+                <a href="{{ route('purchases.index') }}" class="group relative">
+                    <div class="relative p-5 bg-white rounded-xl border border-gray-200 hover:border-gray-900 transition-all duration-300 hover:shadow-lg">
+                        <div class="absolute inset-0 bg-gradient-to-br from-gray-50 to-white opacity-0 group-hover:opacity-100 rounded-xl transition-opacity duration-300"></div>
+                        
+                        <div class="relative z-10">
+                            <div class="flex items-center justify-center size-12 rounded-lg bg-gray-100 group-hover:bg-gray-900 transition-all duration-300 mb-3">
+                                <i class="size-6 text-gray-700 group-hover:text-white transition-colors duration-300" data-lucide="shopping-cart"></i>
+                            </div>
+                            <h6 class="text-sm font-semibold text-gray-900 mb-1">Orders</h6>
+                            <p class="text-xs text-gray-500">Purchase tracking</p>
+                            <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                <i class="size-4 text-gray-900" data-lucide="arrow-up-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
             </div>
         </div>
     </div>
-    <div class="grid lg:grid-cols-4 grid-cols-1 gap-5">
-        <div class="card">
-            <div class="card-header mb-4">
-                <h6 class="card-title">Analytics Reports</h6>
-            </div>
-            <div class="card-body">
-                <div id="analytics-reports"></div>
-            </div>
-        </div>
+
+    {{-- Charts Row 1 --}}
+    <div class="grid lg:grid-cols-2 grid-cols-1 gap-6 mb-6">
+        {{-- Revenue Trend --}}
         <div class="card">
             <div class="card-header">
-                <h6 class="card-title">Status of Monthly Campaign</h6>
+                <div class="flex items-center gap-2">
+                    <i class="size-4 text-success" data-lucide="trending-up"></i>
+                    <h6 class="card-title">Revenue & Orders Trend</h6>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                    <div class="size-3 rounded-full bg-success"></div>
+                    <span class="text-default-600">Revenue</span>
+                    <div class="size-3 rounded-full bg-primary ml-2"></div>
+                    <span class="text-default-600">Orders</span>
+                </div>
             </div>
             <div class="card-body">
-                <ul class="flex flex-col gap-5">
-                    <li class="flex items-center gap-3 text-sm">
-                        <div class="bg-danger/10 btn size-8">
-                            <i class="text-danger size-4" data-lucide="mail"></i>
-                        </div>
-                        <h6 class="grow text-default-900">Clicked</h6>
-                        <p>9,745</p>
-                        <div class="w-12 text-success text-end">2.5%</div>
-                    </li>
-                    <li class="flex items-center gap-3 text-sm">
-                        <div class="bg-secondary/10 btn size-8">
-                            <i class="text-secondary size-4" data-lucide="users"></i>
-                        </div>
-                        <h6 class="grow text-default-900">Subscribe</h6>
-                        <p>3,352</p>
-                        <div class="w-12 text-success text-end">18.9%</div>
-                    </li>
-                    <li class="flex items-center gap-3 text-sm">
-                        <div class="bg-orange-500/10 btn size-8">
-                            <i class="text-orange-500 size-4" data-lucide="user-x-2"></i>
-                        </div>
-                        <h6 class="grow text-default-900">Unsubscribe</h6>
-                        <p>85,745</p>
-                        <div class="w-12 text-danger text-end">1.2%</div>
-                    </li>
-                    <li class="flex items-center gap-3 text-sm">
-                        <div class="bg-success/10 btn size-8">
-                            <i class="text-success size-4" data-lucide="eye"></i>
-                        </div>
-                        <h6 class="grow text-default-900">Viewers</h6>
-                        <p>85,745</p>
-                        <div class="w-12 text-success text-end">11.6%</div>
-                    </li>
-                    <li class="flex items-center gap-3 text-sm">
-                        <div class="bg-default-950/10 btn size-8">
-                            <i class="size-4" data-lucide="package-open"></i>
-                        </div>
-                        <h6 class="grow text-default-900">Opened</h6>
-                        <p>85,745</p>
-                        <div class="w-12 text-danger text-end">3.1%</div>
-                    </li>
-                    <li class="flex items-center gap-3 text-sm">
-                        <div class="bg-info/10 btn size-8">
-                            <i class="text-info size-4" data-lucide="user-x-2"></i>
-                        </div>
-                        <h6 class="grow text-default-900">Trial Period</h6>
-                        <p>70,775</p>
-                        <div class="w-12 text-danger text-end">22%</div>
-                    </li>
-                </ul>
+                <div id="revenueTrendChart" class="apex-charts"></div>
             </div>
         </div>
+
+        {{-- Revenue by Status --}}
         <div class="card">
             <div class="card-header">
-                <h6 class="card-title">Subscription Distribution</h6>
+                <div class="flex items-center gap-2">
+                    <i class="size-4 text-primary" data-lucide="pie-chart"></i>
+                    <h6 class="card-title">Revenue by Status</h6>
+                </div>
             </div>
             <div class="card-body">
-                <div id="subscriptionDistribution"></div>
+                <div id="revenueStatusChart" class="apex-charts"></div>
             </div>
         </div>
+    </div>
+
+    {{-- Charts Row 2 --}}
+    <div class="grid lg:grid-cols-3 grid-cols-1 gap-6 mb-6">
+        {{-- Customer Growth --}}
         <div class="card">
             <div class="card-header">
-                <h6 class="card-title">Traffic Source</h6>
-                <a class="text-primary underline" href="#">See More</a>
+                <div class="flex items-center gap-2">
+                    <i class="size-4 text-purple-500" data-lucide="users"></i>
+                    <h6 class="card-title">Customer Growth</h6>
+                </div>
             </div>
             <div class="card-body">
-                <div class="flex flex-col gap-5">
-                    <div>
-                        <div class="flex items-center justify-between gap-4 mb-2 text-sm">
-                            <h6 class="text-default-900">Google</h6>
-                            <span class="text-default-500">54,963</span>
-                        </div>
-                        <div class="w-full h-3.5 rounded bg-default-200">
-                            <div class="h-3.5 rounded bg-primary" style="width: 89%"></div>
-                        </div>
+                <div id="customerGrowthChart" class="apex-charts"></div>
+            </div>
+        </div>
+
+        {{-- Platform Distribution --}}
+        <div class="card">
+            <div class="card-header">
+                <div class="flex items-center gap-2">
+                    <i class="size-4 text-info" data-lucide="smartphone"></i>
+                    <h6 class="card-title">Platform Distribution</h6>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="platformChart" class="apex-charts"></div>
+                <div class="mt-4 grid grid-cols-2 gap-3">
+                    <div class="text-center p-3 bg-info/5 rounded-lg">
+                        <h5 class="text-xl font-bold text-info">{{ $platformData['totalDevices'] ?? 0 }}</h5>
+                        <p class="text-xs text-default-600 mt-1">Total Devices</p>
                     </div>
-                    <div>
-                        <div class="flex items-center justify-between gap-4 mb-2 text-sm">
-                            <h6 class="text-default-900">Meta</h6>
-                            <span class="text-default-500">30,478</span>
-                        </div>
-                        <div class="w-full h-3.5 rounded bg-default-200">
-                            <div class="h-3.5 rounded bg-sky-500" style="width: 55%"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex items-center justify-between gap-4 mb-2 text-sm">
-                            <h6 class="text-default-900">Social Media</h6>
-                            <span class="text-default-500">54,963</span>
-                        </div>
-                        <div class="w-full h-3.5 rounded bg-default-200">
-                            <div class="h-3.5 rounded bg-warning" style="width: 81%"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex items-center justify-between gap-4 mb-2 text-sm">
-                            <h6 class="text-default-900">Direct Message</h6>
-                            <span class="text-default-500">54,963</span>
-                        </div>
-                        <div class="w-full h-3.5 rounded bg-default-200">
-                            <div class="h-3.5 rounded bg-success" style="width: 63%"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex items-center justify-between gap-4 mb-2 text-sm">
-                            <h6 class="text-default-900">Others</h6>
-                            <span class="text-default-500">54,963</span>
-                        </div>
-                        <div class="w-full h-3.5 rounded bg-default-200">
-                            <div class="h-3.5 rounded bg-default-600" style="width: 25%"></div>
-                        </div>
+                    <div class="text-center p-3 bg-success/5 rounded-lg">
+                        <h5 class="text-xl font-bold text-success">{{ $platformData['uniqueUsers'] ?? 0 }}</h5>
+                        <p class="text-xs text-default-600 mt-1">Unique Users</p>
                     </div>
                 </div>
             </div>
+        </div>
+
+        {{-- Gender Distribution --}}
+        <div class="card">
+            <div class="card-header">
+                <div class="flex items-center gap-2">
+                    <i class="size-4 text-warning" data-lucide="users"></i>
+                    <h6 class="card-title">Gender Distribution</h6>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="genderChart" class="apex-charts"></div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Activity Trends --}}
+    <div class="card mb-6">
+        <div class="card-header">
+            <div class="flex items-center gap-2">
+                <i class="size-4 text-warning" data-lucide="activity"></i>
+                <h6 class="card-title">Activity Trends</h6>
+            </div>
+            <p class="text-sm text-default-600">User activities and engagement over time</p>
+        </div>
+        <div class="card-body">
+            <div id="activityChart" class="apex-charts"></div>
+        </div>
+    </div>
+
+    {{-- All Sold Tickets Table --}}
+    <div class="card">
+        <div class="card-header">
+            <div class="flex items-center gap-2">
+                <i class="size-5 text-primary" data-lucide="ticket"></i>
+                <h6 class="card-title">All Sold Tickets</h6>
+            </div>
+            <span class="text-sm text-default-600">All lottery tickets sold in the selected period</span>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-default-200">
+                <thead class="bg-default-50">
+                    <tr>
+                        <th class="px-4 py-3 text-start text-xs font-semibold text-default-700">Ticket</th>
+                        <th class="px-4 py-3 text-start text-xs font-semibold text-default-700">Sales Count</th>
+                        <th class="px-4 py-3 text-start text-xs font-semibold text-default-700">Quantity</th>
+                        <th class="px-4 py-3 text-start text-xs font-semibold text-default-700">Revenue</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-default-200 bg-white">
+                    @forelse($productData['topTickets'] as $ticket)
+                    <tr class="hover:bg-default-50 transition-colors">
+                        <td class="px-4 py-3">
+                            <div class="font-semibold text-default-900">
+                                {{ $ticket->lotteryTicket->ticket_number ?? 'N/A' }}
+                            </div>
+                            <div class="text-sm text-default-500">
+                                {{ $ticket->lotteryTicket->ticket_type ?? 'N/A' }}
+                            </div>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="px-2.5 py-1 text-xs bg-primary/10 text-primary rounded-full font-medium">
+                                {{ number_format($ticket->sales_count) }} orders
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-sm text-default-900">
+                            {{ number_format($ticket->total_quantity) }}
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="font-bold text-success text-lg">฿{{ number_format($ticket->total_revenue, 2) }}</span>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="4" class="px-4 py-12 text-center">
+                            <div class="flex flex-col items-center justify-center">
+                                <i class="size-16 text-default-300 mb-3" data-lucide="inbox"></i>
+                                <p class="text-default-600 font-medium">No tickets sold yet</p>
+                                <p class="text-sm text-default-500 mt-1">Data will appear here once you have sales</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 @endsection
 
 @section('scripts')
-    @vite(['resources/js/pages/dashboard-analytics.js'])
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            // ============================================
+            // COUNTER ANIMATION
+            // ============================================
+            function formatNumber(value, format = null) {
+                const num = Math.round(value);
+                if (format === 'currency') {
+                    return num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                }
+                return num.toLocaleString('en-US');
+            }
+
+            document.querySelectorAll('.counter-value').forEach(counter => {
+                const target = parseFloat(counter.getAttribute('data-target'));
+                const format = counter.getAttribute('data-format') || null;
+                const duration = 2000;
+                const fps = 60;
+                const frameCount = Math.ceil((duration / 1000) * fps);
+                const step = target / frameCount;
+                let current = 0;
+                let frame = 0;
+
+                const timer = setInterval(() => {
+                    frame++;
+                    current += step;
+                    
+                    if (frame >= frameCount || current >= target) {
+                        counter.textContent = formatNumber(target, format);
+                        clearInterval(timer);
+                    } else {
+                        counter.textContent = formatNumber(current, format);
+                    }
+                }, 1000 / fps);
+            });
+
+            // ============================================
+            // APEXCHARTS
+            // ============================================
+            const commonOptions = {
+                chart: {
+                    fontFamily: 'Inter, sans-serif',
+                    toolbar: { show: false },
+                    animations: {
+                        enabled: true,
+                        easing: 'easeinout',
+                        speed: 800
+                    }
+                },
+                grid: {
+                    borderColor: '#f1f5f9',
+                    strokeDashArray: 3,
+                },
+                tooltip: {
+                    theme: 'dark',
+                    style: { fontSize: '12px' }
+                }
+            };
+
+            // Revenue Trend Chart
+            new ApexCharts(document.querySelector("#revenueTrendChart"), {
+                ...commonOptions,
+                series: [{
+                    name: 'Revenue',
+                    data: @json($revenueData['trend']['revenue'])
+                }, {
+                    name: 'Orders',
+                    data: @json($revenueData['trend']['orders'])
+                }],
+                chart: {
+                    ...commonOptions.chart,
+                    height: 350,
+                    type: 'area',
+                },
+                colors: ['#10b981', '#3b82f6'],
+                stroke: { curve: 'smooth', width: 3 },
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shadeIntensity: 1,
+                        opacityFrom: 0.4,
+                        opacityTo: 0.1,
+                    }
+                },
+                xaxis: {
+                    categories: @json($revenueData['trend']['labels']),
+                    labels: { style: { colors: '#64748b', fontSize: '12px' } }
+                },
+                yaxis: [{
+                    title: { text: 'Revenue (฿)', style: { color: '#64748b' } },
+                    labels: { style: { colors: '#64748b' } }
+                }, {
+                    opposite: true,
+                    title: { text: 'Orders', style: { color: '#64748b' } },
+                    labels: { style: { colors: '#64748b' } }
+                }],
+                legend: {
+                    position: 'top',
+                    horizontalAlign: 'right',
+                    markers: { radius: 10 }
+                },
+                dataLabels: { enabled: false }
+            }).render();
+
+            // Revenue by Status Chart
+            new ApexCharts(document.querySelector("#revenueStatusChart"), {
+                ...commonOptions,
+                series: @json($revenueData['byStatus']['values']),
+                chart: {
+                    ...commonOptions.chart,
+                    type: 'pie',
+                    height: 350
+                },
+                labels: @json($revenueData['byStatus']['labels']),
+                colors: ['#f59e0b', '#10b981', '#3b82f6', '#ef4444', '#8b5cf6'],
+                legend: {
+                    position: 'bottom',
+                    markers: { radius: 10 }
+                },
+                dataLabels: {
+                    enabled: true,
+                    style: { fontSize: '12px', fontWeight: 600 }
+                }
+            }).render();
+
+            // Customer Growth Chart
+            new ApexCharts(document.querySelector("#customerGrowthChart"), {
+                ...commonOptions,
+                series: [{
+                    name: 'New Customers',
+                    data: @json($customerData['newCustomers']['counts'])
+                }],
+                chart: {
+                    ...commonOptions.chart,
+                    height: 280,
+                    type: 'bar',
+                },
+                colors: ['#8b5cf6'],
+                plotOptions: {
+                    bar: { borderRadius: 8, columnWidth: '60%' }
+                },
+                xaxis: {
+                    categories: @json($customerData['newCustomers']['labels']),
+                    labels: { style: { colors: '#64748b', fontSize: '11px' } }
+                },
+                yaxis: {
+                    labels: { style: { colors: '#64748b' } }
+                },
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shade: 'light',
+                        type: 'vertical',
+                        shadeIntensity: 0.5,
+                        opacityFrom: 0.85,
+                        opacityTo: 0.85,
+                    }
+                },
+                dataLabels: { enabled: false }
+            }).render();
+
+            // Platform Chart
+            new ApexCharts(document.querySelector("#platformChart"), {
+                ...commonOptions,
+                series: @json($platformData['deviceDistribution']['values']),
+                chart: {
+                    ...commonOptions.chart,
+                    type: 'donut',
+                    height: 250
+                },
+                labels: @json($platformData['deviceDistribution']['labels']),
+                colors: ['#0ea5e9', '#10b981', '#f43f5e'],
+                legend: {
+                    position: 'bottom',
+                    markers: { radius: 10 }
+                },
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '70%',
+                            labels: {
+                                show: true,
+                                total: {
+                                    show: true,
+                                    label: 'Total',
+                                    fontSize: '14px',
+                                    fontWeight: 500
+                                }
+                            }
+                        }
+                    }
+                },
+                dataLabels: {
+                    enabled: true,
+                    style: { fontSize: '12px', fontWeight: 600 }
+                }
+            }).render();
+
+            // Gender Chart
+            new ApexCharts(document.querySelector("#genderChart"), {
+                ...commonOptions,
+                series: @json($customerData['genderDistribution']['values']),
+                chart: {
+                    ...commonOptions.chart,
+                    type: 'donut',
+                    height: 280
+                },
+                labels: @json($customerData['genderDistribution']['labels']),
+                colors: ['#3b82f6', '#ec4899', '#94a3b8'],
+                legend: {
+                    position: 'bottom',
+                    markers: { radius: 10 }
+                },
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '70%',
+                            labels: {
+                                show: true,
+                                total: {
+                                    show: true,
+                                    label: 'Total',
+                                    fontSize: '14px'
+                                }
+                            }
+                        }
+                    }
+                },
+                dataLabels: {
+                    enabled: true,
+                    style: { fontSize: '12px', fontWeight: 600 }
+                }
+            }).render();
+
+            // Activity Chart
+            new ApexCharts(document.querySelector("#activityChart"), {
+                ...commonOptions,
+                series: [{
+                    name: 'Activities',
+                    data: @json($activityData['activities'])
+                }, {
+                    name: 'Unique Users',
+                    data: @json($activityData['uniqueUsers'])
+                }],
+                chart: {
+                    ...commonOptions.chart,
+                    height: 350,
+                    type: 'line',
+                },
+                colors: ['#f97316', '#06b6d4'],
+                stroke: { width: [3, 3], curve: 'smooth' },
+                markers: {
+                    size: 5,
+                    hover: { size: 7 }
+                },
+                xaxis: {
+                    categories: @json($activityData['labels']),
+                    labels: { style: { colors: '#64748b', fontSize: '12px' } }
+                },
+                yaxis: {
+                    labels: { style: { colors: '#64748b' } }
+                },
+                legend: {
+                    position: 'top',
+                    horizontalAlign: 'right',
+                    markers: { radius: 10 }
+                },
+                dataLabels: { enabled: false }
+            }).render();
+        });
+    </script>
 @endsection

@@ -33,7 +33,7 @@ class OtpController extends Controller
         // Mark as verified and delete
         $otpRecord->delete();
         
-        return redirect()->route('dashboard');
+        return redirect()->route('analytics.index');
     }
 
     public function resendOtp(Request $request)
