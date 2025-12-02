@@ -75,13 +75,22 @@ class DrawResultController extends Controller
         return view('draw_results.index', compact('results', 'years'));
     }
 
+    // Helper to ensure data is array (handles both model cast and legacy string data)
+    private function ensureArray($data)
+    {
+        if (is_string($data)) {
+            return json_decode($data, true) ?? [];
+        }
+        return is_array($data) ? $data : [];
+    }
+
     // Show detail page
     public function showDetail($id)
     {
         $result = DrawResult::findOrFail($id);
         
-        // Process and sort prizes (already decoded by model cast)
-        $prizesData = is_array($result->prizes) ? $result->prizes : [];
+        // Process and sort prizes
+        $prizesData = $this->ensureArray($result->prizes);
         $prizes = array_map(function ($p) {
             $p['name'] = $this->nameMapping[$p['name']] ?? $p['name'];
             $p['order'] = $this->prizeOrder[$p['name']] ?? 999;
@@ -90,8 +99,8 @@ class DrawResultController extends Controller
         
         usort($prizes, fn($a, $b) => $a['order'] <=> $b['order']);
         
-        // Process running numbers (already decoded by model cast)
-        $runningData = is_array($result->running_numbers) ? $result->running_numbers : [];
+        // Process running numbers
+        $runningData = $this->ensureArray($result->running_numbers);
         $running_numbers = array_map(function ($r) {
             $r['name'] = $this->nameMapping[$r['name']] ?? $r['name'];
             return $r;
@@ -105,8 +114,8 @@ class DrawResultController extends Controller
     {
         $result = DrawResult::findOrFail($id);
         
-        // Process and sort prizes (already decoded by model cast)
-        $prizesData = is_array($result->prizes) ? $result->prizes : [];
+        // Process and sort prizes
+        $prizesData = $this->ensureArray($result->prizes);
         $prizes = array_map(function ($p) {
             $p['name'] = $this->nameMapping[$p['name']] ?? $p['name'];
             $p['order'] = $this->prizeOrder[$p['name']] ?? 999;
@@ -115,8 +124,8 @@ class DrawResultController extends Controller
         
         usort($prizes, fn($a, $b) => $a['order'] <=> $b['order']);
         
-        // Process running numbers (already decoded by model cast)
-        $runningData = is_array($result->running_numbers) ? $result->running_numbers : [];
+        // Process running numbers
+        $runningData = $this->ensureArray($result->running_numbers);
         $running_numbers = array_map(function ($r) {
             $r['name'] = $this->nameMapping[$r['name']] ?? $r['name'];
             return $r;

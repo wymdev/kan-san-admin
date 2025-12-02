@@ -157,9 +157,21 @@ class DrawResultApiController extends Controller
 
     private function checkNumberAgainstPrizes($lotteryNumber, $drawResult)
     {
-        // Already decoded by model cast
-        $prizes = is_array($drawResult->prizes) ? $drawResult->prizes : [];
-        $runningNumbers = is_array($drawResult->running_numbers) ? $drawResult->running_numbers : [];
+        // Handle both array (from model cast) and string (legacy data) formats
+        $prizes = $drawResult->prizes;
+        $runningNumbers = $drawResult->running_numbers;
+        
+        // If it's a string (legacy data), decode it
+        if (is_string($prizes)) {
+            $prizes = json_decode($prizes, true) ?? [];
+        }
+        if (is_string($runningNumbers)) {
+            $runningNumbers = json_decode($runningNumbers, true) ?? [];
+        }
+        
+        $prizes = is_array($prizes) ? $prizes : [];
+        $runningNumbers = is_array($runningNumbers) ? $runningNumbers : [];
+        
         $numberLength = strlen($lotteryNumber);
         $allPrizes = array_merge($prizes, $runningNumbers);
         $matchedPrizes = [];
@@ -203,13 +215,25 @@ class DrawResultApiController extends Controller
 
     private function formatDrawResult($result)
     {
+        // Handle both array (from model cast) and string (legacy data) formats
+        $prizes = $result->prizes;
+        $runningNumbers = $result->running_numbers;
+        
+        // If it's a string (legacy data), decode it
+        if (is_string($prizes)) {
+            $prizes = json_decode($prizes, true) ?? [];
+        }
+        if (is_string($runningNumbers)) {
+            $runningNumbers = json_decode($runningNumbers, true) ?? [];
+        }
+        
         return [
             'id' => $result->id,
-            'draw_date' => Carbon::parse($result->draw_date)->format('Y-m-d'), // Format as YYYY-MM-DD only
+            'draw_date' => Carbon::parse($result->draw_date)->format('Y-m-d'),
             'date_th' => $result->date_th,
             'date_en' => $result->date_en,
-            'prizes' => $result->prizes ?? [],
-            'running_numbers' => $result->running_numbers ?? [],
+            'prizes' => $prizes ?? [],
+            'running_numbers' => $runningNumbers ?? [],
         ];
     }
 }

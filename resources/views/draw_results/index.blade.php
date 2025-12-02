@@ -99,7 +99,13 @@
                                 <tbody class="divide-y divide-default-200">
                                     @forelse ($results as $data)
                                         @php
-                                            $prizes = json_decode($data->prizes, true) ?: [];
+                                            // Handle both array (from model cast) and string (legacy data) formats
+                                            $prizesRaw = $data->prizes;
+                                            if (is_string($prizesRaw)) {
+                                                $prizes = json_decode($prizesRaw, true) ?? [];
+                                            } else {
+                                                $prizes = is_array($prizesRaw) ? $prizesRaw : [];
+                                            }
                                             $firstPrize = collect($prizes)->firstWhere('name', 'รางวัลที่ 1');
                                             $firstNumber = $firstPrize ? ($firstPrize['number'][0] ?? '-') : '-';
                                             $totalPrizeCount = collect($prizes)->sum(function($p) {
