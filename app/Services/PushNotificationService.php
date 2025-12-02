@@ -118,6 +118,11 @@ class PushNotificationService
         $results = [];
         $chunks = $tokens->chunk($this->batchSize);
 
+        // Ensure proper UTF-8 encoding
+        $title = $this->sanitizeUtf8($title);
+        $body = $this->sanitizeUtf8($body);
+        $data = $this->sanitizeArrayUtf8($data);
+
         foreach ($chunks as $chunk) {
             $messages = [];
             $tokenMap = [];
@@ -236,8 +241,14 @@ class PushNotificationService
 
     public function sendSingleNotification(array $message, int $customerId = null): bool
     {
-        // Log notification (bind to customer_id)
+        // Sanitize UTF-8 in the message
+        $message['title'] = $this->sanitizeUtf8($message['title'] ?? '');
+        $message['body'] = $this->sanitizeUtf8($message['body'] ?? '');
+        if (isset($message['data'])) {
+            $message['data'] = $this->sanitizeArrayUtf8($message['data']);
+        }
 
+        // Log notification (bind to customer_id)
         $notificationType = $message['data']['type'] ?? 'other';
 
         PushNotificationLog::create([
@@ -345,5 +356,42 @@ class PushNotificationService
         return DevicePushToken::where('is_active', false)
             ->where('updated_at', '<', now()->subDays($daysInactive))
             ->delete();
+    }
+
+    /**
+     * Sanitize a string to ensure valid UTF-8 encoding
+     */
+    private function sanitizeUtf8(string $string): string
+    {
+        // Remove invalid UTF-8 characters
+        $string = mb_convert_encoding($string, 'UTF-8', 'UTF-8');
+        
+        // Remove any null bytes
+        $string = str_replace("\0", '', $string);
+        
+        // Ensure the string is valid UTF-8
+        if (!mb_check_encoding($string, 'UTF-8')) {
+            $string = mb_convert_encoding($string, 'UTF-8', 'auto');
+        }
+        
+        // Remove any remaining invalid characters
+        $string = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $string);
+        
+        return $string;
+    }
+
+    /**
+     * Recursively sanitize an array for UTF-8 encoding
+     */
+    private function sanitizeArrayUtf8(array $array): array
+    {
+        foreach ($array as $key => $value) {
+            if (is_string($value)) {
+                $array[$key] = $this->sanitizeUtf8($value);
+            } elseif (is_array($value)) {
+                $array[$key] = $this->sanitizeArrayUtf8($value);
+            }
+        }
+        return $array;
     }
 }

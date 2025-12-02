@@ -139,9 +139,12 @@ class DailyQuoteController extends Controller
             }
 
             $title = 'Daily Quote';
-            $body = strlen($quote->quote) > 100 
-                ? substr($quote->quote, 0, 97) . '...' 
-                : $quote->quote;
+            
+            // Sanitize the quote text for UTF-8
+            $quoteText = mb_convert_encoding($quote->quote, 'UTF-8', 'UTF-8');
+            $body = mb_strlen($quoteText) > 100 
+                ? mb_substr($quoteText, 0, 97) . '...' 
+                : $quoteText;
 
             $results = $this->pushService->broadcastAnnouncement(
                 title: $title,
@@ -149,8 +152,8 @@ class DailyQuoteController extends Controller
                 data: [
                     'quote_id' => $quote->id,
                     'type' => 'daily_quote',
-                    'full_quote' => $quote->quote,
-                    'author' => $quote->author,
+                    'full_quote' => $quoteText,
+                    'author' => $quote->author ? mb_convert_encoding($quote->author, 'UTF-8', 'UTF-8') : null,
                     'category' => $quote->category,
                 ]
             );
