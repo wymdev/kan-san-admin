@@ -80,20 +80,22 @@ class DrawResultController extends Controller
     {
         $result = DrawResult::findOrFail($id);
         
-        // Process and sort prizes
+        // Process and sort prizes (already decoded by model cast)
+        $prizesData = is_array($result->prizes) ? $result->prizes : [];
         $prizes = array_map(function ($p) {
             $p['name'] = $this->nameMapping[$p['name']] ?? $p['name'];
             $p['order'] = $this->prizeOrder[$p['name']] ?? 999;
             return $p;
-        }, json_decode($result->prizes, true) ?: []);
+        }, $prizesData);
         
         usort($prizes, fn($a, $b) => $a['order'] <=> $b['order']);
         
-        // Process running numbers
+        // Process running numbers (already decoded by model cast)
+        $runningData = is_array($result->running_numbers) ? $result->running_numbers : [];
         $running_numbers = array_map(function ($r) {
             $r['name'] = $this->nameMapping[$r['name']] ?? $r['name'];
             return $r;
-        }, json_decode($result->running_numbers, true) ?: []);
+        }, $runningData);
         
         return view('draw_results.show', compact('result', 'prizes', 'running_numbers'));
     }
@@ -103,18 +105,22 @@ class DrawResultController extends Controller
     {
         $result = DrawResult::findOrFail($id);
         
+        // Process and sort prizes (already decoded by model cast)
+        $prizesData = is_array($result->prizes) ? $result->prizes : [];
         $prizes = array_map(function ($p) {
             $p['name'] = $this->nameMapping[$p['name']] ?? $p['name'];
             $p['order'] = $this->prizeOrder[$p['name']] ?? 999;
             return $p;
-        }, json_decode($result->prizes, true) ?: []);
+        }, $prizesData);
         
         usort($prizes, fn($a, $b) => $a['order'] <=> $b['order']);
         
+        // Process running numbers (already decoded by model cast)
+        $runningData = is_array($result->running_numbers) ? $result->running_numbers : [];
         $running_numbers = array_map(function ($r) {
             $r['name'] = $this->nameMapping[$r['name']] ?? $r['name'];
             return $r;
-        }, json_decode($result->running_numbers, true) ?: []);
+        }, $runningData);
         
         return response()->json([
             'date_en' => $result->date_en,
@@ -172,16 +178,27 @@ class DrawResultController extends Controller
             
             $drawDate = $this->parseApiDate($data['date']);
             
-            DrawResult::updateOrCreate(
-                ['draw_date' => $drawDate],
-                [
+            // Check if record exists and update, otherwise create
+            $existingResult = DrawResult::whereDate('draw_date', $drawDate)->first();
+            
+            if ($existingResult) {
+                $existingResult->update([
                     'date_th' => $data['date'],
                     'date_en' => $this->translateThaiDate($data['date']),
-                    'prizes' => json_encode($data['prizes']),
-                    'running_numbers' => json_encode($data['runningNumbers'] ?? $data['runningnumbers'] ?? []),
+                    'prizes' => $data['prizes'],
+                    'running_numbers' => $data['runningNumbers'] ?? $data['runningnumbers'] ?? [],
                     'endpoint' => $data['endpoint'] ?? null,
-                ]
-            );
+                ]);
+            } else {
+                DrawResult::create([
+                    'draw_date' => $drawDate,
+                    'date_th' => $data['date'],
+                    'date_en' => $this->translateThaiDate($data['date']),
+                    'prizes' => $data['prizes'],
+                    'running_numbers' => $data['runningNumbers'] ?? $data['runningnumbers'] ?? [],
+                    'endpoint' => $data['endpoint'] ?? null,
+                ]);
+            }
             
             return back()->with('success', 'Latest lottery result synced successfully.');
         } catch (\Exception $e) {
@@ -223,16 +240,27 @@ class DrawResultController extends Controller
                     
                     $draw_date = $this->parseApiDate($res['date']);
                     
-                    DrawResult::updateOrCreate(
-                        ['draw_date' => $draw_date],
-                        [
+                    // Check if record exists and update, otherwise create
+                    $existingResult = DrawResult::whereDate('draw_date', $draw_date)->first();
+                    
+                    if ($existingResult) {
+                        $existingResult->update([
                             'date_th' => $res['date'],
                             'date_en' => $this->translateThaiDate($res['date']),
-                            'prizes' => json_encode($res['prizes']),
-                            'running_numbers' => json_encode($res['runningNumbers'] ?? $res['runningnumbers'] ?? []),
+                            'prizes' => $res['prizes'],
+                            'running_numbers' => $res['runningNumbers'] ?? $res['runningnumbers'] ?? [],
                             'endpoint' => $res['endpoint'] ?? null,
-                        ]
-                    );
+                        ]);
+                    } else {
+                        DrawResult::create([
+                            'draw_date' => $draw_date,
+                            'date_th' => $res['date'],
+                            'date_en' => $this->translateThaiDate($res['date']),
+                            'prizes' => $res['prizes'],
+                            'running_numbers' => $res['runningNumbers'] ?? $res['runningnumbers'] ?? [],
+                            'endpoint' => $res['endpoint'] ?? null,
+                        ]);
+                    }
                     
                     $imported++;
                 } catch (\Exception $e) {

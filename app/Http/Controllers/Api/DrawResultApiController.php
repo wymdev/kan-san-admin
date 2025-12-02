@@ -157,8 +157,9 @@ class DrawResultApiController extends Controller
 
     private function checkNumberAgainstPrizes($lotteryNumber, $drawResult)
     {
-        $prizes = json_decode($drawResult->prizes, true) ?: [];
-        $runningNumbers = json_decode($drawResult->running_numbers, true) ?: [];
+        // Already decoded by model cast
+        $prizes = is_array($drawResult->prizes) ? $drawResult->prizes : [];
+        $runningNumbers = is_array($drawResult->running_numbers) ? $drawResult->running_numbers : [];
         $numberLength = strlen($lotteryNumber);
         $allPrizes = array_merge($prizes, $runningNumbers);
         $matchedPrizes = [];
@@ -207,8 +208,8 @@ class DrawResultApiController extends Controller
             'draw_date' => Carbon::parse($result->draw_date)->format('Y-m-d'), // Format as YYYY-MM-DD only
             'date_th' => $result->date_th,
             'date_en' => $result->date_en,
-            'prizes' => json_decode($result->prizes),
-            'running_numbers' => json_decode($result->running_numbers),
+            'prizes' => $result->prizes ?? [],
+            'running_numbers' => $result->running_numbers ?? [],
         ];
     }
 }
