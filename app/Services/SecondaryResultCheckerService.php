@@ -2,11 +2,11 @@
 
 namespace App\Services;
 
-use App\Models\TicketPurchase;
+use App\Models\SecondarySalesTransaction;
 use App\Models\DrawResult;
 use Carbon\Carbon;
 
-class LotteryResultCheckerService
+class SecondaryResultCheckerService
 {
     /**
      * Maximum days a draw can be postponed (for holidays)
@@ -14,9 +14,9 @@ class LotteryResultCheckerService
     const MAX_POSTPONE_DAYS = 4;
 
     /**
-     * Check all pending purchases against latest lottery results
+     * Check all pending secondary transactions against latest lottery results
      */
-    public function checkAllPendingPurchases()
+    public function checkAllPendingTransactions()
     {
         // Get the latest draw result
         $latestDraw = DrawResult::latest('draw_date')->first();
@@ -25,7 +25,7 @@ class LotteryResultCheckerService
             return [
                 'success' => false,
                 'type' => 'error',
-                'message' => '❌ No lottery draw results available in the system. Please add draw results first.',
+                'message' => '❌ No lottery draw results available. Please sync draw results first.',
                 'checked' => 0,
                 'won' => 0,
                 'not_won' => 0,
@@ -34,17 +34,17 @@ class LotteryResultCheckerService
             ];
         }
 
-        // Get unchecked approved purchases
-        $uncheckedPurchases = TicketPurchase::with(['lotteryTicket', 'customer'])
-            ->where('status', TicketPurchase::STATUS_APPROVED)
+        // Get unchecked transactions
+        $uncheckedTransactions = SecondarySalesTransaction::with(['secondaryTicket', 'customer'])
+            ->where('status', SecondarySalesTransaction::STATUS_PENDING)
             ->whereNull('checked_at')
             ->get();
 
-        if ($uncheckedPurchases->isEmpty()) {
+        if ($uncheckedTransactions->isEmpty()) {
             return [
                 'success' => true,
                 'type' => 'info',
-                'message' => 'ℹ️ All purchases have already been checked. No pending purchases to process.',
+                'message' => 'ℹ️ All transactions have been checked. No pending transactions.',
                 'checked' => 0,
                 'won' => 0,
                 'not_won' => 0,
@@ -62,13 +62,13 @@ class LotteryResultCheckerService
         $actualDrawDate = Carbon::parse($latestDraw->draw_date);
         
         $details = [
-            'future_purchases' => [],
-            'outdated_purchases' => [],
+            'future_transactions' => [],
+            'outdated_transactions' => [],
             'winners' => [],
         ];
 
-        foreach ($uncheckedPurchases as $purchase) {
-            $ticket = $purchase->lotteryTicket;
+        foreach ($uncheckedTransactions as $transaction) {
+            $ticket = $transaction->secondaryTicket;
             
             // Skip if no ticket or no draw date
             if (!$ticket || !$ticket->withdraw_date) {
@@ -82,37 +82,33 @@ class LotteryResultCheckerService
             $compatibility = $this->checkDrawDateCompatibility($ticketDrawDate, $actualDrawDate);
 
             if ($compatibility['status'] === 'future') {
-                // Draw hasn't happened yet
                 $skippedFutureCount++;
-                $details['future_purchases'][] = [
-                    'order_number' => $purchase->order_number,
-                    'customer_name' => $purchase->customer->full_name ?? 'N/A',
+                $details['future_transactions'][] = [
+                    'transaction_number' => $transaction->transaction_number,
+                    'customer_name' => $transaction->customer_display_name,
                     'ticket_draw_date' => $ticketDrawDate->format('M d, Y'),
-                    'expected_result_date' => $compatibility['expected_result_date'],
                     'days_until_draw' => $compatibility['days_difference'],
                 ];
                 continue;
             }
 
             if ($compatibility['status'] === 'outdated') {
-                // Too old to check against current draw
                 $skippedOutdatedCount++;
-                $details['outdated_purchases'][] = [
-                    'order_number' => $purchase->order_number,
-                    'customer_name' => $purchase->customer->full_name ?? 'N/A',
+                $details['outdated_transactions'][] = [
+                    'transaction_number' => $transaction->transaction_number,
+                    'customer_name' => $transaction->customer_display_name,
                     'ticket_draw_date' => $ticketDrawDate->format('M d, Y'),
-                    'actual_draw_date' => $actualDrawDate->format('M d, Y'),
                     'days_overdue' => $compatibility['days_difference'],
                 ];
                 continue;
             }
 
             // Check if ticket won
-            $isWinner = $this->checkIfWinner($purchase, $latestDraw);
+            $isWinner = $this->checkIfWinner($transaction, $latestDraw);
 
             if ($isWinner) {
-                $purchase->update([
-                    'status' => TicketPurchase::STATUS_WON,
+                $transaction->update([
+                    'status' => SecondarySalesTransaction::STATUS_WON,
                     'draw_result_id' => $latestDraw->id,
                     'prize_won' => $isWinner['prize'],
                     'checked_at' => now(),
@@ -120,14 +116,14 @@ class LotteryResultCheckerService
                 $wonCount++;
                 
                 $details['winners'][] = [
-                    'order_number' => $purchase->order_number,
-                    'customer_name' => $purchase->customer->full_name ?? 'N/A',
+                    'transaction_number' => $transaction->transaction_number,
+                    'customer_name' => $transaction->customer_display_name,
                     'prize' => $isWinner['prize'],
                     'winning_number' => $isWinner['number'],
                 ];
             } else {
-                $purchase->update([
-                    'status' => TicketPurchase::STATUS_NOT_WON,
+                $transaction->update([
+                    'status' => SecondarySalesTransaction::STATUS_NOT_WON,
                     'draw_result_id' => $latestDraw->id,
                     'checked_at' => now(),
                 ]);
@@ -138,7 +134,6 @@ class LotteryResultCheckerService
         $totalChecked = $wonCount + $notWonCount;
         $totalSkipped = $skippedFutureCount + $skippedOutdatedCount + $skippedNoTicketCount;
 
-        // Build detailed message
         $message = $this->buildResultMessage(
             $totalChecked,
             $wonCount,
@@ -172,34 +167,23 @@ class LotteryResultCheckerService
     private function checkDrawDateCompatibility(Carbon $ticketDrawDate, Carbon $actualDrawDate)
     {
         if ($actualDrawDate->lt($ticketDrawDate)) {
-            // Draw hasn't happened yet
             $daysDiff = $ticketDrawDate->diffInDays($actualDrawDate);
-            $expectedDate = $ticketDrawDate->copy();
-            
-            // Account for possible postponement
-            if ($ticketDrawDate->dayOfWeek === Carbon::SUNDAY) {
-                $expectedDate->addDays(1); // Could be Monday
-            }
             
             return [
                 'status' => 'future',
                 'days_difference' => $daysDiff,
-                'expected_result_date' => $expectedDate->format('M d, Y'),
             ];
         }
 
         $daysDiff = $actualDrawDate->diffInDays($ticketDrawDate);
 
         if ($daysDiff <= self::MAX_POSTPONE_DAYS) {
-            // Within acceptable range (0-4 days)
             return [
                 'status' => 'compatible',
                 'days_difference' => $daysDiff,
-                'postponement' => $daysDiff > 0 ? "Draw postponed {$daysDiff} day(s)" : 'On time',
             ];
         }
 
-        // Too old
         return [
             'status' => 'outdated',
             'days_difference' => $daysDiff,
@@ -214,7 +198,7 @@ class LotteryResultCheckerService
         $parts = [];
 
         if ($checked > 0) {
-            $parts[] = "✅ Checked <strong>{$checked}</strong> purchase(s) against draw on <strong>{$drawDate}</strong>";
+            $parts[] = "✅ Checked <strong>{$checked}</strong> transaction(s) against draw on <strong>{$drawDate}</strong>";
             
             if ($won > 0) {
                 $parts[] = "🎉 <strong>{$won}</strong> winner(s)";
@@ -226,43 +210,57 @@ class LotteryResultCheckerService
         }
 
         if ($future > 0) {
-            $parts[] = "⏰ <strong>{$future}</strong> purchase(s) waiting for future draw results";
+            $parts[] = "⏰ <strong>{$future}</strong> transaction(s) waiting for future draw results";
         }
 
         if ($outdated > 0) {
-            $parts[] = "⚠️ <strong>{$outdated}</strong> purchase(s) have outdated draw dates (more than 4 days old)";
+            $parts[] = "⚠️ <strong>{$outdated}</strong> transaction(s) have outdated draw dates";
         }
 
         if ($noTicket > 0) {
-            $parts[] = "❓ <strong>{$noTicket}</strong> purchase(s) have missing ticket information";
+            $parts[] = "❓ <strong>{$noTicket}</strong> transaction(s) have missing ticket information";
         }
 
         return implode('. ', $parts) . '.';
     }
 
     /**
-     * Check if a purchase is a winner
+     * Check if a transaction is a winner - supports multiple prizes per ticket
      */
-    /**
-     * Check if a purchase is a winner
-     */
-    private function checkIfWinner(TicketPurchase $purchase, DrawResult $drawResult)
+    private function checkIfWinner(SecondarySalesTransaction $transaction, DrawResult $drawResult)
     {
-        $ticket = $purchase->lotteryTicket;
+        $ticket = $transaction->secondaryTicket;
         
-        // Get ticket numbers (can be array or string)
+        // Get ticket numbers
         $ticketNumbers = is_array($ticket->numbers) ? $ticket->numbers : [$ticket->numbers];
+        if (empty($ticketNumbers)) {
+            return false;
+        }
         
+        // Check each number
         foreach ($ticketNumbers as $ticketNumber) {
             $ticketNumber = str_replace(' ', '', $ticketNumber);
             
             $result = $drawResult->checkNumber($ticketNumber);
             
-            if ($result) {
-                return [
-                    'prize' => $result['prize_name'],
-                    'number' => $result['number']
-                ];
+            if ($result && is_array($result) && count($result) > 0) {
+                // New format: array of prize arrays
+                if (isset($result[0]) && is_array($result[0])) {
+                    // Combine all prize names
+                    $prizes = array_map(fn($p) => $p['prize_name'] ?? 'Prize', $result);
+                    return [
+                        'prize' => implode(', ', $prizes),
+                        'number' => $result[0]['number'] ?? $ticketNumber,
+                        'all_prizes' => $result,
+                    ];
+                }
+                // Old format (single prize)
+                elseif (isset($result['prize_name'])) {
+                    return [
+                        'prize' => $result['prize_name'],
+                        'number' => $result['number'] ?? $ticketNumber,
+                    ];
+                }
             }
         }
 
@@ -270,28 +268,14 @@ class LotteryResultCheckerService
     }
 
     /**
-     * Check if two numbers match
-     */
-    private function numbersMatch($ticketNumber, $winningNumber)
-    {
-        $ticket = str_replace(' ', '', $ticketNumber);
-        $winning = str_replace(' ', '', $winningNumber);
-        
-        return $ticket === $winning;
-    }
-
-    /**
      * Check running number (last 2 or 3 digits)
      */
     private function checkRunningNumber($ticketNumber, $runningNumber)
     {
-        $ticket = str_replace(' ', '', $ticketNumber);
-        $running = str_replace(' ', '', $runningNumber);
+        $runningLength = strlen($runningNumber);
+        $ticketLast = substr($ticketNumber, -$runningLength);
         
-        $runningLength = strlen($running);
-        $ticketLast = substr($ticket, -$runningLength);
-        
-        return $ticketLast === $running;
+        return $ticketLast === $runningNumber;
     }
 
     /**
@@ -322,32 +306,33 @@ class LotteryResultCheckerService
         $latestDraw = DrawResult::latest('draw_date')->first();
         
         return [
-            'total_purchases' => TicketPurchase::count(),
-            'awaiting_check' => TicketPurchase::where('status', TicketPurchase::STATUS_APPROVED)
+            'total_transactions' => SecondarySalesTransaction::count(),
+            'total_revenue' => SecondarySalesTransaction::sum('amount_thb'),
+            'awaiting_check' => SecondarySalesTransaction::where('status', SecondarySalesTransaction::STATUS_PENDING)
                                               ->whereNull('checked_at')
                                               ->count(),
-            'won' => TicketPurchase::where('status', TicketPurchase::STATUS_WON)->count(),
-            'not_won' => TicketPurchase::where('status', TicketPurchase::STATUS_NOT_WON)->count(),
-            'approved' => TicketPurchase::where('status', TicketPurchase::STATUS_APPROVED)->count(),
-            'pending' => TicketPurchase::where('status', TicketPurchase::STATUS_PENDING)->count(),
-            'rejected' => TicketPurchase::where('status', TicketPurchase::STATUS_REJECTED)->count(),
+            'won' => SecondarySalesTransaction::where('status', SecondarySalesTransaction::STATUS_WON)->count(),
+            'not_won' => SecondarySalesTransaction::where('status', SecondarySalesTransaction::STATUS_NOT_WON)->count(),
+            'pending' => SecondarySalesTransaction::where('status', SecondarySalesTransaction::STATUS_PENDING)->count(),
+            'paid' => SecondarySalesTransaction::where('is_paid', true)->count(),
+            'unpaid' => SecondarySalesTransaction::where('is_paid', false)->count(),
+            'unpaid_amount' => SecondarySalesTransaction::where('is_paid', false)->sum('amount_thb'),
             'latest_draw_date' => $latestDraw ? Carbon::parse($latestDraw->draw_date)->format('M d, Y') : 'N/A',
-            'latest_draw_date_th' => $latestDraw ? $latestDraw->date_th : 'N/A',
         ];
     }
 
     /**
-     * Get purchases grouped by their draw date status
+     * Get transactions grouped by their draw date status
      */
-    public function getPurchasesByDrawStatus()
+    public function getTransactionsByDrawStatus()
     {
         $latestDraw = DrawResult::latest('draw_date')->first();
         
         if (!$latestDraw) {
             return [
                 'ready_to_check' => collect(),
-                'waiting_for_draw' => TicketPurchase::with(['lotteryTicket', 'customer'])
-                    ->where('status', TicketPurchase::STATUS_APPROVED)
+                'waiting_for_draw' => SecondarySalesTransaction::with(['secondaryTicket', 'customer'])
+                    ->where('status', SecondarySalesTransaction::STATUS_PENDING)
                     ->whereNull('checked_at')
                     ->get(),
                 'outdated' => collect(),
@@ -356,8 +341,8 @@ class LotteryResultCheckerService
         }
 
         $actualDrawDate = Carbon::parse($latestDraw->draw_date);
-        $unchecked = TicketPurchase::with(['lotteryTicket', 'customer'])
-            ->where('status', TicketPurchase::STATUS_APPROVED)
+        $unchecked = SecondarySalesTransaction::with(['secondaryTicket', 'customer'])
+            ->where('status', SecondarySalesTransaction::STATUS_PENDING)
             ->whereNull('checked_at')
             ->get();
 
@@ -365,11 +350,11 @@ class LotteryResultCheckerService
         $waitingForDraw = collect();
         $outdated = collect();
 
-        foreach ($unchecked as $purchase) {
-            $ticket = $purchase->lotteryTicket;
+        foreach ($unchecked as $transaction) {
+            $ticket = $transaction->secondaryTicket;
             
             if (!$ticket || !$ticket->withdraw_date) {
-                $outdated->push($purchase);
+                $outdated->push($transaction);
                 continue;
             }
 
@@ -377,14 +362,14 @@ class LotteryResultCheckerService
             $compatibility = $this->checkDrawDateCompatibility($ticketDrawDate, $actualDrawDate);
 
             if ($compatibility['status'] === 'future') {
-                $purchase->status_info = $compatibility;
-                $waitingForDraw->push($purchase);
+                $transaction->status_info = $compatibility;
+                $waitingForDraw->push($transaction);
             } elseif ($compatibility['status'] === 'compatible') {
-                $purchase->status_info = $compatibility;
-                $readyToCheck->push($purchase);
+                $transaction->status_info = $compatibility;
+                $readyToCheck->push($transaction);
             } else {
-                $purchase->status_info = $compatibility;
-                $outdated->push($purchase);
+                $transaction->status_info = $compatibility;
+                $outdated->push($transaction);
             }
         }
 

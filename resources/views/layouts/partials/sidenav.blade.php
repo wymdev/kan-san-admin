@@ -5,13 +5,13 @@
         href="/">
         <!-- Light Brand Logo -->
         <div class="logo-light">
-            <img alt="Light logo" class="logo-lg h-20" src="/images/logo-bg.png" />
-            <img alt="Small logo" class="logo-sm h-20" src="/images/logo-bg.png" />
+            <img alt="Light logo" class="logo-lg h-20" src="/images/icon.png" />
+            <img alt="Small logo" class="logo-sm h-20" src="/images/icon.png" />
         </div>
         <!-- Dark Brand Logo -->
         <div class="logo-dark">
-            <img alt="Dark logo" class="logo-lg h-20" src="/images/logo-bg.png" />
-            <img alt="Small logo" class="logo-sm h-20" src="/images/logo-bg.png" />
+            <img alt="Dark logo" class="logo-lg h-20" src="/images/icon.png" />
+            <img alt="Small logo" class="logo-sm h-20" src="/images/icon.png" />
         </div>
     </a>
     <!-- Sidenav Menu Toggle Button -->
@@ -364,6 +364,38 @@
                         <li class="menu-item">
                             <a class="menu-link" href="{{ route('drawinfos.index') }}">
                                 <span class="menu-text"> Draw Date Management </span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="menu-title">
+                    <span>Secondary Sales</span>
+                </li>
+                <li class="menu-item hs-accordion">
+                    <a class="hs-accordion-toggle menu-link" href="javascript:void(0)">
+                        <span class="menu-icon"><i data-lucide="store"></i></span>
+                        <span class="menu-text"> Secondary Sales</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul class="sub-menu hs-accordion-content hidden">
+                        <li class="menu-item">
+                            <a class="menu-link" href="{{ route('secondary-sales.dashboard') }}">
+                                <span class="menu-text">Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a class="menu-link" href="{{ route('secondary-tickets.index') }}">
+                                <span class="menu-text">Tickets (OCR)</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a class="menu-link" href="{{ route('secondary-transactions.index') }}">
+                                <span class="menu-text">Transactions</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a class="menu-link" href="{{ route('secondary-transactions.check-results') }}">
+                                <span class="menu-text">Check Results</span>
                             </a>
                         </li>
                     </ul>

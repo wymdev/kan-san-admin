@@ -29,6 +29,8 @@
     </div>
 
     @include('layouts.partials/customizer')
+    
+    @yield('script')
 </body>
 
 </html>

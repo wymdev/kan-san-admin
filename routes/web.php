@@ -20,6 +20,11 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AnalyticsDashboardController;
 use App\Http\Controllers\CustomerAnalyticsController;
 use App\Http\Controllers\CpanelStatsController;
+use App\Http\Controllers\SecondaryTicketController;
+use App\Http\Controllers\SecondarySalesController;
+use App\Http\Controllers\SecondarySalesDashboardController;
+use App\Http\Controllers\PublicResultController;
+use App\Http\Controllers\PublicLotteryController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +32,23 @@ use Illuminate\Support\Facades\Route;
 Route::get('/privacy-policy', [App\Http\Controllers\PublicPageController::class, 'privacyPolicy'])->name('privacy-policy');
 Route::get('/terms-conditions', [App\Http\Controllers\PublicPageController::class, 'termsConditions'])->name('terms-conditions');
 Route::get('/about-us', [App\Http\Controllers\PublicPageController::class, 'aboutUs'])->name('about-us');
+
+// Public Lottery Portal (accessible without authentication)
+Route::prefix('lottery')->name('public.')->group(function() {
+    // Main lottery check page
+    Route::get('/check', [PublicLotteryController::class, 'index'])->name('lottery-check');
+    Route::post('/check', [PublicLotteryController::class, 'check'])->name('lottery-check.submit');
+    
+    // Historical results
+    Route::get('/history', [PublicLotteryController::class, 'history'])->name('lottery-history');
+    Route::get('/result/{date}', [PublicLotteryController::class, 'showResult'])->name('lottery-result');
+    
+    // Customer batch view (unique link)
+    Route::get('/my/{token}', [PublicLotteryController::class, 'customerBatch'])->name('customer-batch');
+});
+
+// Legacy lottery result check (single transaction unique link)
+Route::get('/lottery-result/{token}', [PublicResultController::class, 'show'])->name('public.lottery-result-legacy');
 
 // Guest routes
 Route::middleware(['guest','sanitizeInput', 'fileTypeCheck','throttle:9,10'])->group(function () {
@@ -141,6 +163,35 @@ Route::middleware(['auth', 'otp.verified','sanitizeInput', 'fileTypeCheck'])->gr
     Route::get('/dashboards/analytics', function() {
         return redirect()->route('analytics.index');
     });
+
+    // ========================================
+    // SECONDARY SALES MODULE
+    // ========================================
+    
+    // Secondary Sales Dashboard
+    Route::get('/secondary-sales/dashboard', [SecondarySalesDashboardController::class, 'index'])
+         ->name('secondary-sales.dashboard');
+    
+    // Secondary Tickets (with OCR)
+    Route::post('/secondary-tickets/extract-ocr', [SecondaryTicketController::class, 'extractOcr'])
+         ->name('secondary-tickets.extract-ocr');
+    Route::resource('secondary-tickets', SecondaryTicketController::class);
+    
+    // Secondary Transactions
+    Route::get('/secondary-transactions/check-results', [SecondarySalesController::class, 'checkResultsPage'])
+         ->name('secondary-transactions.check-results');
+    Route::post('/secondary-transactions/check-all', [SecondarySalesController::class, 'checkResults'])
+         ->name('secondary-transactions.check-all');
+    Route::get('/secondary-transactions/export', [SecondarySalesController::class, 'export'])
+         ->name('secondary-transactions.export');
+    Route::post('/secondary-transactions/{secondaryTransaction}/mark-paid', [SecondarySalesController::class, 'markPaid'])
+         ->name('secondary-transactions.mark-paid');
+    Route::resource('secondary-transactions', SecondarySalesController::class);
+    
+    // Customer search API for secondary sales
+    Route::get('/api/customers/search', [SecondarySalesController::class, 'searchCustomers'])
+         ->name('api.customers.search');
+    // ========================================
 
     // Catch-all routing
     Route::get('/{first}', [RoutingController::class, 'root'])->name('first');

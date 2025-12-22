@@ -54,22 +54,39 @@
         </script>
     @endif
 
-    <div class="flex justify-between gap-3 flex-wrap items-center mb-5">
-        <form method="GET" action="{{ route('roles.index') }}" class="relative mb-5 flex items-center">
-            <input class="form-input form-input-sm ps-9" placeholder="Search for role name..." type="text" name="search" value="{{ request('search') }}" />
-            <div class="absolute inset-y-0 start-4 flex items-center">
-                <i class="size-3.5 flex items-center text-default-500" data-lucide="search"></i>
+    <div class="card mb-5">
+        <div class="card-header">
+            <div class="md:flex items-center md:space-y-0 space-y-4 gap-3 justify-between w-full">
+                <form method="GET" action="{{ route('roles.index') }}" class="flex gap-3 flex-1">
+                    <div class="relative flex-1">
+                        <input 
+                            class="form-input form-input-sm ps-9 w-full" 
+                            placeholder="Search for role name..." 
+                            type="text" 
+                            name="search" 
+                            value="{{ request('search') }}"
+                        />
+                        <div class="absolute inset-y-0 start-0 flex items-center ps-3">
+                            <i class="size-3.5" data-lucide="search"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-sm bg-primary text-white">
+                        Search
+                    </button>
+                    @if(!empty(request('search')))
+                        <a href="{{ route('roles.index') }}" class="btn btn-sm bg-default-200 text-default-600">
+                            Clear
+                        </a>
+                    @endif
+                </form>
+                <div class="flex gap-3">
+                    <button aria-controls="addRoleModal" aria-expanded="false" aria-haspopup="dialog"
+                        class="btn btn-sm bg-primary text-white" data-hs-overlay="#addRoleModal" type="button">
+                        <i class="size-4 me-1" data-lucide="plus"></i>
+                        Add Role
+                    </button>
+                </div>
             </div>
-        </form>
-        <div class="flex gap-3 items-center">
-            <button aria-controls="addRoleModal" aria-expanded="false" aria-haspopup="dialog"
-                class="btn btn-sm bg-primary text-white" data-hs-overlay="#addRoleModal" type="button">
-                <i class="size-4 ms-1" data-lucide="plus"></i>
-                Add Role
-            </button>
-            <button class="btn size-7.5 bg-default-500 text-white hover:bg-default-600" type="button">
-                <i class="size-4" data-lucide="sliders-horizontal"></i>
-            </button>
         </div>
     </div>
 

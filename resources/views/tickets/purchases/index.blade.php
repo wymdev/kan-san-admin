@@ -134,35 +134,45 @@
         </div>
         <div class="card-header">
             <div class="md:flex items-center md:space-y-0 space-y-4 gap-3">
-                <form method="GET" action="{{ route('purchases.index') }}" class="w-full flex flex-wrap gap-3">
-                    <div class="relative flex-1 min-w-[200px]">
-                        <input class="form-input form-input-sm ps-9 w-full" placeholder="Search for order number, customer..." type="text" name="search" value="{{ request('search') }}" />
-                        <div class="absolute inset-y-0 start-0 flex items-center ps-3">
-                            <i class="size-3.5 flex items-center text-default-500 fill-default-100" data-lucide="search"></i>
+                <form method="GET" action="{{ route('purchases.index') }}" class="flex gap-2 flex-wrap items-center">
+                    <div class="relative" style="width: 12rem;">
+                        <input 
+                            class="ps-10 form-input form-input-sm w-full" 
+                            placeholder="Search orders..." 
+                            type="text" 
+                            name="search" 
+                            value="{{ request('search') }}"
+                        />
+                        <div class="absolute inset-y-0 left-0 flex items-center ps-3">
+                            <i class="size-4 text-default-500" data-lucide="search"></i>
                         </div>
                     </div>
                     
-                    <select name="status" class="form-select form-select-sm w-auto">
-                        <option value="">All Status</option>
-                        <option value="pending" {{ request('status')=='pending' ? 'selected' : '' }}>Pending Approval</option>
-                        <option value="approved" {{ request('status')=='approved' ? 'selected' : '' }}>Approved</option>
-                        <option value="rejected" {{ request('status')=='rejected' ? 'selected' : '' }}>Rejected</option>
-                        <option value="won" {{ request('status')=='won' ? 'selected' : '' }}>Won</option>
-                        <option value="not_won" {{ request('status')=='not_won' ? 'selected' : '' }}>Not Won</option>
-                    </select>
+                    <div style="width: 9rem;">
+                        <select name="status" class="form-input form-input-sm w-full">
+                            <option value="">All Status</option>
+                            <option value="pending" {{ request('status')=='pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="approved" {{ request('status')=='approved' ? 'selected' : '' }}>Approved</option>
+                            <option value="rejected" {{ request('status')=='rejected' ? 'selected' : '' }}>Rejected</option>
+                            <option value="won" {{ request('status')=='won' ? 'selected' : '' }}>Won</option>
+                            <option value="not_won" {{ request('status')=='not_won' ? 'selected' : '' }}>Not Won</option>
+                        </select>
+                    </div>
 
-                    <select name="result_status" class="form-select form-select-sm w-auto">
-                        <option value="">All Results</option>
-                        <option value="unchecked" {{ request('result_status')=='unchecked' ? 'selected' : '' }}>Unchecked</option>
-                        <option value="won" {{ request('result_status')=='won' ? 'selected' : '' }}>Winners Only</option>
-                        <option value="not_won" {{ request('result_status')=='not_won' ? 'selected' : '' }}>Not Won</option>
-                    </select>
+                    <div style="width: 8rem;">
+                        <select name="result_status" class="form-input form-input-sm w-full">
+                            <option value="">All Results</option>
+                            <option value="unchecked" {{ request('result_status')=='unchecked' ? 'selected' : '' }}>Unchecked</option>
+                            <option value="won" {{ request('result_status')=='won' ? 'selected' : '' }}>Winners</option>
+                            <option value="not_won" {{ request('result_status')=='not_won' ? 'selected' : '' }}>Not Won</option>
+                        </select>
+                    </div>
                     
-                    <button type="submit" class="btn btn-sm bg-primary text-white">
-                        Search
+                    <button type="submit" class="btn btn-xs bg-primary text-white">
+                        <i class="size-4 me-1" data-lucide="search"></i>Filter
                     </button>
                     @if(request('search') || request('status') || request('result_status'))
-                        <a href="{{ route('purchases.index') }}" class="btn btn-sm bg-default-200 text-default-600 hover:bg-default-300">
+                        <a href="{{ route('purchases.index') }}" class="btn btn-xs bg-default-200 text-default-600 hover:bg-default-300">
                             Clear
                         </a>
                     @endif
