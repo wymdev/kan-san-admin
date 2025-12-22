@@ -23,7 +23,7 @@
 
     {{-- Statistics Cards --}}
     @if(isset($stats))
-    <div class="grid lg:grid-cols-5 md:grid-cols-3 grid-cols-2 gap-4 mb-6">
+    <div class="grid lg:grid-cols-6 md:grid-cols-3 grid-cols-2 gap-4 mb-6">
         <div class="card">
             <div class="card-body">
                 <div class="flex items-center gap-3">
@@ -87,8 +87,22 @@
                         <i class="text-info size-6" data-lucide="wallet"></i>
                     </div>
                     <div>
-                        <p class="text-sm text-default-600">Total Revenue</p>
+                        <p class="text-sm text-default-600">Total Revenue (THB)</p>
                         <h4 class="text-2xl font-bold">฿{{ number_format($stats['total_revenue'], 0) }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="flex items-center gap-3">
+                    <div class="p-3 bg-purple-100 rounded-lg">
+                        <i class="text-purple-600 size-6" data-lucide="banknote"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-default-600">Total Revenue (MMK)</p>
+                        <h4 class="text-2xl font-bold">{{ number_format($stats['total_revenue_mmk'] ?? 0, 0) }} K</h4>
                     </div>
                 </div>
             </div>

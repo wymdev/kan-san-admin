@@ -308,6 +308,7 @@ class SecondaryResultCheckerService
         return [
             'total_transactions' => SecondarySalesTransaction::count(),
             'total_revenue' => SecondarySalesTransaction::sum('amount_thb'),
+            'total_revenue_mmk' => SecondarySalesTransaction::sum('amount_mmk'),
             'awaiting_check' => SecondarySalesTransaction::where('status', SecondarySalesTransaction::STATUS_PENDING)
                                               ->whereNull('checked_at')
                                               ->count(),
