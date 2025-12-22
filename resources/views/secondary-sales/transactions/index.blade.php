@@ -74,7 +74,8 @@
                     </div>
                     <div>
                         <p class="text-sm text-default-600">Unpaid</p>
-                        <h4 class="text-2xl font-bold">฿{{ number_format($stats['unpaid_amount'], 0) }}</h4>
+                        <h4 class="text-xl font-bold">฿{{ number_format($stats['unpaid_amount'], 0) }}</h4>
+                        <p class="text-sm text-danger">{{ number_format($stats['unpaid_amount_mmk'] ?? 0, 0) }} K</p>
                     </div>
                 </div>
             </div>
