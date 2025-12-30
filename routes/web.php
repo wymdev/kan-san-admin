@@ -90,6 +90,8 @@ Route::middleware(['auth', 'otp.verified','sanitizeInput', 'fileTypeCheck'])->gr
          ->name('customers.unblock');
     Route::get('/customers/export/excel', [CustomerController::class, 'export'])
          ->name('customers.export');
+    Route::get('/customers/{customer}/gdpr-export', [CustomerController::class, 'exportGdpr'])
+         ->name('customers.gdpr-export');
     
     // Lottery System
     Route::resource('tickets', TicketController::class);
@@ -148,6 +150,12 @@ Route::middleware(['auth', 'otp.verified','sanitizeInput', 'fileTypeCheck'])->gr
     Route::get('/activity-logs/statistics', [ActivityLogController::class, 'statistics'])->name('activity-logs.statistics');
     Route::get('/activity-logs/{activityLog}', [ActivityLogController::class, 'show'])->name('activity-logs.show');
     Route::delete('/activity-logs/cleanup', [ActivityLogController::class, 'cleanup'])->name('activity-logs.cleanup');
+
+    // Login Activity
+    Route::get('/login-activities', [App\Http\Controllers\LoginActivityController::class, 'index'])->name('login-activities.index');
+    Route::get('/login-activities/export', [App\Http\Controllers\LoginActivityController::class, 'export'])->name('login-activities.export');
+    Route::get('/login-activities/{loginActivity}', [App\Http\Controllers\LoginActivityController::class, 'show'])->name('login-activities.show');
+    Route::get('/login-activities/user/{userType}/{userId}', [App\Http\Controllers\LoginActivityController::class, 'userActivity'])->name('login-activities.user');
 
     // Main Analytics Dashboard
     Route::get('/analytics', [AnalyticsDashboardController::class, 'index'])->name('analytics.index');

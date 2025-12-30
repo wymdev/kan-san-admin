@@ -409,7 +409,7 @@ html[data-sidenav-size="hidden"] {
 
 /* Logo */
 .logo-box .logo-sm {
-    display: none
+    display: none;
 }
 
 .logo-box .logo-light {
@@ -426,6 +426,20 @@ html[data-sidenav-color="dark"] {
 
             .logo-dark {
                 display: none;
+            }
+        }
+    }
+}
+
+html[data-sidenav-size="sm"] {
+    .app-menu {
+        .logo-box {
+            .logo-lg {
+                display: none;
+            }
+
+            .logo-sm {
+                display: flex;
             }
         }
     }

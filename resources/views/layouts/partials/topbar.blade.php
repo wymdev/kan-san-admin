@@ -116,9 +116,16 @@
             <!-- Profile Dropdown Button -->
             <div class="topbar-item hs-dropdown relative inline-flex">
                 <button aria-expanded="false" aria-haspopup="menu" aria-label="Profile Menu"
-                        class="cursor-pointer bg-pink-100 rounded-full">
-                    <img alt="user-image" class="hs-dropdown-toggle rounded-full size-9.5"
-                         src="/images/user/avatar-1.png"/>
+                        class="cursor-pointer rounded-full p-0.5 bg-primary/10 hover:bg-primary/20 transition-colors">
+                    @php
+                        $adminUser = auth()->user();
+                        $nameParts = explode(' ', $adminUser->name);
+                        $initials = strtoupper(substr($nameParts[0], 0, 1) . (isset($nameParts[1]) ? substr($nameParts[1], 0, 1) : ''));
+                        $bgColor = 'bg-primary';
+                    @endphp
+                    <div class="size-9 rounded-full {{ $bgColor }} flex items-center justify-center text-white font-semibold text-sm">
+                        {{ $initials }}
+                    </div>
                 </button>
                 
                 <div aria-labelledby="hs-dropdown-with-icons" aria-orientation="vertical"
@@ -126,9 +133,16 @@
                     <div class="p-2">
                         <h6 class="mb-2 text-default-500">Welcome to Kan San</h6>
                         <a class="flex gap-3" href="#!">
+                            @php
+                                $adminUser = auth()->user();
+                                $nameParts = explode(' ', $adminUser->name);
+                                $initials = strtoupper(substr($nameParts[0], 0, 1) . (isset($nameParts[1]) ? substr($nameParts[1], 0, 1) : ''));
+                            @endphp
                             <div class="relative inline-block">
-                                <div class="rounded bg-default-200">
-                                    <img alt="" class="size-12 rounded" src="/images/user/avatar-1.png"/>
+                                <div class="rounded bg-primary/10 flex items-center justify-center">
+                                    <div class="size-12 rounded-full bg-primary flex items-center justify-center text-white font-semibold">
+                                        {{ $initials }}
+                                    </div>
                                 </div>
                                 <span class="-top-1 -end-1 absolute w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full"></span>
                             </div>

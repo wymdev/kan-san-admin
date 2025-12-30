@@ -11,9 +11,11 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use App\Exports\CustomersExport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Traits\LogsActivity;
 
 class CustomerController extends Controller
 {
+    use LogsActivity;
     /**
      * Constructor - Apply middleware for role-based access control
      */
@@ -90,13 +92,37 @@ class CustomerController extends Controller
     }
 
     /**
-     * Display the specified customer
+     * Display the specified customer with analytics
      */
     public function show($id): View
     {
         $customer = Customer::findOrFail($id);
-        
-        return view('customers.show', compact('customer'));
+
+        $analytics = [
+            'total_purchases' => $customer->totalPurchases(),
+            'total_spent' => number_format($customer->totalSpent(), 2),
+            'win_count' => $customer->winCount(),
+            'not_won_count' => $customer->notWonCount(),
+            'pending_count' => $customer->pendingCount(),
+            'approved_count' => $customer->approvedCount(),
+            'rejected_count' => $customer->rejectedCount(),
+            'win_rate' => $customer->winRate(),
+            'total_prize_won' => number_format($customer->totalPrizeWon(), 2),
+            'biggest_win' => $customer->biggestWin(),
+            'avg_prize_per_win' => number_format($customer->averagePrizePerWin(), 2),
+            'purchase_frequency' => $customer->purchaseFrequency(),
+        ];
+
+        $monthlyData = $customer->monthlyPurchases(6);
+        $monthlyLabels = $monthlyData->pluck('month')->toArray();
+        $monthlyWins = $monthlyData->pluck('wins')->toArray();
+        $monthlySpent = $monthlyData->pluck('total_spent')->map(fn($v) => (float)$v)->toArray();
+
+        $winLossTrend = $customer->winLossTrend();
+
+        $recentPurchases = $customer->recentPurchases(10);
+
+        return view('customers.show', compact('customer', 'analytics', 'monthlyLabels', 'monthlyWins', 'monthlySpent', 'winLossTrend', 'recentPurchases'));
     }
 
     /**
@@ -205,17 +231,20 @@ class CustomerController extends Controller
 
         try {
             $customer = Customer::findOrFail($id);
-            
+
             if ($customer->is_blocked) {
                 return back()->with('warning', 'Customer is already blocked.');
             }
 
+            $oldValues = $customer->getAttributes();
             $customer->update([
                 'is_blocked' => true,
                 'blocked_at' => now(),
                 'blocked_by' => auth()->id(),
                 'block_reason' => $request->block_reason,
             ]);
+
+            self::logAccountBlock(Customer::class, $id, $request->block_reason);
 
             return redirect()->back()
                 ->with('success', 'Customer account has been blocked successfully!');
@@ -232,7 +261,7 @@ class CustomerController extends Controller
     {
         try {
             $customer = Customer::findOrFail($id);
-            
+
             if (!$customer->is_blocked) {
                 return back()->with('warning', 'Customer is not blocked.');
             }
@@ -244,12 +273,117 @@ class CustomerController extends Controller
                 'block_reason' => null,
             ]);
 
+            self::logAccountUnblock(Customer::class, $id);
+
             return redirect()->back()
                 ->with('success', 'Customer account has been unblocked successfully!');
         } catch (\Exception $e) {
             return back()
                 ->with('error', 'An error occurred while unblocking the customer.');
         }
+    }
+
+    /**
+     * Export customer data (GDPR compliance)
+     */
+    public function exportGdpr(Request $request, $id)
+    {
+        $customer = Customer::findOrFail($id);
+
+        self::logDataExport('GDPR', $customer->id, null);
+
+        $data = $this->getGdprData($customer);
+
+        $filename = 'customer-gdpr-export-' . $customer->id . '-' . now()->format('Y-m-d-His') . '.json';
+
+        if ($request->get('format') === 'json') {
+            return response()->json($data)
+                ->header('Content-Disposition', "attachment; filename=\"{$filename}\"");
+        }
+
+        $html = view('customers.gdpr-export', compact('customer', 'data'))->render();
+
+        return response($html)
+            ->header('Content-Type', 'text/html')
+            ->header('Content-Disposition', "attachment; filename=\"gdpr-export-{$customer->id}-" . now()->format('Y-m-d') . ".html\"");
+    }
+
+    private function getGdprData(Customer $customer): array
+    {
+        return [
+            'export_info' => [
+                'generated_at' => now()->toIso8601String(),
+                'export_type' => 'GDPR Data Export',
+                'version' => '1.0',
+            ],
+            'personal_information' => [
+                'id' => $customer->id,
+                'phone_number' => $customer->phone_number,
+                'full_name' => $customer->full_name,
+                'email' => $customer->email,
+                'gender' => $customer->gender,
+                'date_of_birth' => $customer->dob?->toIso8601String(),
+                'thai_pin' => $customer->thai_pin ? '***REDACTED***' : null,
+                'address' => $customer->address,
+                'created_at' => $customer->created_at->toIso8601String(),
+                'updated_at' => $customer->updated_at->toIso8601String(),
+            ],
+            'account_status' => [
+                'is_blocked' => $customer->is_blocked,
+                'blocked_at' => $customer->blocked_at?->toIso8601String(),
+                'block_reason' => $customer->block_reason,
+            ],
+            'purchases' => $customer->purchases()->with(['lotteryTicket', 'drawResult'])->get()->map(function ($purchase) {
+                return [
+                    'order_number' => $purchase->order_number,
+                    'ticket_number' => $purchase->lotteryTicket->ticket_number ?? null,
+                    'quantity' => $purchase->quantity,
+                    'total_price' => $purchase->total_price,
+                    'status' => $purchase->status,
+                    'prize_won' => $purchase->prize_won,
+                    'created_at' => $purchase->created_at->toIso8601String(),
+                    'draw_date' => $purchase->lotteryTicket->draw_date ?? null,
+                ];
+            }),
+            'push_tokens' => $customer->pushTokens->map(function ($token) {
+                return [
+                    'platform' => $token->platform,
+                    'device_name' => $token->device_name,
+                    'is_active' => $token->is_active,
+                    'created_at' => $token->created_at->toIso8601String(),
+                    'last_seen_at' => $token->last_seen_at?->toIso8601String(),
+                ];
+            }),
+            'login_activities' => \App\Models\LoginActivity::where('user_type', Customer::class)
+                ->where('user_id', $customer->id)
+                ->orderBy('login_at', 'desc')
+                ->limit(100)
+                ->get()
+                ->map(function ($activity) {
+                    return [
+                        'ip_address' => $activity->ip_address,
+                        'location' => $activity->location,
+                        'device' => $activity->device_type,
+                        'browser' => $activity->browser,
+                        'status' => $activity->status,
+                        'login_at' => $activity->login_at->toIso8601String(),
+                    ];
+                }),
+            'activity_logs' => \App\Models\ActivityLog::where('actor_type', Customer::class)
+                ->where('actor_id', $customer->id)
+                ->orderBy('created_at', 'desc')
+                ->limit(100)
+                ->get()
+                ->map(function ($log) {
+                    return [
+                        'action' => $log->action,
+                        'description' => $log->description,
+                        'context' => $log->context,
+                        'ip_address' => $log->ip_address,
+                        'created_at' => $log->created_at->toIso8601String(),
+                    ];
+                }),
+        ];
     }
 
     /**

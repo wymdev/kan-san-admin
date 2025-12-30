@@ -5,13 +5,13 @@
         href="/">
         <!-- Light Brand Logo -->
         <div class="logo-light">
-            <img alt="Light logo" class="logo-lg h-20" src="/images/icon.png" />
-            <img alt="Small logo" class="logo-sm h-20" src="/images/icon.png" />
+            <img alt="Logo" class="logo-lg h-16 w-16 rounded-full border-2 border-primary object-cover" src="/images/icon.png" />
+            <img alt="Logo" class="logo-sm h-10 w-10 rounded-full border border-primary object-cover" src="/images/icon.png" />
         </div>
         <!-- Dark Brand Logo -->
         <div class="logo-dark">
-            <img alt="Dark logo" class="logo-lg h-20" src="/images/icon.png" />
-            <img alt="Small logo" class="logo-sm h-20" src="/images/icon.png" />
+            <img alt="Logo" class="logo-lg h-16 w-16 rounded-full border-2 border-white object-cover" src="/images/icon.png" />
+            <img alt="Logo" class="logo-sm h-10 w-10 rounded-full border border-white object-cover" src="/images/icon.png" />
         </div>
     </a>
     <!-- Sidenav Menu Toggle Button -->
