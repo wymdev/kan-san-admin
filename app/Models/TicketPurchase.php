@@ -13,7 +13,7 @@ class TicketPurchase extends Model
 
     protected $fillable = [
         'customer_id', 'lottery_ticket_id', 'order_number', 'quantity',
-        'total_price', 'status', 'payment_screenshot', 'rejection_reason',
+        'total_price', 'currency', 'status', 'payment_screenshot', 'rejection_reason',
         'approved_by', 'approved_at', 'draw_result_id', 'prize_won', 'checked_at'
     ];
 
@@ -22,6 +22,10 @@ class TicketPurchase extends Model
         'approved_at' => 'datetime',
         'checked_at' => 'datetime',
     ];
+
+    // Currency constants
+    const CURRENCY_THB = 'THB';
+    const CURRENCY_MMK = 'MMK';
 
     // Status constants
     const STATUS_PENDING = 'pending';

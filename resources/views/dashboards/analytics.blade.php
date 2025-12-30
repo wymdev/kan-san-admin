@@ -488,6 +488,346 @@
             </table>
         </div>
     </div>
+
+    {{-- ADVANCED BUSINESS INSIGHTS --}}
+    <div class="mt-6">
+        <h5 class="text-lg font-bold text-default-900 mb-4 flex items-center gap-2">
+            <i class="size-5 text-primary" data-lucide="zap"></i>
+            Advanced Business Insights
+        </h5>
+        
+        {{-- Row 1: CLV, Retention, Payout Ratio, Conversion --}}
+        <div class="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-4 mb-6">
+            {{-- Customer Lifetime Value --}}
+            <div class="card bg-gradient-to-br from-blue-500/5 to-blue-500/10 border border-blue-200">
+                <div class="card-body">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center justify-center size-10 rounded-lg bg-blue-500/20">
+                            <i class="size-5 text-blue-600" data-lucide="gem"></i>
+                        </div>
+                        <span class="text-xs text-default-500">CLV</span>
+                    </div>
+                    <h4 class="text-2xl font-bold text-blue-600">฿{{ number_format($advancedInsights['customerLifetimeValue']['average'], 0) }}</h4>
+                    <p class="text-sm text-default-600 mt-1">Avg. Customer Lifetime Value</p>
+                    <div class="mt-3 pt-3 border-t border-blue-200/50 flex justify-between text-xs">
+                        <span class="text-default-500">Max: ฿{{ number_format($advancedInsights['customerLifetimeValue']['maximum'], 0) }}</span>
+                        <span class="text-blue-600">{{ $advancedInsights['customerLifetimeValue']['highValueCount'] }} VIP customers</span>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Retention Rate --}}
+            <div class="card bg-gradient-to-br from-green-500/5 to-green-500/10 border border-green-200">
+                <div class="card-body">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center justify-center size-10 rounded-lg bg-green-500/20">
+                            <i class="size-5 text-green-600" data-lucide="repeat"></i>
+                        </div>
+                        <span class="text-xs text-default-500">Retention</span>
+                    </div>
+                    <h4 class="text-2xl font-bold text-green-600">{{ $advancedInsights['retentionRate'] }}%</h4>
+                    <p class="text-sm text-default-600 mt-1">Repeat Purchase Rate</p>
+                    <div class="mt-3 pt-3 border-t border-green-200/50">
+                        <div class="w-full bg-green-200 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: {{ $advancedInsights['retentionRate'] }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Prize Payout Ratio --}}
+            <div class="card bg-gradient-to-br from-purple-500/5 to-purple-500/10 border border-purple-200">
+                <div class="card-body">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center justify-center size-10 rounded-lg bg-purple-500/20">
+                            <i class="size-5 text-purple-600" data-lucide="percent"></i>
+                        </div>
+                        <span class="text-xs text-default-500">Payout</span>
+                    </div>
+                    <h4 class="text-2xl font-bold text-purple-600">{{ $advancedInsights['payoutRatio']['percentage'] }}%</h4>
+                    <p class="text-sm text-default-600 mt-1">Prize Payout Ratio</p>
+                    <div class="mt-3 pt-3 border-t border-purple-200/50 text-xs text-default-500">
+                        <span>Paid: ฿{{ number_format($advancedInsights['payoutRatio']['totalPrizes'], 0) }} / ฿{{ number_format($advancedInsights['payoutRatio']['totalRevenue'], 0) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Row 2: Peak Hours, Customer Segments (THB + MMK) --}}
+        <div class="grid lg:grid-cols-3 grid-cols-1 gap-6 mb-6">
+            {{-- Peak Hours Chart --}}
+            <div class="card">
+                <div class="card-header">
+                    <div class="flex items-center gap-2">
+                        <i class="size-4 text-info" data-lucide="clock"></i>
+                        <h6 class="card-title">Peak Hours</h6>
+                    </div>
+                    <p class="text-xs text-default-500">Busiest: {{ $advancedInsights['peakHours']['busiest']['hour'] ? sprintf('%02d:00', $advancedInsights['peakHours']['busiest']['hour']) : 'N/A' }} ({{ $advancedInsights['peakHours']['busiest']['orders'] }} orders)</p>
+                </div>
+                <div class="card-body">
+                    <div id="peakHoursChart" class="apex-charts"></div>
+                </div>
+            </div>
+
+            {{-- THB Customer Segments --}}
+            <div class="card">
+                <div class="card-header">
+                    <div class="flex items-center gap-2">
+                        <i class="size-4 text-primary" data-lucide="users"></i>
+                        <h6 class="card-title">THB Segments</h6>
+                    </div>
+                    <p class="text-xs text-default-500">By THB spending</p>
+                </div>
+                <div class="card-body">
+                    @php
+                        $thbSegments = [
+                            ['label' => 'VIP (฿10k+)', 'count' => $advancedInsights['customerSegments']['vip'], 'color' => '#8b5cf6'],
+                            ['label' => 'Premium (฿5k-10k)', 'count' => $advancedInsights['customerSegments']['premium'], 'color' => '#3b82f6'],
+                            ['label' => 'Regular (฿1k-5k)', 'count' => $advancedInsights['customerSegments']['regular'], 'color' => '#10b981'],
+                            ['label' => 'Basic (<฿1k)', 'count' => $advancedInsights['customerSegments']['basic'], 'color' => '#f59e0b'],
+                        ];
+                        $totalThbSegmented = collect($thbSegments)->sum('count');
+                    @endphp
+                    @if($totalThbSegmented > 0)
+                        @foreach($thbSegments as $seg)
+                        <div class="flex items-center justify-between text-sm py-2 border-b border-default-100 last:border-0">
+                            <span class="flex items-center gap-2">
+                                <span class="size-2 rounded-full" style="background-color: {{ $seg['color'] }}"></span>
+                                {{ $seg['label'] }}
+                            </span>
+                            <span class="font-semibold">{{ $seg['count'] }}</span>
+                        </div>
+                        @endforeach
+                    @else
+                        <div class="text-center py-6 text-default-500">
+                            <p class="text-sm">No THB data</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            {{-- MMK Customer Segments --}}
+            <div class="card">
+                <div class="card-header">
+                    <div class="flex items-center gap-2">
+                        <i class="size-4 text-warning" data-lucide="users"></i>
+                        <h6 class="card-title">MMK Segments</h6>
+                    </div>
+                    <p class="text-xs text-default-500">By MMK spending (converted)</p>
+                </div>
+                <div class="card-body">
+                    @php
+                        $mmkSpending = $advancedInsights['revenueByCurrency']['MMK'];
+                        $mmkInThb = $mmkSpending / $advancedInsights['exchangeRate'];
+                        $mmkSegments = [
+                            ['label' => 'VIP (500k+)', 'count' => $mmkInThb >= 10000 ? 1 : 0, 'color' => '#8b5cf6'],
+                            ['label' => 'Premium (50k-500k)', 'count' => $mmkInThb >= 5000 && $mmkInThb < 10000 ? 1 : 0, 'color' => '#3b82f6'],
+                            ['label' => 'Regular (50k-50k)', 'count' => $mmkInThb >= 1000 && $mmkInThb < 5000 ? 1 : 0, 'color' => '#10b981'],
+                            ['label' => 'Basic (<50k)', 'count' => $mmkInThb > 0 && $mmkInThb < 1000 ? 1 : 0, 'color' => '#f59e0b'],
+                        ];
+                        $totalMmkSegmented = collect($mmkSegments)->sum('count');
+                    @endphp
+                    @if($mmkSpending > 0)
+                        @foreach($mmkSegments as $seg)
+                        <div class="flex items-center justify-between text-sm py-2 border-b border-default-100 last:border-0">
+                            <span class="flex items-center gap-2">
+                                <span class="size-2 rounded-full" style="background-color: {{ $seg['color'] }}"></span>
+                                {{ $seg['label'] }}
+                            </span>
+                            <span class="font-semibold">{{ $seg['count'] }}</span>
+                        </div>
+                        @endforeach
+                        <div class="mt-3 pt-3 border-t border-default-200">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-default-600">Total MMK</span>
+                                <span class="font-bold text-warning">{{ number_format($mmkSpending, 0) }} K</span>
+                            </div>
+                        </div>
+                    @else
+                        <div class="text-center py-6 text-default-500">
+                            <i class="size-10 mx-auto mb-2 text-default-300" data-lucide="coins"></i>
+                            <p class="text-sm">No MMK transactions</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+                    <p class="text-xs text-default-500">Busiest: {{ $advancedInsights['peakHours']['busiest']['hour'] ? sprintf('%02d:00', $advancedInsights['peakHours']['busiest']['hour']) : 'N/A' }} ({{ $advancedInsights['peakHours']['busiest']['orders'] }} orders)</p>
+                </div>
+                <div class="card-body">
+                    <div id="peakHoursChart" class="apex-charts"></div>
+                </div>
+            </div>
+
+            {{-- Best Day Performance --}}
+            <div class="card">
+                <div class="card-header">
+                    <div class="flex items-center gap-2">
+                        <i class="size-4 text-success" data-lucide="calendar-check"></i>
+                        <h6 class="card-title">Best Day Performance</h6>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if($advancedInsights['bestDay'])
+                    <div class="text-center p-4 bg-success/5 rounded-xl border border-success/20 mb-4">
+                        <p class="text-sm text-default-600 mb-1">Best Day</p>
+                        <p class="text-2xl font-bold text-success">{{ $advancedInsights['bestDay']['day'] }}</p>
+                        <p class="text-sm text-default-500">฿{{ number_format($advancedInsights['bestDay']['revenue'], 0) }} revenue</p>
+                    </div>
+                    @else
+                    <div class="text-center py-6 text-default-500">
+                        <i class="size-10 mx-auto mb-2 text-default-300" data-lucide="calendar"></i>
+                        <p class="text-sm">No data available</p>
+                    </div>
+                    @endif
+                    <div class="space-y-2">
+                        @if(!empty($advancedInsights['dayOfWeekData']['labels']))
+                            @foreach($advancedInsights['dayOfWeekData']['labels'] as $index => $day)
+                            <div class="flex items-center justify-between text-sm">
+                                <span>{{ $day }}</span>
+                                <span class="font-medium">฿{{ number_format($advancedInsights['dayOfWeekData']['revenue'][$index] ?? 0, 0) }}</span>
+                            </div>
+                            @endforeach
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Revenue by Currency --}}
+        <div class="grid lg:grid-cols-2 grid-cols-1 gap-6 mb-6">
+            <div class="card">
+                <div class="card-header">
+                    <div class="flex items-center gap-2">
+                        <i class="size-4 text-success" data-lucide="dollar-sign"></i>
+                        <h6 class="card-title">Revenue by Currency</h6>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="text-center p-4 bg-primary/5 rounded-xl border border-primary/20">
+                            <p class="text-sm text-default-600 mb-1">THB Revenue</p>
+                            <p class="text-2xl font-bold text-primary">฿{{ number_format($advancedInsights['revenueByCurrency']['THB'], 0) }}</p>
+                        </div>
+                        <div class="text-center p-4 bg-warning/5 rounded-xl border border-warning/20">
+                            <p class="text-sm text-default-600 mb-1">MMK Revenue</p>
+                            <p class="text-2xl font-bold text-warning">{{ number_format($advancedInsights['revenueByCurrency']['MMK'], 0) }} K</p>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-default-100 rounded-xl">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm text-default-600">Total (THB equivalent)</span>
+                            <span class="text-lg font-bold text-success">฿{{ number_format($advancedInsights['revenueByCurrency']['THB'] + ($advancedInsights['revenueByCurrency']['MMK'] / $advancedInsights['exchangeRate']), 0) }}</span>
+                        </div>
+                        <p class="text-xs text-default-500">
+                            Exchange Rate: 1 THB = {{ number_format($advancedInsights['exchangeRate']) }} MMK
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="flex items-center gap-2">
+                        <i class="size-4 text-info" data-lucide="pie-chart"></i>
+                        <h6 class="card-title">Currency Distribution</h6>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @php
+                        $thbRevenue = $advancedInsights['revenueByCurrency']['THB'];
+                        $mmkRevenue = $advancedInsights['revenueByCurrency']['MMK'] / $advancedInsights['exchangeRate'];
+                        $totalRevenue = $thbRevenue + $mmkRevenue;
+                        $thbPercent = $totalRevenue > 0 ? round(($thbRevenue / $totalRevenue) * 100, 1) : 0;
+                        $mmkPercent = $totalRevenue > 0 ? round(($mmkRevenue / $totalRevenue) * 100, 1) : 0;
+                    @endphp
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="flex items-center gap-2">
+                                    <span class="size-3 rounded-full bg-primary"></span>
+                                    THB
+                                </span>
+                                <span class="font-semibold">{{ $thbPercent }}%</span>
+                            </div>
+                            <div class="w-full bg-default-200 rounded-full h-3">
+                                <div class="bg-primary h-3 rounded-full" style="width: {{ $thbPercent }}%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="flex items-center gap-2">
+                                    <span class="size-3 rounded-full bg-warning"></span>
+                                    MMK
+                                </span>
+                                <span class="font-semibold">{{ $mmkPercent }}%</span>
+                            </div>
+                            <div class="w-full bg-default-200 rounded-full h-3">
+                                <div class="bg-warning h-3 rounded-full" style="width: {{ $mmkPercent }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-default-200">
+                        <p class="text-xs text-default-500 text-center">
+                            MMK converted to THB at 1:{{ $advancedInsights['exchangeRate'] }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Row 3: Revenue by Ticket Type, Top Winning Tickets --}}
+        <div class="grid lg:grid-cols-2 grid-cols-1 gap-6 mb-6">
+            {{-- Revenue by Ticket Type --}}
+            <div class="card">
+                <div class="card-header">
+                    <div class="flex items-center gap-2">
+                        <i class="size-4 text-primary" data-lucide="tags"></i>
+                        <h6 class="card-title">Revenue by Ticket Type</h6>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="ticketTypeChart" class="apex-charts"></div>
+                </div>
+        </div>
+
+        {{-- Row 4: Quick Stats Summary --}}
+        <div class="card bg-gradient-to-r from-gray-900 to-gray-800 text-white">
+            <div class="card-body">
+                <div class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6">
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center justify-center size-12 rounded-xl bg-white/10">
+                            <i class="size-6 text-white" data-lucide="hourglass"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Busiest Hour</p>
+                            <p class="text-xl font-bold">{{ $advancedInsights['peakHours']['busiest']['hour'] ? sprintf('%02d:00', $advancedInsights['peakHours']['busiest']['hour']) : 'N/A' }}</p>
+                            <p class="text-xs text-gray-500">{{ $advancedInsights['peakHours']['busiest']['orders'] }} orders</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center justify-center size-12 rounded-xl bg-white/10">
+                            <i class="size-6 text-white" data-lucide="calendar"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Best Day This Period</p>
+                            <p class="text-xl font-bold">{{ $advancedInsights['bestDay']['day'] ?? 'N/A' }}</p>
+                            <p class="text-xs text-gray-500">฿{{ number_format($advancedInsights['bestDay']['revenue'] ?? 0, 0) }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center justify-center size-12 rounded-xl bg-white/10">
+                            <i class="size-6 text-white" data-lucide="trending-up"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Highest Single Ticket Revenue</p>
+                            <p class="text-xl font-bold">฿{{ number_format($productData['topTickets']->max('total_revenue') ?? 0, 0) }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
@@ -761,6 +1101,57 @@
                     markers: { radius: 10 }
                 },
                 dataLabels: { enabled: false }
+            }).render();
+
+            // ============================================
+            // ADVANCED INSIGHTS CHARTS
+            // ============================================
+
+            // Peak Hours Chart
+            new ApexCharts(document.querySelector("#peakHoursChart"), {
+                ...commonOptions,
+                series: [{
+                    name: 'Orders',
+                    data: @json($advancedInsights['peakHours']['hourlyData'])
+                }],
+                chart: {
+                    ...commonOptions.chart,
+                    height: 250,
+                    type: 'bar',
+                },
+                colors: ['#0ea5e9'],
+                plotOptions: {
+                    bar: { borderRadius: 4, columnWidth: '60%' }
+                },
+                xaxis: {
+                    categories: @json($advancedInsights['peakHours']['hourlyLabels']),
+                    labels: { style: { colors: '#64748b', fontSize: '10px' }, rotate: -45 }
+                },
+                yaxis: {
+                    labels: { style: { colors: '#64748b' } }
+                },
+                dataLabels: { enabled: false }
+            }).render();
+
+            // Ticket Type Revenue Chart
+            new ApexCharts(document.querySelector("#ticketTypeChart"), {
+                ...commonOptions,
+                series: @json($advancedInsights['revenueByType']['revenue']),
+                chart: {
+                    ...commonOptions.chart,
+                    type: 'pie',
+                    height: 320
+                },
+                labels: @json($advancedInsights['revenueByType']['labels']),
+                colors: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
+                legend: {
+                    position: 'bottom',
+                    markers: { radius: 10 }
+                },
+                dataLabels: {
+                    enabled: true,
+                    style: { fontSize: '12px', fontWeight: 600 }
+                }
             }).render();
         });
     </script>
