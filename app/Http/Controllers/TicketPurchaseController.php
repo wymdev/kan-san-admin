@@ -6,6 +6,8 @@ use App\Models\TicketPurchase;
 use Illuminate\Http\Request;
 use App\Services\PushNotificationService;
 use App\Services\LotteryResultCheckerService;
+use App\Exports\PurchasesExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TicketPurchaseController extends Controller
 {
@@ -54,6 +56,14 @@ class TicketPurchaseController extends Controller
                          ->orWhere('phone_number', 'like', "%$search%");
                   });
             });
+        }
+
+        // Date range filter
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
         }
 
         $purchases = $query->latest()->paginate(20)->appends($request->query());
@@ -129,7 +139,8 @@ class TicketPurchaseController extends Controller
     public function reject(Request $request, TicketPurchase $purchase)
     {
         $request->validate([
-            'rejection_reason' => 'required|string|max:500'
+            'rejection_reason' => 'required|string|max:500',
+            'block_customer' => 'nullable|boolean'
         ]);
 
         if ($purchase->status !== 'pending') {
@@ -143,8 +154,23 @@ class TicketPurchaseController extends Controller
             'approved_at' => now(),
         ]);
 
-        // Send notification to the customer
         $customer = $purchase->customer;
+        
+        // Block customer if requested
+        if ($request->boolean('block_customer') && $customer) {
+            $customer->update([
+                'is_blocked' => true,
+                'blocked_at' => now(),
+                'blocked_by' => auth()->id(),
+                'block_reason' => 'Scammer - ' . $request->rejection_reason,
+            ]);
+            
+            $successMessage = 'Purchase rejected and customer account blocked for fraud.';
+        } else {
+            $successMessage = 'Purchase rejected.';
+        }
+
+        // Send notification to the customer
         if ($customer && $customer->expo_push_token) {
             $title = '❌ Purchase Rejected';
             $body = "Your lottery ticket purchase #{$purchase->order_number} was rejected. Tap to view reason.";
@@ -170,7 +196,7 @@ class TicketPurchaseController extends Controller
         }
 
         return redirect()->route('purchases.index')
-                         ->with('success', 'Purchase rejected.');
+                         ->with('success', $successMessage);
     }
 
     /**
@@ -321,5 +347,14 @@ class TicketPurchaseController extends Controller
             return redirect()->route('purchases.index')
                            ->with('error', '❌ Error loading check results page: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Export purchases to Excel
+     */
+    public function export(Request $request)
+    {
+        $filters = $request->only(['status', 'result_status', 'search', 'date_from', 'date_to']);
+        return Excel::download(new PurchasesExport($filters), 'purchases_' . date('Y-m-d_His') . '.xlsx');
     }
 }

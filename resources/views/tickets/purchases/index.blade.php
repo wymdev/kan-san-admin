@@ -129,8 +129,13 @@
     @endcan
 
     <div class="card">
-        <div class="card-header">
+        <div class="card-header flex justify-between items-center">
             <h6 class="card-title">Purchases List</h6>
+            <div class="flex gap-2">
+                <a href="{{ route('purchases.export', request()->query()) }}" class="btn btn-xs bg-success text-white">
+                    <i class="size-4 me-1" data-lucide="download"></i>Export Excel
+                </a>
+            </div>
         </div>
         <div class="card-header">
             <div class="md:flex items-center md:space-y-0 space-y-4 gap-3">
@@ -147,6 +152,9 @@
                             <i class="size-4 text-default-500" data-lucide="search"></i>
                         </div>
                     </div>
+                    
+                    <input type="date" name="date_from" value="{{ request('date_from') }}" class="form-input form-input-sm" style="width: 8.5rem;" placeholder="From">
+                    <input type="date" name="date_to" value="{{ request('date_to') }}" class="form-input form-input-sm" style="width: 8.5rem;" placeholder="To">
                     
                     <div style="width: 9rem;">
                         <select name="status" class="form-input form-input-sm w-full">
@@ -171,7 +179,7 @@
                     <button type="submit" class="btn btn-xs bg-primary text-white">
                         <i class="size-4 me-1" data-lucide="search"></i>Filter
                     </button>
-                    @if(request('search') || request('status') || request('result_status'))
+                    @if(request()->hasAny(['search', 'status', 'result_status', 'date_from', 'date_to']))
                         <a href="{{ route('purchases.index') }}" class="btn btn-xs bg-default-200 text-default-600 hover:bg-default-300">
                             Clear
                         </a>

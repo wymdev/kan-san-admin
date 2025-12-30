@@ -9,46 +9,60 @@
 
     <div class="grid grid-cols-1 gap-5 mb-5">
         <div class="card">
-            <div class="card-header flex items-center gap-2 flex-wrap">
-                <form method="GET" action="{{ route('tickets.index') }}" class="flex gap-2 flex-wrap items-center">
-                    <div class="relative" style="width: 10rem;">
-                        <input 
-                            name="search"
-                            value="{{ request('search') }}"
-                            class="ps-10 form-input form-input-sm w-full"
-                            placeholder="Search tickets..."
-                            type="text"
-                        />
-                        <div class="absolute inset-y-0 left-0 flex items-center ps-3">
-                            <i class="size-4 text-default-500" data-lucide="search"></i>
+            <div class="card-header flex justify-between items-center">
+                <h6 class="card-title">Lottery Tickets</h6>
+                <div class="flex gap-2">
+                    <a href="{{ route('tickets.export', request()->query()) }}" class="btn btn-xs bg-success text-white">
+                        <i class="size-4 me-1" data-lucide="download"></i>Export Excel
+                    </a>
+                    <a href="{{ route('tickets.create') }}" class="btn btn-xs bg-primary text-white">
+                        <i class="size-4 me-1" data-lucide="plus"></i>Add Ticket
+                    </a>
+                </div>
+            </div>
+            <div class="card-header">
+                <div class="md:flex items-center md:space-y-0 space-y-4 gap-3">
+                    <form method="GET" action="{{ route('tickets.index') }}" class="flex gap-2 flex-wrap items-center">
+                        <div class="relative" style="width: 10rem;">
+                            <input 
+                                name="search"
+                                value="{{ request('search') }}"
+                                class="ps-10 form-input form-input-sm w-full"
+                                placeholder="Search tickets..."
+                                type="text"
+                            />
+                            <div class="absolute inset-y-0 left-0 flex items-center ps-3">
+                                <i class="size-4 text-default-500" data-lucide="search"></i>
+                            </div>
                         </div>
-                    </div>
-                    <div style="width: 8.5rem;">
-                        <input 
-                            class="form-input form-input-sm w-full"
-                            name="withdraw_date"
-                            value="{{ request('withdraw_date') }}"
-                            data-date-format="d M, Y" data-provider="flatpickr"
-                            placeholder="Withdraw Date"
-                            autocomplete="off"
-                        />
-                    </div>
-                    <div style="width: 7rem;">
-                        <select name="ticket_type" class="form-input form-input-sm w-full">
-                            <option value="">All Types</option>
-                            <option value="normal" {{ request('ticket_type') == 'normal' ? 'selected' : '' }}>Normal</option>
-                            <option value="special" {{ request('ticket_type') == 'special' ? 'selected' : '' }}>Special</option>
-                            <option value="lucky" {{ request('ticket_type') == 'lucky' ? 'selected' : '' }}>Lucky</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-xs bg-primary text-white">
-                        <i class="size-4 me-1" data-lucide="search"></i>Filter
-                    </button>
-                    <a href="{{ route('tickets.index') }}" class="btn btn-xs bg-default-200 text-default-600 hover:bg-default-300">Clear</a>
-                </form>
-                <a href="{{ route('tickets.create') }}" class="btn btn-xs bg-primary text-white ms-auto flex-shrink-0">
-                    <i class="size-4 me-1" data-lucide="plus"></i>Add Ticket
-                </a>
+                        <div style="width: 8.5rem;">
+                            <input 
+                                class="form-input form-input-sm w-full"
+                                name="withdraw_date"
+                                value="{{ request('withdraw_date') }}"
+                                data-date-format="d M, Y" data-provider="flatpickr"
+                                placeholder="Withdraw Date"
+                                autocomplete="off"
+                            />
+                        </div>
+                        <div style="width: 7rem;">
+                            <select name="ticket_type" class="form-input form-input-sm w-full">
+                                <option value="">All Types</option>
+                                <option value="normal" {{ request('ticket_type') == 'normal' ? 'selected' : '' }}>Normal</option>
+                                <option value="special" {{ request('ticket_type') == 'special' ? 'selected' : '' }}>Special</option>
+                                <option value="lucky" {{ request('ticket_type') == 'lucky' ? 'selected' : '' }}>Lucky</option>
+                            </select>
+                        </div>
+                        <input type="date" name="date_from" value="{{ request('date_from') }}" class="form-input form-input-sm" style="width: 8.5rem;" placeholder="From Date">
+                        <input type="date" name="date_to" value="{{ request('date_to') }}" class="form-input form-input-sm" style="width: 8.5rem;" placeholder="To Date">
+                        <button type="submit" class="btn btn-xs bg-primary text-white">
+                            <i class="size-4 me-1" data-lucide="search"></i>Filter
+                        </button>
+                        @if(request()->hasAny(['search', 'withdraw_date', 'ticket_type', 'date_from', 'date_to']))
+                            <a href="{{ route('tickets.index') }}" class="btn btn-xs bg-default-200 text-default-600 hover:bg-default-300">Clear</a>
+                        @endif
+                    </form>
+                </div>
             </div>
 
             <div class="flex flex-col">

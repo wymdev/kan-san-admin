@@ -21,11 +21,16 @@
     <div class="card">
         <div class="card-header">
             <h6 class="card-title">Customers List</h6>
-            @can('customer-create')
-                <a href="{{ route('customers.create') }}" class="btn btn-sm bg-primary text-white">
-                    <i class="size-4 me-1" data-lucide="plus"></i>Add Customer
+            <div class="flex gap-2">
+                <a href="{{ route('customers.export', request()->query()) }}" class="btn btn-sm bg-success text-white">
+                    <i class="size-4 me-1" data-lucide="download"></i>Export Excel
                 </a>
-            @endcan
+                @can('customer-create')
+                    <a href="{{ route('customers.create') }}" class="btn btn-sm bg-primary text-white">
+                        <i class="size-4 me-1" data-lucide="plus"></i>Add Customer
+                    </a>
+                @endcan
+            </div>
         </div>
         <div class="card-header">
             <div class="md:flex items-center md:space-y-0 space-y-4 gap-3">
@@ -71,13 +76,14 @@
                                 <th class="px-3.5 py-3 text-start" scope="col">Phone</th>
                                 <th class="px-3.5 py-3 text-start" scope="col">Name</th>
                                 <th class="px-3.5 py-3 text-start" scope="col">Email</th>
+                                <th class="px-3.5 py-3 text-start" scope="col">Status</th>
                                 <th class="px-3.5 py-3 text-start" scope="col">Joined</th>
                                 <th class="px-3.5 py-3 text-start" scope="col">Action</th>
                             </tr>
                             </thead>
                             <tbody>
                             @forelse ($customers as $key => $customer)
-                                <tr class="text-default-800 font-normal text-sm whitespace-nowrap">
+                                <tr class="text-default-800 font-normal text-sm whitespace-nowrap {{ $customer->is_blocked ? 'bg-danger/5' : '' }}">
                                     <td class="px-3.5 py-3">{{ ++$i }}</td>
                                     <td class="px-3.5 py-3 font-mono">{{ $customer->phone_number }}</td>
                                     <td class="flex py-3 px-3.5 items-center gap-3">
@@ -95,6 +101,17 @@
                                         </div>
                                     </td>
                                     <td class="py-3 px-3.5">{{ $customer->email ?? 'N/A' }}</td>
+                                    <td class="py-3 px-3.5">
+                                        @if($customer->is_blocked)
+                                            <span class="inline-flex px-2 py-1 bg-danger text-white rounded text-xs font-bold">
+                                                <i class="size-3 mr-1" data-lucide="shield-alert"></i> Blocked
+                                            </span>
+                                        @else
+                                            <span class="inline-flex px-2 py-1 bg-success/10 text-success rounded text-xs">
+                                                <i class="size-3 mr-1" data-lucide="check-circle"></i> Active
+                                            </span>
+                                        @endif
+                                    </td>
                                     <td class="py-3 px-3.5 text-xs">{{ $customer->created_at->format('M d, Y') }}</td>
                                     <td class="px-3.5 py-3">
                                         <div class="hs-dropdown relative inline-flex">

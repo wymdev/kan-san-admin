@@ -115,17 +115,35 @@
                                     </button>
                                 </form>
                                 {{-- Reject --}}
-                                <form action="{{ route('purchases.reject', $purchase->id) }}" method="post" class="flex flex-col gap-2 mt-2">
+                                <form action="{{ route('purchases.reject', $purchase->id) }}" method="post" class="flex flex-col gap-3 mt-3">
                                     @csrf
-                                    <textarea required name="rejection_reason"
-                                              class="form-input w-full border-red-400 focus:border-red-600 focus:ring-red-300"
-                                              rows="2" placeholder="Why rejected?"></textarea>
+                                    <div>
+                                        <label class="form-label text-sm font-semibold text-default-700 mb-1">Rejection Reason *</label>
+                                        <textarea required name="rejection_reason"
+                                                  class="form-input w-full border-2 border-red-300 focus:border-red-500 focus:ring-red-300"
+                                                  rows="3" 
+                                                  placeholder="Provide detailed reason for rejection..."></textarea>
+                                    </div>
+                                    
+                                    <div class="bg-danger/10 border-2 border-danger/30 rounded-lg p-3">
+                                        <label class="flex items-start gap-3 cursor-pointer group">
+                                            <input type="checkbox" name="block_customer" value="1" id="block_customer" 
+                                                   class="form-checkbox text-danger mt-0.5 size-5 rounded border-2 border-danger/50">
+                                            <div class="flex-1">
+                                                <div class="flex items-center gap-2">
+                                                    <i class="size-5 text-danger" data-lucide="shield-alert"></i>
+                                                    <span class="font-bold text-danger">Block this customer (Scammer)</span>
+                                                </div>
+                                                <p class="text-xs text-danger/80 mt-1">Account will be blocked and prevented from making future purchases</p>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    
                                     <button type="submit"
-                                        style="background-color: #ef4444 !important; color: #fff !important;"
-                                        class="w-full inline-flex items-center justify-center gap-2 shadow font-semibold py-2 rounded"
-                                        onclick="return confirm('Confirm reject?')">
+                                        class="btn w-full bg-danger text-white hover:bg-danger/90 font-semibold py-2.5 shadow-lg"
+                                        onclick="return confirm('Confirm rejection? Customer will be notified.')">
                                         <i class="size-4" data-lucide="x-circle"></i>
-                                        <span>Reject</span>
+                                        <span>Reject Purchase</span>
                                     </button>
                                 </form>
                             </div>

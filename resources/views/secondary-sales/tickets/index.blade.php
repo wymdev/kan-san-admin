@@ -88,9 +88,14 @@
     <div class="card">
         <div class="card-header flex justify-between items-center">
             <h6 class="card-title">Secondary Tickets</h6>
-            <a href="{{ route('secondary-tickets.create') }}" class="btn btn-xs bg-primary text-white">
-                <i class="size-4 me-1" data-lucide="plus"></i>Add Ticket
-            </a>
+            <div class="flex gap-2">
+                <a href="{{ route('secondary-tickets.export', request()->query()) }}" class="btn btn-xs bg-success text-white">
+                    <i class="size-4 me-1" data-lucide="download"></i>Export Excel
+                </a>
+                <a href="{{ route('secondary-tickets.create') }}" class="btn btn-xs bg-primary text-white">
+                    <i class="size-4 me-1" data-lucide="plus"></i>Add Ticket
+                </a>
+            </div>
         </div>
         <div class="card-header">
             <div class="md:flex items-center md:space-y-0 space-y-4 gap-3">

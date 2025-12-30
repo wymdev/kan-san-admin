@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\LotteryTicket;
 use Illuminate\Http\Request;
+use App\Exports\TicketsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TicketController extends Controller
 {
@@ -35,6 +37,14 @@ class TicketController extends Controller
         }
         if ($withdrawDate = $request->input('withdraw_date')) {
             $q->whereDate('withdraw_date', $withdrawDate);
+        }
+
+        // Date range filter for created date
+        if ($request->filled('date_from')) {
+            $q->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $q->whereDate('created_at', '<=', $request->date_to);
         }
 
         $tickets = $q->orderBy('withdraw_date', 'desc')->paginate(15)

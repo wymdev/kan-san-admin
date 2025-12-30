@@ -24,6 +24,10 @@ class Customer extends Authenticatable
         'address',
         'expo_push_token',
         'push_token_updated_at',
+        'is_blocked',
+        'blocked_at',
+        'blocked_by',
+        'block_reason',
     ];
 
     protected $hidden = [
@@ -37,9 +41,43 @@ class Customer extends Authenticatable
             'password' => 'hashed',
             'dob' => 'date',
             'push_token_updated_at' => 'datetime',
+            'blocked_at' => 'datetime',
+            'is_blocked' => 'boolean',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Scope: Get non-blocked customers
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_blocked', false);
+    }
+
+    /**
+     * Scope: Get blocked customers
+     */
+    public function scopeBlocked($query)
+    {
+        return $query->where('is_blocked', true);
+    }
+
+    /**
+     * Check if customer is blocked
+     */
+    public function isBlocked(): bool
+    {
+        return $this->is_blocked;
+    }
+
+    /**
+     * Relationship: Customer blocked by admin user
+     */
+    public function blockedByUser()
+    {
+        return $this->belongsTo(User::class, 'blocked_by');
     }
 
     /**

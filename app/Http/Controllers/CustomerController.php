@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use App\Exports\CustomersExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CustomerController extends Controller
 {
@@ -190,5 +192,72 @@ class CustomerController extends Controller
             return redirect()->route('customers.index')
                 ->with('error', 'An error occurred while deleting the customer.');
         }
+    }
+
+    /**
+     * Block a customer account
+     */
+    public function block(Request $request, $id): RedirectResponse
+    {
+        $request->validate([
+            'block_reason' => 'required|string|max:500'
+        ]);
+
+        try {
+            $customer = Customer::findOrFail($id);
+            
+            if ($customer->is_blocked) {
+                return back()->with('warning', 'Customer is already blocked.');
+            }
+
+            $customer->update([
+                'is_blocked' => true,
+                'blocked_at' => now(),
+                'blocked_by' => auth()->id(),
+                'block_reason' => $request->block_reason,
+            ]);
+
+            return redirect()->back()
+                ->with('success', 'Customer account has been blocked successfully!');
+        } catch (\Exception $e) {
+            return back()
+                ->with('error', 'An error occurred while blocking the customer.');
+        }
+    }
+
+    /**
+     * Unblock a customer account
+     */
+    public function unblock($id): RedirectResponse
+    {
+        try {
+            $customer = Customer::findOrFail($id);
+            
+            if (!$customer->is_blocked) {
+                return back()->with('warning', 'Customer is not blocked.');
+            }
+
+            $customer->update([
+                'is_blocked' => false,
+                'blocked_at' => null,
+                'blocked_by' => null,
+                'block_reason' => null,
+            ]);
+
+            return redirect()->back()
+                ->with('success', 'Customer account has been unblocked successfully!');
+        } catch (\Exception $e) {
+            return back()
+                ->with('error', 'An error occurred while unblocking the customer.');
+        }
+    }
+
+    /**
+     * Export customers to Excel
+     */
+    public function export(Request $request)
+    {
+        $search = $request->input('search', '');
+        return Excel::download(new CustomersExport($search), 'customers_' . date('Y-m-d_His') . '.xlsx');
     }
 }

@@ -210,30 +210,19 @@
 
 @section('script')
 <script>
-function copyLink() {
+async function copyLink() {
     const input = document.getElementById('publicLink');
-    input.select();
-    input.setSelectionRange(0, 99999); // For mobile devices
+    const text = input.value;
     
-    // Try modern API first
-    if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(input.value).then(() => {
-            showToast('Link copied to clipboard! 📋');
-        }).catch(() => {
-            fallbackCopyTextToClipboard(input.value);
-        });
-    } else {
-        fallbackCopyTextToClipboard(input.value);
-    }
-}
-
-function fallbackCopyTextToClipboard(text) {
     try {
-        document.execCommand('copy');
+        // Modern browsers with Clipboard API
+        await navigator.clipboard.writeText(text);
         showToast('Link copied to clipboard! 📋');
     } catch (err) {
-        console.error('Fallback: Oops, unable to copy', err);
-        alert('Failed to copy link. Please copy manually.');
+        // Fallback: select the input and let user copy manually
+        input.select();
+        input.setSelectionRange(0, 99999);
+        showToast('Link selected! Press Ctrl+C (or Cmd+C) to copy 📋');
     }
 }
 

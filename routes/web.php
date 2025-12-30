@@ -83,8 +83,18 @@ Route::middleware(['auth', 'otp.verified','sanitizeInput', 'fileTypeCheck'])->gr
     Route::resource('users', UserController::class);
     Route::resource('customers', CustomerController::class);
     
+    // Customer blocking routes
+    Route::post('/customers/{customer}/block', [CustomerController::class, 'block'])
+         ->name('customers.block');
+    Route::post('/customers/{customer}/unblock', [CustomerController::class, 'unblock'])
+         ->name('customers.unblock');
+    Route::get('/customers/export/excel', [CustomerController::class, 'export'])
+         ->name('customers.export');
+    
     // Lottery System
     Route::resource('tickets', TicketController::class);
+    Route::get('/tickets/export/excel', [TicketController::class, 'export'])
+         ->name('tickets.export');
     Route::resource('drawinfos', DrawInfoController::class);
 
     // ========================================
@@ -111,6 +121,8 @@ Route::middleware(['auth', 'otp.verified','sanitizeInput', 'fileTypeCheck'])->gr
          ->name('purchases.approve');
     Route::post('/purchases/{purchase}/reject', [TicketPurchaseController::class, 'reject'])
          ->name('purchases.reject');
+    Route::get('/purchases/export/excel', [TicketPurchaseController::class, 'export'])
+         ->name('purchases.export');
     // ========================================
 
     // Mobile App Configuration
@@ -173,6 +185,8 @@ Route::middleware(['auth', 'otp.verified','sanitizeInput', 'fileTypeCheck'])->gr
          ->name('secondary-sales.dashboard');
     
     // Secondary Tickets (with OCR)
+    Route::get('/secondary-tickets/export/excel', [SecondaryTicketController::class, 'export'])
+         ->name('secondary-tickets.export');
     Route::post('/secondary-tickets/extract-ocr', [SecondaryTicketController::class, 'extractOcr'])
          ->name('secondary-tickets.extract-ocr');
     Route::resource('secondary-tickets', SecondaryTicketController::class);

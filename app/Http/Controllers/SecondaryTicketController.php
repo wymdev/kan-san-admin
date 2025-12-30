@@ -6,6 +6,8 @@ use App\Models\SecondaryLotteryTicket;
 use App\Services\OcrService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Exports\SecondaryTicketsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SecondaryTicketController extends Controller
 {
@@ -248,5 +250,14 @@ class SecondaryTicketController extends Controller
         Storage::disk('public')->delete($path);
 
         return response()->json($result);
+    }
+
+    /**
+     * Export secondary tickets to Excel
+     */
+    public function export(Request $request)
+    {
+        $filters = $request->only(['search', 'withdraw_date', 'date_from', 'date_to', 'has_transactions']);
+        return Excel::download(new SecondaryTicketsExport($filters), 'secondary_tickets_' . date('Y-m-d_His') . '.xlsx');
     }
 }
