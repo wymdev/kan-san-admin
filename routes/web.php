@@ -51,7 +51,7 @@ Route::prefix('lottery')->name('public.')->group(function() {
 Route::get('/lottery-result/{token}', [PublicResultController::class, 'show'])->name('public.lottery-result-legacy');
 
 // Guest routes
-Route::middleware(['guest','sanitizeInput', 'fileTypeCheck','throttle:9,10'])->group(function () {
+Route::middleware(['guest','sanitizeInput', 'fileTypeCheck','throttle:60,1'])->group(function () {
     Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('login', [LoginController::class, 'login']);
     Route::get('auth/reset-password', function() {
@@ -60,7 +60,7 @@ Route::middleware(['guest','sanitizeInput', 'fileTypeCheck','throttle:9,10'])->g
 });
 
 // Authenticated routes - OTP verification required
-Route::middleware(['auth','sanitizeInput', 'fileTypeCheck','throttle:9,10'])->group(function () {
+Route::middleware(['auth','sanitizeInput', 'fileTypeCheck','throttle:60,1'])->group(function () {
     Route::get('/verify-otp', [OtpController::class, 'verifyOtpForm'])->name('send.otp');
     Route::post('/verify-otp-action', [OtpController::class, 'verifyOtp'])->name('verify.otp');
     Route::post('/resend-otp', [OtpController::class, 'resendOtp'])->name('resend.otp');

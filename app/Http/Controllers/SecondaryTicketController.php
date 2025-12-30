@@ -37,12 +37,12 @@ class SecondaryTicketController extends Controller
             $query->whereDate('withdraw_date', $request->withdraw_date);
         }
 
-        // Date range filter
+        // Created date range filter
         if ($request->filled('date_from')) {
-            $query->where('created_at', '>=', $request->date_from);
+            $query->whereDate('created_at', '>=', $request->date_from);
         }
         if ($request->filled('date_to')) {
-            $query->where('created_at', '<=', $request->date_to . ' 23:59:59');
+            $query->whereDate('created_at', '<=', $request->date_to);
         }
 
         // Status filter based on transactions
@@ -60,7 +60,14 @@ class SecondaryTicketController extends Controller
             ->orderBy('withdraw_date', 'desc')
             ->pluck('withdraw_date');
 
-        return view('secondary-sales.tickets.index', compact('tickets', 'drawDates'));
+        // Get statistics from database (not from paginated collection)
+        $ticketStats = [
+            'total' => SecondaryLotteryTicket::count(),
+            'sold' => SecondaryLotteryTicket::has('transactions')->count(),
+            'unsold' => SecondaryLotteryTicket::doesntHave('transactions')->count(),
+        ];
+
+        return view('secondary-sales.tickets.index', compact('tickets', 'drawDates', 'ticketStats'));
     }
 
     /**

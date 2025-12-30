@@ -36,6 +36,11 @@ class SecondarySalesController extends Controller
             $query->where('is_paid', $request->is_paid === 'yes');
         }
 
+        // Payment method filter
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->payment_method);
+        }
+
         // Customer search
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {

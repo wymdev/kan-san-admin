@@ -36,7 +36,7 @@
                     </div>
                     <div>
                         <p class="text-sm text-default-600">Total Tickets</p>
-                        <h4 class="text-2xl font-bold">{{ $tickets->total() }}</h4>
+                        <h4 class="text-2xl font-bold">{{ $ticketStats['total'] ?? $tickets->total() }}</h4>
                     </div>
                 </div>
             </div>
@@ -50,7 +50,7 @@
                     </div>
                     <div>
                         <p class="text-sm text-default-600">Sold Tickets</p>
-                        <h4 class="text-2xl font-bold">{{ $tickets->filter(fn($t) => $t->transactions->count() > 0)->count() }}</h4>
+                        <h4 class="text-2xl font-bold">{{ $ticketStats['sold'] ?? 0 }}</h4>
                     </div>
                 </div>
             </div>
@@ -64,7 +64,7 @@
                     </div>
                     <div>
                         <p class="text-sm text-default-600">Unsold Tickets</p>
-                        <h4 class="text-2xl font-bold">{{ $tickets->filter(fn($t) => $t->transactions->count() === 0)->count() }}</h4>
+                        <h4 class="text-2xl font-bold">{{ $ticketStats['unsold'] ?? 0 }}</h4>
                     </div>
                 </div>
             </div>

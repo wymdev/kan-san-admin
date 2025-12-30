@@ -130,6 +130,7 @@
                         name="password"
                         type="password"
                         placeholder="Leave blank to keep current password"
+                        autocomplete="new-password"
                     />
                     @error('password')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -144,6 +145,7 @@
                         name="password_confirmation"
                         type="password"
                         placeholder="Must match password field"
+                        autocomplete="new-password"
                     />
                     @error('password_confirmation')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>

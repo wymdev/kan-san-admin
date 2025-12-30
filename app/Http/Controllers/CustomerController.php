@@ -115,6 +115,16 @@ class CustomerController extends Controller
         try {
             $customer = Customer::findOrFail($id);
 
+            // Remove empty password fields before validation to prevent false validation errors
+            $requestData = $request->all();
+            if (empty($requestData['password'])) {
+                unset($requestData['password']);
+                unset($requestData['password_confirmation']);
+            }
+            
+            // Merge back the cleaned data
+            $request->merge($requestData);
+
             // Build validation rules dynamically
             $rules = [
                 'phone_number' => ['required', "unique:customers,phone_number,{$id}", new ValidPhoneNumber()],
@@ -125,11 +135,10 @@ class CustomerController extends Controller
                 'thai_pin' => 'nullable|string|unique:customers,thai_pin,' . $id,
                 'address' => 'nullable|string|max:500',
             ];
-
-            // Only require password confirmation if password is provided
-            if ($request->filled('password')) {
+            
+            // Only add password validation if password is being changed
+            if ($request->has('password') && !empty($request->password)) {
                 $rules['password'] = 'required|string|min:8|confirmed';
-                $rules['password_confirmation'] = 'required';
             }
 
             $validated = $request->validate($rules, [
@@ -138,19 +147,16 @@ class CustomerController extends Controller
                 'full_name.required' => 'Full name is required.',
                 'email.unique' => 'This email already exists.',
                 'thai_pin.unique' => 'This PIN is already registered.',
-                'password.required' => 'Password is required.',
+                'password.required' => 'Password is required when changing password.',
                 'password.min' => 'Password must be at least 8 characters.',
                 'password.confirmed' => 'Password confirmation does not match.',
-                'password_confirmation.required' => 'Password confirmation is required.',
             ]);
 
-            $input = Arr::except($request->all(), ['_token', '_method', 'password_confirmation']);
+            $input = Arr::except($request->all(), ['_token', '_method', 'password', 'password_confirmation']);
 
-            // Only hash password if provided
-            if ($request->filled('password')) {
-                $input['password'] = Hash::make($input['password']);
-            } else {
-                $input = Arr::except($input, ['password']);
+            // Only update password if a new one was provided
+            if ($request->has('password') && !empty($request->password)) {
+                $input['password'] = Hash::make($request->password);
             }
 
             $customer->update($input);
