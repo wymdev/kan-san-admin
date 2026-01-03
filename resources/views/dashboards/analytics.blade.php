@@ -330,6 +330,132 @@
         </div>
     </div>
 
+    {{-- Secondary Sales Module --}}
+    <div class="card mb-6 overflow-hidden border-0 shadow-sm" style="background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);">
+        <div class="card-header bg-transparent border-b border-gray-100">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center justify-center size-10 rounded-lg bg-warning/20">
+                        <i class="size-5 text-warning" data-lucide="shopping-bag"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-base font-semibold text-gray-900 tracking-tight">Secondary Sales</h6>
+                        <p class="text-xs text-gray-500 mt-0.5">Offline/External lottery sales</p>
+                    </div>
+                </div>
+                <a href="{{ route('secondary-sales.dashboard') }}" class="btn bg-warning/10 text-warning hover:bg-warning/20 btn-sm">
+                    <i class="size-4 me-1" data-lucide="external-link"></i> Full Dashboard
+                </a>
+            </div>
+        </div>
+        <div class="card-body p-6">
+            {{-- Secondary Sales KPI Cards --}}
+            <div class="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-4 mb-6">
+                {{-- Transactions --}}
+                <div class="bg-white rounded-xl border border-gray-200 p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-500">Transactions</span>
+                        <span class="p-2 bg-primary/10 rounded-lg">
+                            <i class="size-4 text-primary" data-lucide="receipt"></i>
+                        </span>
+                    </div>
+                    <h4 class="text-2xl font-bold text-gray-900">{{ number_format($secondarySales['transactionCount']) }}</h4>
+                    <p class="text-xs text-gray-500 mt-1">{{ $secondarySales['pendingCount'] }} pending</p>
+                </div>
+
+                {{-- Total Revenue THB --}}
+                <div class="bg-white rounded-xl border border-gray-200 p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-500">Revenue (THB)</span>
+                        <span class="p-2 bg-success/10 rounded-lg">
+                            <i class="size-4 text-success" data-lucide="banknote"></i>
+                        </span>
+                    </div>
+                    <h4 class="text-2xl font-bold text-success">฿{{ number_format($secondarySales['totalThb'], 0) }}</h4>
+                    <p class="text-xs text-gray-500 mt-1">Collected: ฿{{ number_format($secondarySales['collectedThb'], 0) }}</p>
+                </div>
+
+                {{-- Total Revenue MMK --}}
+                <div class="bg-white rounded-xl border border-gray-200 p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-500">Revenue (MMK)</span>
+                        <span class="p-2 bg-warning/10 rounded-lg">
+                            <i class="size-4 text-warning" data-lucide="coins"></i>
+                        </span>
+                    </div>
+                    <h4 class="text-2xl font-bold text-warning">{{ number_format($secondarySales['totalMmk'], 0) }} K</h4>
+                    <p class="text-xs text-gray-500 mt-1">Pending: {{ number_format($secondarySales['pendingPaymentMmk'], 0) }} K</p>
+                </div>
+
+                {{-- Win Rate --}}
+                <div class="bg-white rounded-xl border border-gray-200 p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-500">Win Rate</span>
+                        <span class="p-2 bg-purple-100 rounded-lg">
+                            <i class="size-4 text-purple-600" data-lucide="trophy"></i>
+                        </span>
+                    </div>
+                    <h4 class="text-2xl font-bold text-purple-600">{{ $secondarySales['winRate'] }}%</h4>
+                    <p class="text-xs text-gray-500 mt-1">{{ $secondarySales['wonCount'] }} wins</p>
+                </div>
+            </div>
+
+            {{-- Secondary Sales Charts & Data --}}
+            <div class="grid lg:grid-cols-3 grid-cols-1 gap-6">
+                {{-- Daily Trend Chart --}}
+                <div class="card col-span-2">
+                    <div class="card-header">
+                        <div class="flex items-center gap-2">
+                            <i class="size-4 text-info" data-lucide="line-chart"></i>
+                            <h6 class="card-title">Daily Sales Trend</h6>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="secondarySalesTrendChart" class="apex-charts"></div>
+                    </div>
+                </div>
+
+                {{-- Top Buyers --}}
+                <div class="card">
+                    <div class="card-header">
+                        <div class="flex items-center gap-2">
+                            <i class="size-4 text-success" data-lucide="users"></i>
+                            <h6 class="card-title">Top Buyers</h6>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        @forelse($secondarySales['topBuyers'] as $index => $buyer)
+                            <div class="flex items-center justify-between py-2 {{ !$loop->last ? 'border-b border-gray-100' : '' }}">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-6 h-6 flex items-center justify-center rounded-full {{ $index < 3 ? 'bg-success text-white' : 'bg-gray-100 text-gray-600' }} text-xs font-bold">
+                                        {{ $index + 1 }}
+                                    </span>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">{{ $buyer->customer_name ?? 'Unknown' }}</p>
+                                        <p class="text-xs text-gray-500">{{ $buyer->transaction_count }} txn</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    @if($buyer->total_thb > 0)
+                                        <p class="text-sm font-bold text-success">฿{{ number_format($buyer->total_thb, 0) }}</p>
+                                    @endif
+                                    @if($buyer->total_mmk > 0)
+                                        <p class="text-xs text-warning">{{ number_format($buyer->total_mmk, 0) }} K</p>
+                                    @endif
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center py-8 text-gray-400">
+                                <i class="size-10 mx-auto mb-2" data-lucide="users"></i>
+                                <p class="text-sm">No buyers yet</p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- Charts Row 1 --}}
     <div class="grid lg:grid-cols-2 grid-cols-1 gap-6 mb-6">
         {{-- Revenue Trend --}}
@@ -553,7 +679,7 @@
             </div>
         </div>
 
-        {{-- Row 2: Peak Hours, Customer Segments (THB + MMK) --}}
+        {{-- Row 2: Peak Hours, Customer Segments --}}
         <div class="grid lg:grid-cols-3 grid-cols-1 gap-6 mb-6">
             {{-- Peak Hours Chart --}}
             <div class="card">
@@ -569,27 +695,27 @@
                 </div>
             </div>
 
-            {{-- THB Customer Segments --}}
+            {{-- Customer Segments --}}
             <div class="card">
                 <div class="card-header">
                     <div class="flex items-center gap-2">
                         <i class="size-4 text-primary" data-lucide="users"></i>
-                        <h6 class="card-title">THB Segments</h6>
+                        <h6 class="card-title">Customer Segments</h6>
                     </div>
-                    <p class="text-xs text-default-500">By THB spending</p>
+                    <p class="text-xs text-default-500">By spending</p>
                 </div>
                 <div class="card-body">
                     @php
-                        $thbSegments = [
+                        $segments = [
                             ['label' => 'VIP (฿10k+)', 'count' => $advancedInsights['customerSegments']['vip'], 'color' => '#8b5cf6'],
                             ['label' => 'Premium (฿5k-10k)', 'count' => $advancedInsights['customerSegments']['premium'], 'color' => '#3b82f6'],
                             ['label' => 'Regular (฿1k-5k)', 'count' => $advancedInsights['customerSegments']['regular'], 'color' => '#10b981'],
                             ['label' => 'Basic (<฿1k)', 'count' => $advancedInsights['customerSegments']['basic'], 'color' => '#f59e0b'],
                         ];
-                        $totalThbSegmented = collect($thbSegments)->sum('count');
+                        $totalSegmented = collect($segments)->sum('count');
                     @endphp
-                    @if($totalThbSegmented > 0)
-                        @foreach($thbSegments as $seg)
+                    @if($totalSegmented > 0)
+                        @foreach($segments as $seg)
                         <div class="flex items-center justify-between text-sm py-2 border-b border-default-100 last:border-0">
                             <span class="flex items-center gap-2">
                                 <span class="size-2 rounded-full" style="background-color: {{ $seg['color'] }}"></span>
@@ -600,62 +726,9 @@
                         @endforeach
                     @else
                         <div class="text-center py-6 text-default-500">
-                            <p class="text-sm">No THB data</p>
+                            <p class="text-sm">No data</p>
                         </div>
                     @endif
-                </div>
-            </div>
-
-            {{-- MMK Customer Segments --}}
-            <div class="card">
-                <div class="card-header">
-                    <div class="flex items-center gap-2">
-                        <i class="size-4 text-warning" data-lucide="users"></i>
-                        <h6 class="card-title">MMK Segments</h6>
-                    </div>
-                    <p class="text-xs text-default-500">By MMK spending (converted)</p>
-                </div>
-                <div class="card-body">
-                    @php
-                        $mmkSpending = $advancedInsights['revenueByCurrency']['MMK'];
-                        $mmkInThb = $mmkSpending / $advancedInsights['exchangeRate'];
-                        $mmkSegments = [
-                            ['label' => 'VIP (500k+)', 'count' => $mmkInThb >= 10000 ? 1 : 0, 'color' => '#8b5cf6'],
-                            ['label' => 'Premium (50k-500k)', 'count' => $mmkInThb >= 5000 && $mmkInThb < 10000 ? 1 : 0, 'color' => '#3b82f6'],
-                            ['label' => 'Regular (50k-50k)', 'count' => $mmkInThb >= 1000 && $mmkInThb < 5000 ? 1 : 0, 'color' => '#10b981'],
-                            ['label' => 'Basic (<50k)', 'count' => $mmkInThb > 0 && $mmkInThb < 1000 ? 1 : 0, 'color' => '#f59e0b'],
-                        ];
-                        $totalMmkSegmented = collect($mmkSegments)->sum('count');
-                    @endphp
-                    @if($mmkSpending > 0)
-                        @foreach($mmkSegments as $seg)
-                        <div class="flex items-center justify-between text-sm py-2 border-b border-default-100 last:border-0">
-                            <span class="flex items-center gap-2">
-                                <span class="size-2 rounded-full" style="background-color: {{ $seg['color'] }}"></span>
-                                {{ $seg['label'] }}
-                            </span>
-                            <span class="font-semibold">{{ $seg['count'] }}</span>
-                        </div>
-                        @endforeach
-                        <div class="mt-3 pt-3 border-t border-default-200">
-                            <div class="flex justify-between text-sm">
-                                <span class="text-default-600">Total MMK</span>
-                                <span class="font-bold text-warning">{{ number_format($mmkSpending, 0) }} K</span>
-                            </div>
-                        </div>
-                    @else
-                        <div class="text-center py-6 text-default-500">
-                            <i class="size-10 mx-auto mb-2 text-default-300" data-lucide="coins"></i>
-                            <p class="text-sm">No MMK transactions</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-                    <p class="text-xs text-default-500">Busiest: {{ $advancedInsights['peakHours']['busiest']['hour'] ? sprintf('%02d:00', $advancedInsights['peakHours']['busiest']['hour']) : 'N/A' }} ({{ $advancedInsights['peakHours']['busiest']['orders'] }} orders)</p>
-                </div>
-                <div class="card-body">
-                    <div id="peakHoursChart" class="apex-charts"></div>
                 </div>
             </div>
 
@@ -694,89 +767,7 @@
             </div>
         </div>
 
-        {{-- Revenue by Currency --}}
-        <div class="grid lg:grid-cols-2 grid-cols-1 gap-6 mb-6">
-            <div class="card">
-                <div class="card-header">
-                    <div class="flex items-center gap-2">
-                        <i class="size-4 text-success" data-lucide="dollar-sign"></i>
-                        <h6 class="card-title">Revenue by Currency</h6>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="grid grid-cols-2 gap-4 mb-4">
-                        <div class="text-center p-4 bg-primary/5 rounded-xl border border-primary/20">
-                            <p class="text-sm text-default-600 mb-1">THB Revenue</p>
-                            <p class="text-2xl font-bold text-primary">฿{{ number_format($advancedInsights['revenueByCurrency']['THB'], 0) }}</p>
-                        </div>
-                        <div class="text-center p-4 bg-warning/5 rounded-xl border border-warning/20">
-                            <p class="text-sm text-default-600 mb-1">MMK Revenue</p>
-                            <p class="text-2xl font-bold text-warning">{{ number_format($advancedInsights['revenueByCurrency']['MMK'], 0) }} K</p>
-                        </div>
-                    </div>
-                    <div class="p-4 bg-default-100 rounded-xl">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm text-default-600">Total (THB equivalent)</span>
-                            <span class="text-lg font-bold text-success">฿{{ number_format($advancedInsights['revenueByCurrency']['THB'] + ($advancedInsights['revenueByCurrency']['MMK'] / $advancedInsights['exchangeRate']), 0) }}</span>
-                        </div>
-                        <p class="text-xs text-default-500">
-                            Exchange Rate: 1 THB = {{ number_format($advancedInsights['exchangeRate']) }} MMK
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <div class="flex items-center gap-2">
-                        <i class="size-4 text-info" data-lucide="pie-chart"></i>
-                        <h6 class="card-title">Currency Distribution</h6>
-                    </div>
-                </div>
-                <div class="card-body">
-                    @php
-                        $thbRevenue = $advancedInsights['revenueByCurrency']['THB'];
-                        $mmkRevenue = $advancedInsights['revenueByCurrency']['MMK'] / $advancedInsights['exchangeRate'];
-                        $totalRevenue = $thbRevenue + $mmkRevenue;
-                        $thbPercent = $totalRevenue > 0 ? round(($thbRevenue / $totalRevenue) * 100, 1) : 0;
-                        $mmkPercent = $totalRevenue > 0 ? round(($mmkRevenue / $totalRevenue) * 100, 1) : 0;
-                    @endphp
-                    <div class="space-y-4">
-                        <div>
-                            <div class="flex justify-between text-sm mb-1">
-                                <span class="flex items-center gap-2">
-                                    <span class="size-3 rounded-full bg-primary"></span>
-                                    THB
-                                </span>
-                                <span class="font-semibold">{{ $thbPercent }}%</span>
-                            </div>
-                            <div class="w-full bg-default-200 rounded-full h-3">
-                                <div class="bg-primary h-3 rounded-full" style="width: {{ $thbPercent }}%"></div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="flex justify-between text-sm mb-1">
-                                <span class="flex items-center gap-2">
-                                    <span class="size-3 rounded-full bg-warning"></span>
-                                    MMK
-                                </span>
-                                <span class="font-semibold">{{ $mmkPercent }}%</span>
-                            </div>
-                            <div class="w-full bg-default-200 rounded-full h-3">
-                                <div class="bg-warning h-3 rounded-full" style="width: {{ $mmkPercent }}%"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-4 pt-4 border-t border-default-200">
-                        <p class="text-xs text-default-500 text-center">
-                            MMK converted to THB at 1:{{ $advancedInsights['exchangeRate'] }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- Row 3: Revenue by Ticket Type, Top Winning Tickets --}}
+        {{-- Row 3: Revenue by Ticket Type --}}
         <div class="grid lg:grid-cols-2 grid-cols-1 gap-6 mb-6">
             {{-- Revenue by Ticket Type --}}
             <div class="card">
@@ -789,6 +780,33 @@
                 <div class="card-body">
                     <div id="ticketTypeChart" class="apex-charts"></div>
                 </div>
+            </div>
+
+            {{-- Revenue Summary --}}
+            <div class="card">
+                <div class="card-header">
+                    <div class="flex items-center gap-2">
+                        <i class="size-4 text-success" data-lucide="dollar-sign"></i>
+                        <h6 class="card-title">Revenue Summary</h6>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="text-center p-4 bg-primary/5 rounded-xl border border-primary/20 mb-4">
+                        <p class="text-sm text-default-600 mb-1">Total Revenue</p>
+                        <p class="text-3xl font-bold text-primary">฿{{ number_format($advancedInsights['payoutRatio']['totalRevenue'], 0) }}</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-center p-3 bg-success/5 rounded-lg">
+                            <p class="text-sm text-default-600">Prizes Paid</p>
+                            <p class="text-xl font-bold text-success">฿{{ number_format($advancedInsights['payoutRatio']['totalPrizes'], 0) }}</p>
+                        </div>
+                        <div class="text-center p-3 bg-info/5 rounded-lg">
+                            <p class="text-sm text-default-600">Payout Ratio</p>
+                            <p class="text-xl font-bold text-info">{{ $advancedInsights['payoutRatio']['percentage'] }}%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         {{-- Row 4: Quick Stats Summary --}}
@@ -1153,6 +1171,69 @@
                     style: { fontSize: '12px', fontWeight: 600 }
                 }
             }).render();
+
+            // ============================================
+            // SECONDARY SALES CHART
+            // ============================================
+            
+            @if($secondarySales['dailyTrend']->isNotEmpty())
+            new ApexCharts(document.querySelector("#secondarySalesTrendChart"), {
+                ...commonOptions,
+                series: [
+                    {
+                        name: 'THB',
+                        data: @json($secondarySales['dailyTrend']->pluck('thb')->toArray())
+                    },
+                    {
+                        name: 'MMK',
+                        data: @json($secondarySales['dailyTrend']->pluck('mmk')->toArray())
+                    },
+                    {
+                        name: 'Transactions',
+                        data: @json($secondarySales['dailyTrend']->pluck('count')->toArray()),
+                        type: 'bar',
+                        yAxisIndex: 1
+                    }
+                ],
+                chart: {
+                    ...commonOptions.chart,
+                    height: 280,
+                    type: 'line',
+                },
+                colors: ['#10b981', '#f59e0b', '#3b82f6'],
+                stroke: { width: [3, 3, 0], curve: 'smooth' },
+                markers: { size: 4, hover: { size: 6 } },
+                plotOptions: {
+                    bar: { columnWidth: '40%', borderRadius: 4, distributed: true }
+                },
+                xaxis: {
+                    categories: @json($secondarySales['dailyTrend']->pluck('date')->toArray()),
+                    labels: { style: { colors: '#64748b', fontSize: '11px' } }
+                },
+                yaxis: [
+                    {
+                        title: { text: 'Revenue', style: { color: '#64748b' } },
+                        labels: { style: { colors: '#64748b' } }
+                    },
+                    {
+                        opposite: true,
+                        title: { text: 'Transactions', style: { color: '#64748b' } },
+                        labels: { style: { colors: '#64748b' } }
+                    }
+                ],
+                legend: {
+                    position: 'top',
+                    horizontalAlign: 'right',
+                    markers: { radius: 10 }
+                },
+                tooltip: {
+                    shared: true,
+                    intersect: false,
+                    theme: 'dark'
+                },
+                dataLabels: { enabled: false }
+            }).render();
+            @endif
         });
     </script>
 @endsection

@@ -129,6 +129,9 @@ Route::middleware(['auth', 'otp.verified','sanitizeInput', 'fileTypeCheck'])->gr
 
     // Mobile App Configuration
     Route::resource('app-configs', AppConfigController::class);
+    Route::post('/app-configs/update-exchange-rate', [App\Http\Controllers\AppConfigController::class, 'updateExchangeRate'])
+         ->name('app-configs.exchange-rate');
+
     Route::resource('app-banners', AppBannerController::class);
     Route::resource('app-pages', AppPageController::class);
     Route::resource('app-versions', AppVersionController::class);

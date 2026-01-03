@@ -7,6 +7,7 @@ use App\Models\TicketPurchase;
 use App\Models\LotteryTicket;
 use App\Models\DevicePushToken;
 use App\Models\ActivityLog;
+use App\Models\SecondarySalesTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -49,6 +50,9 @@ class AnalyticsDashboardController extends Controller
             
             // NEW: Advanced Business Insights
             'advancedInsights' => $this->getAdvancedInsights($dateRange),
+
+            // Secondary Sales Module
+            'secondarySales' => $this->getSecondarySalesData($dateRange),
         ];
         
         return view('dashboards.analytics', $data);
@@ -238,7 +242,7 @@ class AnalyticsDashboardController extends Controller
         
         return [
             'totalSales' => $totalSales,
-            'avgOrderValue' => round($avgOrderValue, 2),
+            'avgOrderValue' => round($avgOrderValue ?? 0, 2),
             'pendingOrders' => $pendingOrders,
             'rejectedOrders' => $rejectedOrders,
         ];
@@ -404,31 +408,16 @@ class AnalyticsDashboardController extends Controller
 
     private function getAdvancedInsights($dateRange)
     {
-        // Exchange rate (MMK to THB) - you can adjust this
-        $exchangeRate = 50; // 1 THB = 50 MMK approx
-
-        // 1. Customer Lifetime Value (CLV) - combined both currencies
+        // 1. Customer Lifetime Value (CLV)
         $customerSpending = TicketPurchase::whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
             ->whereIn('status', ['approved', 'won', 'not_won'])
-            ->select('customer_id', 'currency', DB::raw('SUM(total_price) as total_spent, COUNT(*) as purchase_count'))
-            ->groupBy('customer_id', 'currency')
-            ->get()
+            ->select('customer_id', DB::raw('SUM(total_price) as total_spent, COUNT(*) as purchase_count'))
             ->groupBy('customer_id')
-            ->map(function ($items) use ($exchangeRate) {
-                $thb = $items->where('currency', 'THB')->sum('total_spent');
-                $mmk = $items->where('currency', 'MMK')->sum('total_spent');
-                $mmkInThb = $mmk / $exchangeRate;
-                return [
-                    'total_spent_thb' => $thb,
-                    'total_spent_mmk' => $mmk,
-                    'total_spent_equivalent' => $thb + $mmkInThb,
-                    'purchase_count' => $items->sum('purchase_count'),
-                ];
-            });
+            ->get();
 
-        $avgCLV = $customerSpending->avg('total_spent_equivalent');
-        $maxCLV = $customerSpending->max('total_spent_equivalent');
-        $highValueCustomers = $customerSpending->where('total_spent_equivalent', '>=', 10000)->count();
+        $avgCLV = $customerSpending->avg('total_spent');
+        $maxCLV = $customerSpending->max('total_spent');
+        $highValueCustomers = $customerSpending->where('total_spent', '>=', 10000)->count();
 
         // 2. Retention Rate (customers who purchased more than once)
         $repeatCustomers = $customerSpending->where('purchase_count', '>', 1)->count();
@@ -439,8 +428,7 @@ class AnalyticsDashboardController extends Controller
         $peakHours = TicketPurchase::selectRaw('
                 HOUR(created_at) as hour,
                 COUNT(*) as orders,
-                SUM(CASE WHEN currency = "THB" THEN total_price ELSE 0 END) as revenue_thb,
-                SUM(CASE WHEN currency = "MMK" THEN total_price ELSE 0 END) as revenue_mmk
+                SUM(total_price) as revenue
             ')
             ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
             ->whereIn('status', ['approved', 'won', 'not_won'])
@@ -455,8 +443,7 @@ class AnalyticsDashboardController extends Controller
                 DAYNAME(created_at) as day,
                 DAYOFWEEK(created_at) as day_num,
                 COUNT(*) as orders,
-                SUM(CASE WHEN currency = "THB" THEN total_price ELSE 0 END) as revenue_thb,
-                SUM(CASE WHEN currency = "MMK" THEN total_price ELSE 0 END) as revenue_mmk
+                SUM(total_price) as revenue
             ')
             ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
             ->whereIn('status', ['approved', 'won', 'not_won'])
@@ -464,52 +451,29 @@ class AnalyticsDashboardController extends Controller
             ->orderBy('day_num')
             ->get();
 
-        $bestDay = $dayOfWeek->sortByDesc(function($item) {
-            return $item['revenue_thb'] + ($item['revenue_mmk'] / $exchangeRate);
-        })->first();
+        $bestDay = $dayOfWeek->sortByDesc('revenue')->first();
 
         // 5. Prize Payout Ratio
-        $totalRevenueTHB = TicketPurchase::whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
-            ->where('currency', 'THB')
+        $totalRevenue = TicketPurchase::whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
             ->whereIn('status', ['approved', 'won', 'not_won'])
             ->sum('total_price');
-        $totalRevenueMMK = TicketPurchase::whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
-            ->where('currency', 'MMK')
-            ->whereIn('status', ['approved', 'won', 'not_won'])
-            ->sum('total_price');
-        $totalRevenue = $totalRevenueTHB + ($totalRevenueMMK / $exchangeRate);
-
-        $totalPrizesTHB = TicketPurchase::whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
-            ->where('currency', 'THB')
+        $totalPrizes = TicketPurchase::whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
             ->where('status', 'won')
             ->sum('prize_won');
-        $totalPrizesMMK = TicketPurchase::whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
-            ->where('currency', 'MMK')
-            ->where('status', 'won')
-            ->sum('prize_won');
-        $totalPrizes = $totalPrizesTHB + ($totalPrizesMMK / $exchangeRate);
-
         $payoutRatio = $totalRevenue > 0 ? ($totalPrizes / $totalRevenue) * 100 : 0;
 
-        // 6. Revenue by Currency
-        $revenueByCurrency = [
-            'THB' => $totalRevenueTHB,
-            'MMK' => $totalRevenueMMK,
-        ];
-
-        // 7. Customer Segments - by combined spending (THB equivalent)
+        // 6. Customer Segments
         $customerSegments = [
-            'vip' => $customerSpending->where('total_spent_equivalent', '>=', 10000)->count(),
-            'premium' => $customerSpending->whereBetween('total_spent_equivalent', [5000, 9999])->count(),
-            'regular' => $customerSpending->whereBetween('total_spent_equivalent', [1000, 4999])->count(),
-            'basic' => $customerSpending->where('total_spent_equivalent', '<', 1000)->count(),
+            'vip' => $customerSpending->where('total_spent', '>=', 10000)->count(),
+            'premium' => $customerSpending->whereBetween('total_spent', [5000, 9999])->count(),
+            'regular' => $customerSpending->whereBetween('total_spent', [1000, 4999])->count(),
+            'basic' => $customerSpending->where('total_spent', '<', 1000)->count(),
         ];
 
-        // 8. Revenue by Ticket Type (both currencies)
+        // 7. Revenue by Ticket Type
         $revenueByType = LotteryTicket::selectRaw('
                 lottery_tickets.ticket_type,
-                COALESCE(SUM(CASE WHEN ticket_purchases.currency = "THB" THEN ticket_purchases.total_price ELSE 0 END), 0) as revenue_thb,
-                COALESCE(SUM(CASE WHEN ticket_purchases.currency = "MMK" THEN ticket_purchases.total_price ELSE 0 END), 0) as revenue_mmk,
+                COALESCE(SUM(ticket_purchases.total_price), 0) as revenue,
                 COUNT(ticket_purchases.id) as sales_count
             ')
             ->leftJoin('ticket_purchases', function($join) use ($dateRange) {
@@ -522,8 +486,8 @@ class AnalyticsDashboardController extends Controller
 
         return [
             'customerLifetimeValue' => [
-                'average' => round($avgCLV, 2),
-                'maximum' => round($maxCLV, 2),
+                'average' => round($avgCLV ?? 0, 2),
+                'maximum' => round($maxCLV ?? 0, 2),
                 'highValueCount' => $highValueCustomers,
             ],
             'retentionRate' => round($retentionRate, 2),
@@ -537,12 +501,12 @@ class AnalyticsDashboardController extends Controller
             ],
             'bestDay' => $bestDay ? [
                 'day' => $bestDay->day,
-                'revenue' => $bestDay->revenue_thb + ($bestDay->revenue_mmk / $exchangeRate),
+                'revenue' => $bestDay->revenue,
                 'orders' => $bestDay->orders,
             ] : null,
             'dayOfWeekData' => [
                 'labels' => $dayOfWeek->pluck('day')->toArray(),
-                'revenue' => $dayOfWeek->map(fn($d) => (float)($d['revenue_thb'] + ($d['revenue_mmk'] / $exchangeRate)))->toArray(),
+                'revenue' => $dayOfWeek->pluck('revenue')->map(fn($v) => (float)$v)->toArray(),
                 'orders' => $dayOfWeek->pluck('orders')->toArray(),
             ],
             'payoutRatio' => [
@@ -550,14 +514,12 @@ class AnalyticsDashboardController extends Controller
                 'totalRevenue' => $totalRevenue,
                 'totalPrizes' => $totalPrizes,
             ],
-            'revenueByCurrency' => $revenueByCurrency,
             'customerSegments' => $customerSegments,
             'revenueByType' => [
                 'labels' => $revenueByType->pluck('ticket_type')->toArray(),
-                'revenue' => $revenueByType->map(fn($t) => (float)($t['revenue_thb'] + ($t['revenue_mmk'] / $exchangeRate)))->toArray(),
+                'revenue' => $revenueByType->pluck('revenue')->map(fn($v) => (float)$v)->toArray(),
                 'sales' => $revenueByType->pluck('sales_count')->map(fn($v) => (int)$v)->toArray(),
             ],
-            'exchangeRate' => $exchangeRate,
         ];
     }
 
@@ -592,5 +554,78 @@ class AnalyticsDashboardController extends Controller
         } else {
             return round($avgDays / 30, 1) . ' months';
         }
+    }
+
+    private function getSecondarySalesData($dateRange)
+    {
+        $start = $dateRange['start'];
+        $end = $dateRange['end'];
+
+        $transactions = SecondarySalesTransaction::whereBetween('purchased_at', [$start, $end]);
+
+        $totalThb = (clone $transactions)->sum('amount_thb');
+        $totalMmk = (clone $transactions)->sum('amount_mmk');
+        $transactionCount = (clone $transactions)->count();
+        $wonCount = (clone $transactions)->where('status', 'won')->count();
+        $notWonCount = (clone $transactions)->where('status', 'not_won')->count();
+        $pendingCount = (clone $transactions)->where('status', 'pending')->count();
+        $totalChecked = $wonCount + $notWonCount;
+        $winRate = $totalChecked > 0 ? round(($wonCount / $totalChecked) * 100, 1) : 0;
+
+        $collectedThb = SecondarySalesTransaction::whereBetween('purchased_at', [$start, $end])
+            ->where('is_paid', true)->sum('amount_thb');
+        $collectedMmk = SecondarySalesTransaction::whereBetween('purchased_at', [$start, $end])
+            ->where('is_paid', true)->sum('amount_mmk');
+        $pendingPaymentThb = SecondarySalesTransaction::whereBetween('purchased_at', [$start, $end])
+            ->where('is_paid', false)->sum('amount_thb');
+        $pendingPaymentMmk = SecondarySalesTransaction::whereBetween('purchased_at', [$start, $end])
+            ->where('is_paid', false)->sum('amount_mmk');
+
+        $wonTransactions = SecondarySalesTransaction::whereBetween('purchased_at', [$start, $end])
+            ->where('status', 'won')->sum('prize_won');
+
+        $dailyTrend = SecondarySalesTransaction::whereBetween('purchased_at', [$start, $end])
+            ->selectRaw('DATE(purchased_at) as date')
+            ->selectRaw('COUNT(*) as count')
+            ->selectRaw('SUM(amount_thb) as thb_revenue')
+            ->selectRaw('SUM(amount_mmk) as mmk_revenue')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'date' => Carbon::parse($item->date)->format('M d'),
+                    'count' => $item->count,
+                    'thb' => $item->thb_revenue,
+                    'mmk' => $item->mmk_revenue,
+                ];
+            });
+
+        $topBuyers = SecondarySalesTransaction::whereBetween('purchased_at', [$start, $end])
+            ->select('customer_name', 'customer_phone')
+            ->selectRaw('COUNT(*) as transaction_count')
+            ->selectRaw('SUM(amount_thb) as total_thb')
+            ->selectRaw('SUM(amount_mmk) as total_mmk')
+            ->groupBy('customer_name', 'customer_phone')
+            ->orderByDesc('total_thb')
+            ->take(5)
+            ->get();
+
+        return [
+            'totalThb' => $totalThb,
+            'totalMmk' => $totalMmk,
+            'transactionCount' => $transactionCount,
+            'wonCount' => $wonCount,
+            'notWonCount' => $notWonCount,
+            'pendingCount' => $pendingCount,
+            'winRate' => $winRate,
+            'collectedThb' => $collectedThb,
+            'collectedMmk' => $collectedMmk,
+            'pendingPaymentThb' => $pendingPaymentThb,
+            'pendingPaymentMmk' => $pendingPaymentMmk,
+            'totalPrizes' => $wonTransactions,
+            'dailyTrend' => $dailyTrend,
+            'topBuyers' => $topBuyers,
+        ];
     }
 }

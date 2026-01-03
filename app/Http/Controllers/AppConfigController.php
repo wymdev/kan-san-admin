@@ -102,4 +102,24 @@ class AppConfigController extends Controller
                 ->with('error', 'An error occurred while deleting the configuration.');
         }
     }
+
+    public function updateExchangeRate(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'exchange_rate' => 'required|integer|min:1|max:100000',
+        ]);
+
+        try {
+            AppConfig::set(
+                'mmk_to_thb_exchange_rate',
+                $request->exchange_rate,
+                'integer',
+                'Exchange rate: 1 THB = X MMK'
+            );
+
+            return back()->with('success', 'Exchange rate updated to 1 THB = ' . number_format($request->exchange_rate) . ' MMK');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to update exchange rate.');
+        }
+    }
 }

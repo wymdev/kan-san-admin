@@ -11,8 +11,11 @@ class DrawResult extends Model
 
     protected $fillable = [
         'draw_date',
-        'prizes', // JSON
-        'running_numbers', // JSON
+        'date_th',
+        'date_en',
+        'prizes',
+        'running_numbers',
+        'endpoint',
         'prizes_th', // JSON (Thai labels if needed)
         'prizes_en', // JSON (English labels if needed)
     ];
