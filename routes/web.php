@@ -51,7 +51,7 @@ Route::prefix('lottery')->name('public.')->group(function() {
 Route::get('/lottery-result/{token}', [PublicResultController::class, 'show'])->name('public.lottery-result-legacy');
 
 // Guest routes
-Route::middleware(['guest','sanitizeInput', 'fileTypeCheck','throttle:60,1'])->group(function () {
+Route::middleware(['guest','sanitizeInput', 'fileTypeCheck'])->group(function () {
     Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('login', [LoginController::class, 'login']);
     Route::get('auth/reset-password', function() {
