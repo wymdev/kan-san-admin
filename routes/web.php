@@ -207,6 +207,10 @@ Route::middleware(['auth', 'otp.verified','sanitizeInput', 'fileTypeCheck'])->gr
          ->name('secondary-transactions.check-results');
     Route::post('/secondary-transactions/check-all', [SecondarySalesController::class, 'checkResults'])
          ->name('secondary-transactions.check-all');
+    Route::post('/secondary-transactions/recheck-all', [SecondarySalesController::class, 'recheckAll'])
+         ->name('secondary-transactions.recheck-all');
+    Route::post('/secondary-transactions/recheck-selected', [SecondarySalesController::class, 'recheckSelected'])
+         ->name('secondary-transactions.recheck-selected');
     Route::get('/secondary-transactions/export', [SecondarySalesController::class, 'export'])
          ->name('secondary-transactions.export');
     Route::post('/secondary-transactions/{secondaryTransaction}/mark-paid', [SecondarySalesController::class, 'markPaid'])

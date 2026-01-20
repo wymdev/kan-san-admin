@@ -439,6 +439,8 @@ class SecondaryResultCheckerService
                     ->get(),
                 'outdated' => collect(),
                 'no_draw_available' => true,
+                'previously_checked' => collect(),
+                'can_recheck_all' => false,
             ];
         }
 
@@ -446,6 +448,13 @@ class SecondaryResultCheckerService
         $unchecked = SecondarySalesTransaction::with(['secondaryTicket', 'customer'])
             ->where('status', SecondarySalesTransaction::STATUS_PENDING)
             ->whereNull('checked_at')
+            ->get();
+
+        // Get previously checked transactions that can be rechecked
+        $previouslyChecked = SecondarySalesTransaction::with(['secondaryTicket', 'customer', 'drawResult'])
+            ->whereIn('status', [SecondarySalesTransaction::STATUS_WON, SecondarySalesTransaction::STATUS_NOT_WON])
+            ->whereNotNull('checked_at')
+            ->whereNotNull('draw_result_id')
             ->get();
 
         $readyToCheck = collect();
@@ -503,6 +512,8 @@ class SecondaryResultCheckerService
             'ready_to_check' => $readyToCheck,
             'waiting_for_draw' => $waitingForDraw,
             'outdated' => $outdated,
+            'previously_checked' => $previouslyChecked,
+            'can_recheck_all' => $previouslyChecked->count() > 0,
             'no_draw_available' => false,
             'latest_draw_date' => $actualDrawDate->format('M d, Y'),
             'latest_draw_data' => [
@@ -511,6 +522,271 @@ class SecondaryResultCheckerService
                 'has_running_numbers' => !empty($latestDraw->running_numbers),
             ],
         ];
+    }
+
+    /**
+     * Recheck all previously checked transactions against latest draw results
+     */
+    public function recheckAllTransactions()
+    {
+        $latestDraw = DrawResult::latest('draw_date')->first();
+        
+        if (!$latestDraw) {
+            return [
+                'success' => false,
+                'type' => 'error',
+                'message' => '❌ No lottery draw results available. Please sync draw results first.',
+                'rechecked' => 0,
+                'changed' => 0,
+                'unchanged' => 0,
+                'details' => []
+            ];
+        }
+
+        // Get all previously checked transactions
+        $previouslyChecked = SecondarySalesTransaction::with(['secondaryTicket', 'customer', 'drawResult'])
+            ->whereIn('status', [SecondarySalesTransaction::STATUS_WON, SecondarySalesTransaction::STATUS_NOT_WON])
+            ->whereNotNull('checked_at')
+            ->whereNotNull('draw_result_id')
+            ->get();
+
+        if ($previouslyChecked->isEmpty()) {
+            return [
+                'success' => true,
+                'type' => 'info',
+                'message' => 'ℹ️ No previously checked transactions found. Use "Check All Results" for new transactions.',
+                'rechecked' => 0,
+                'changed' => 0,
+                'unchanged' => 0,
+                'details' => []
+            ];
+        }
+
+        $changedCount = 0;
+        $unchangedCount = 0;
+        $details = [
+            'status_changed' => [],
+            'prize_changed' => [],
+            'new_winners' => [],
+            'previous_losers' => [],
+        ];
+
+        $actualDrawDate = Carbon::parse($latestDraw->draw_date);
+
+        foreach ($previouslyChecked as $transaction) {
+            $ticket = $transaction->secondaryTicket;
+            $oldStatus = $transaction->status;
+            $oldPrize = $transaction->prize_won;
+
+            // Skip if no ticket or draw info
+            if (!$ticket || !$ticket->withdraw_date) {
+                continue;
+            }
+
+            // Check date compatibility
+            $ticketDrawDate = Carbon::parse($ticket->withdraw_date);
+            $compatibility = $this->checkDrawDateCompatibility($ticketDrawDate, $actualDrawDate);
+
+            if ($compatibility['status'] !== 'compatible') {
+                continue; // Skip outdated or future transactions
+            }
+
+            // Recheck against latest draw
+            $newResult = $this->checkIfWinner($transaction, $latestDraw);
+            $newStatus = $newResult ? 'won' : 'not_won';
+            $newPrize = $newResult ? $newResult['prize'] : null;
+
+            // Update if status changed
+            if ($oldStatus !== $newStatus || $oldPrize !== $newPrize) {
+                $transaction->update([
+                    'status' => $newStatus,
+                    'prize_won' => $newPrize,
+                    'checked_at' => now(), // Update check timestamp
+                ]);
+
+                if ($oldStatus !== $newStatus) {
+                    $details['status_changed'][] = [
+                        'transaction_number' => $transaction->transaction_number,
+                        'customer_name' => $transaction->customer_display_name,
+                        'old_status' => $oldStatus,
+                        'new_status' => $newStatus,
+                        'ticket_number' => $ticket->ticket_number ?? 'N/A',
+                    ];
+                    $changedCount++;
+                }
+
+                if ($oldPrize !== $newPrize) {
+                    $details['prize_changed'][] = [
+                        'transaction_number' => $transaction->transaction_number,
+                        'customer_name' => $transaction->customer_display_name,
+                        'old_prize' => $oldPrize ?? 'None',
+                        'new_prize' => $newPrize ?? 'None',
+                        'ticket_number' => $ticket->ticket_number ?? 'N/A',
+                    ];
+                }
+
+                // Track new winners
+                if ($oldStatus === SecondarySalesTransaction::STATUS_NOT_WON && $newStatus === SecondarySalesTransaction::STATUS_WON) {
+                    $details['new_winners'][] = [
+                        'transaction_number' => $transaction->transaction_number,
+                        'customer_name' => $transaction->customer_display_name,
+                        'prize' => $newPrize,
+                        'ticket_number' => $ticket->ticket_number ?? 'N/A',
+                    ];
+                }
+
+                // Track previous winners who lost
+                if ($oldStatus === SecondarySalesTransaction::STATUS_WON && $newStatus === SecondarySalesTransaction::STATUS_NOT_WON) {
+                    $details['previous_losers'][] = [
+                        'transaction_number' => $transaction->transaction_number,
+                        'customer_name' => $transaction->customer_display_name,
+                        'old_prize' => $oldPrize,
+                        'ticket_number' => $ticket->ticket_number ?? 'N/A',
+                    ];
+                }
+            } else {
+                $unchangedCount++;
+            }
+        }
+
+        $message = $this->buildRecheckMessage($changedCount, $unchangedCount, $details, $latestDraw->date_en);
+
+        return [
+            'success' => true,
+            'type' => $changedCount > 0 ? 'success' : 'info',
+            'message' => $message,
+            'rechecked' => $previouslyChecked->count(),
+            'changed' => $changedCount,
+            'unchanged' => $unchangedCount,
+            'details' => $details,
+            'draw_date' => $latestDraw->date_en,
+        ];
+    }
+
+    /**
+     * Recheck specific transactions
+     */
+    public function recheckTransactions(array $transactionIds)
+    {
+        $latestDraw = DrawResult::latest('draw_date')->first();
+        
+        if (!$latestDraw) {
+            return [
+                'success' => false,
+                'type' => 'error',
+                'message' => '❌ No lottery draw results available. Please sync draw results first.',
+                'rechecked' => 0,
+                'changed' => 0,
+                'details' => []
+            ];
+        }
+
+        $transactions = SecondarySalesTransaction::with(['secondaryTicket', 'customer', 'drawResult'])
+            ->whereIn('id', $transactionIds)
+            ->whereIn('status', [SecondarySalesTransaction::STATUS_WON, SecondarySalesTransaction::STATUS_NOT_WON])
+            ->get();
+
+        if ($transactions->isEmpty()) {
+            return [
+                'success' => false,
+                'type' => 'error',
+                'message' => '❌ No valid transactions found for rechecking.',
+                'rechecked' => 0,
+                'changed' => 0,
+                'details' => []
+            ];
+        }
+
+        return $this->performRecheck($transactions, $latestDraw);
+    }
+
+    /**
+     * Perform the actual recheck operation
+     */
+    private function performRecheck($transactions, $drawResult)
+    {
+        $changedCount = 0;
+        $details = [
+            'status_changed' => [],
+            'prize_changed' => [],
+            'new_winners' => [],
+            'previous_losers' => [],
+        ];
+
+        foreach ($transactions as $transaction) {
+            $oldStatus = $transaction->status;
+            $oldPrize = $transaction->prize_won;
+
+            $newResult = $this->checkIfWinner($transaction, $drawResult);
+            $newStatus = $newResult ? SecondarySalesTransaction::STATUS_WON : SecondarySalesTransaction::STATUS_NOT_WON;
+            $newPrize = $newResult ? $newResult['prize'] : null;
+
+            // Update if anything changed
+            if ($oldStatus !== $newStatus || $oldPrize !== $newPrize) {
+                $transaction->update([
+                    'status' => $newStatus,
+                    'prize_won' => $newPrize,
+                    'checked_at' => now(),
+                ]);
+
+                if ($oldStatus !== $newStatus) {
+                    $details['status_changed'][] = [
+                        'transaction_number' => $transaction->transaction_number,
+                        'customer_name' => $transaction->customer_display_name,
+                        'old_status' => $oldStatus,
+                        'new_status' => $newStatus,
+                        'ticket_number' => $transaction->secondaryTicket?->ticket_number ?? 'N/A',
+                    ];
+                    $changedCount++;
+                }
+
+                if ($oldPrize !== $newPrize) {
+                    $details['prize_changed'][] = [
+                        'transaction_number' => $transaction->transaction_number,
+                        'customer_name' => $transaction->customer_display_name,
+                        'old_prize' => $oldPrize ?? 'None',
+                        'new_prize' => $newPrize ?? 'None',
+                        'ticket_number' => $transaction->secondaryTicket?->ticket_number ?? 'N/A',
+                    ];
+                }
+            }
+        }
+
+        return [
+            'success' => true,
+            'rechecked' => $transactions->count(),
+            'changed' => $changedCount,
+            'details' => $details,
+            'draw_date' => $drawResult->date_en,
+        ];
+    }
+
+    /**
+     * Build recheck result message
+     */
+    private function buildRecheckMessage($changed, $unchanged, $details, $drawDate)
+    {
+        $parts = [];
+        
+        $parts[] = "✅ Rechecked <strong>" . ($changed + $unchanged) . "</strong> transaction(s) against draw on <strong>{$drawDate}</strong>";
+        
+        if ($changed > 0) {
+            $parts[] = "🔄 <strong>{$changed}</strong> transaction(s) had status changes";
+            
+            if (!empty($details['new_winners'])) {
+                $parts[] = "🎉 <strong>" . count($details['new_winners']) . "</strong> new winner(s)";
+            }
+            
+            if (!empty($details['previous_losers'])) {
+                $parts[] = "😔 <strong>" . count($details['previous_losers']) . "</strong> previous winner(s) lost";
+            }
+        }
+        
+        if ($unchanged > 0) {
+            $parts[] = "✅ <strong>{$unchanged}</strong> transaction(s) unchanged";
+        }
+
+        return implode('. ', $parts) . '.';
     }
     
     /**

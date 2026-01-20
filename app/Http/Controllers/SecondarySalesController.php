@@ -7,6 +7,8 @@ use App\Models\SecondaryLotteryTicket;
 use App\Models\Customer;
 use App\Services\SecondaryResultCheckerService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -498,5 +500,46 @@ class SecondarySalesController extends Controller
             ->get(['id', 'full_name', 'phone_number']);
 
         return response()->json($customers);
+    }
+
+    /**
+     * Recheck all previously checked transactions
+     */
+    public function recheckAll()
+    {
+        try {
+            $result = $this->checkerService->recheckAllTransactions();
+            
+            $flashType = $result['type'] ?? 'info';
+            
+            return redirect()->back()->with($flashType, $result['message']);
+            
+        } catch (\Exception $e) {
+            \Log::error('Secondary Recheck All Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', '❌ System Error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Recheck selected transactions
+     */
+    public function recheckSelected(Request $request)
+    {
+        $request->validate([
+            'transaction_ids' => 'required|array',
+            'transaction_ids.*' => 'exists:secondary_sales_transactions,id',
+        ]);
+
+        try {
+            $result = $this->checkerService->recheckTransactions($request->input('transaction_ids'));
+            
+            $flashType = $result['type'] ?? 'info';
+            
+            return redirect()->back()->with($flashType, $result['message']);
+            
+        } catch (\Exception $e) {
+            \Log::error('Secondary Recheck Selected Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', '❌ System Error: ' . $e->getMessage());
+        }
     }
 }
