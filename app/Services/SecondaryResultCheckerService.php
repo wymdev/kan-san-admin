@@ -20,7 +20,7 @@ class SecondaryResultCheckerService
     {
         // Get the latest draw result
         $latestDraw = DrawResult::latest('draw_date')->first();
-        
+
         if (!$latestDraw) {
             return [
                 'success' => false,
@@ -60,7 +60,7 @@ class SecondaryResultCheckerService
         $skippedOutdatedCount = 0;
         $skippedNoTicketCount = 0;
         $actualDrawDate = Carbon::parse($latestDraw->draw_date);
-        
+
         $details = [
             'future_transactions' => [],
             'outdated_transactions' => [],
@@ -69,7 +69,7 @@ class SecondaryResultCheckerService
 
         foreach ($uncheckedTransactions as $transaction) {
             $ticket = $transaction->secondaryTicket;
-            
+
             // Skip if no ticket or no draw date
             if (!$ticket || !$ticket->withdraw_date) {
                 $skippedNoTicketCount++;
@@ -109,7 +109,7 @@ class SecondaryResultCheckerService
             if ($isWinner) {
                 // Enhanced prize information for Thai lottery system
                 $prizeInfo = $this->formatPrizeInfo($isWinner);
-                
+
                 $transaction->update([
                     'status' => SecondarySalesTransaction::STATUS_WON,
                     'draw_result_id' => $latestDraw->id,
@@ -117,7 +117,7 @@ class SecondaryResultCheckerService
                     'checked_at' => now(),
                 ]);
                 $wonCount++;
-                
+
                 $details['winners'][] = [
                     'transaction_number' => $transaction->transaction_number,
                     'customer_name' => $transaction->customer_display_name,
@@ -174,7 +174,7 @@ class SecondaryResultCheckerService
     {
         if ($actualDrawDate->lt($ticketDrawDate)) {
             $daysDiff = $ticketDrawDate->diffInDays($actualDrawDate);
-            
+
             return [
                 'status' => 'future',
                 'days_difference' => $daysDiff,
@@ -205,11 +205,11 @@ class SecondaryResultCheckerService
 
         if ($checked > 0) {
             $parts[] = "✅ Checked <strong>{$checked}</strong> transaction(s) against draw on <strong>{$drawDate}</strong>";
-            
+
             if ($won > 0) {
                 $parts[] = "🎉 <strong>{$won}</strong> winner(s)";
             }
-            
+
             if ($notWon > 0) {
                 $parts[] = "❌ <strong>{$notWon}</strong> not won";
             }
@@ -231,69 +231,48 @@ class SecondaryResultCheckerService
     }
 
     /**
-     * Check if a transaction is a winner - supports multiple prizes per ticket
-     * Enhanced to match Thai lottery system exactly
+     * Check if a transaction is a winner - shows only the highest prize
+     * Aligned with Thai lottery system display standards
      */
     private function checkIfWinner(SecondarySalesTransaction $transaction, DrawResult $drawResult)
     {
         $ticket = $transaction->secondaryTicket;
-        
+
         // Get ticket numbers - ensure we handle different formats
         $ticketNumbers = $this->getTicketNumbers($ticket);
         if (empty($ticketNumbers)) {
             return false;
         }
-        
+
         $allWins = [];
-        $allPrizes = [];
-        
+
         // Check each number and collect ALL possible wins
         foreach ($ticketNumbers as $ticketNumber) {
             $ticketNumber = str_replace(' ', '', trim($ticketNumber));
-            
+
             // Validate 6-digit format (Thai lottery standard)
             if (strlen($ticketNumber) !== 6 || !ctype_digit($ticketNumber)) {
                 continue;
             }
-            
+
             $result = $drawResult->checkNumber($ticketNumber);
-            
+
             if ($result && is_array($result)) {
-            // Collect all prizes from this result - prioritize major prizes
-            if (isset($result[0]) && is_array($result[0])) {
-                // Multiple prizes (new format)
-                $majorPrizes = [];
-                $minorPrizes = [];
-                foreach ($result as $prize) {
-                    $prizeName = $prize['prize_name'] ?? 'Prize';
-                    
-                    // Check if this is a major prize (1st-5th) or running number
-                    $isMajorPrize = !preg_match('/\b(Digit|Front|Rear)\b/', $prizeName);
-                    
-                    $prizeData = [
-                        'won' => true,
-                        'prize_id' => $prize['prize_id'] ?? 'unknown',
-                        'prize_name' => $prizeName,
-                        'number' => $prize['number'] ?? $ticketNumber,
-                        'full_number' => $ticketNumber,
-                        'reward' => $prize['reward'] ?? 0,
-                    ];
-                    
-                    if ($isMajorPrize) {
-                        $majorPrizes[] = $prizeName;
-                    } else {
-                        $minorPrizes[] = $prizeName;
+                // Handle both single prize and multiple prizes format
+                if (isset($result[0]) && is_array($result[0])) {
+                    // Multiple prizes returned from DrawResult
+                    foreach ($result as $prize) {
+                        $allWins[] = [
+                            'won' => true,
+                            'prize_id' => $prize['prize_id'] ?? 'unknown',
+                            'prize_name' => $prize['prize_name'] ?? 'Prize',
+                            'number' => $prize['number'] ?? $ticketNumber,
+                            'full_number' => $ticketNumber,
+                            'reward' => $prize['reward'] ?? 0,
+                        ];
                     }
-                    
-                    $allWins[] = $prizeData;
-                }
-                
-                // For display, prioritize major prizes
-                $displayPrizes = !empty($majorPrizes) ? $majorPrizes : $minorPrizes;
-                $allPrizes = !empty($majorPrizes) ? $majorPrizes : array_merge($majorPrizes, $minorPrizes);
-            }
-                // Single prize (old format)
-                elseif (isset($result['prize_name'])) {
+                } elseif (isset($result['prize_name'])) {
+                    // Single prize (legacy format)
                     $allWins[] = [
                         'won' => true,
                         'prize_id' => $result['prize_id'] ?? 'unknown',
@@ -302,36 +281,39 @@ class SecondaryResultCheckerService
                         'full_number' => $ticketNumber,
                         'reward' => $result['reward'] ?? 0,
                     ];
-                    $allPrizes[] = $result['prize_name'];
                 }
             }
         }
-        
-        // Return comprehensive win information
+
+        // Return only the highest-value prize
         if (!empty($allWins)) {
-            // Remove duplicate prizes and combine for display
-            $uniquePrizes = array_unique($allPrizes);
-            $prizeString = implode(', ', $uniquePrizes);
-            
+            // Sort by reward amount (descending) to get the highest prize
+            usort($allWins, function ($a, $b) {
+                return $b['reward'] <=> $a['reward'];
+            });
+
+            // Get the highest prize
+            $highestPrize = $allWins[0];
+
             return [
-                'prize' => $prizeString,
-                'number' => $allWins[0]['number'] ?? $ticketNumbers[0],
-                'all_wins' => $allWins,
-                'total_prizes' => count($uniquePrizes),
-                'highest_reward' => max(array_column($allWins, 'reward')),
+                'prize' => $highestPrize['prize_name'],
+                'number' => $highestPrize['number'],
+                'all_wins' => $allWins, // Keep all wins for reference/debugging
+                'total_prizes' => count($allWins),
+                'highest_reward' => $highestPrize['reward'],
             ];
         }
 
         return false;
     }
-    
+
     /**
      * Extract ticket numbers from different possible formats
      */
     private function getTicketNumbers($ticket)
     {
         $numbers = [];
-        
+
         // Check if numbers field exists and is array
         if (isset($ticket->numbers) && is_array($ticket->numbers)) {
             $numbers = $ticket->numbers;
@@ -346,11 +328,11 @@ class SecondaryResultCheckerService
         }
         // Fallback to any string representation
         elseif (isset($ticket)) {
-            $numbers = [(string)$ticket];
+            $numbers = [(string) $ticket];
         }
-        
+
         // Clean and validate each number
-        return array_filter(array_map(function($num) {
+        return array_filter(array_map(function ($num) {
             $cleaned = preg_replace('/[^0-9]/', '', trim($num));
             return strlen($cleaned) === 6 ? $cleaned : null;
         }, $numbers));
@@ -363,35 +345,37 @@ class SecondaryResultCheckerService
     {
         $runningLength = strlen($runningNumber);
         $ticketLast = substr($ticketNumber, -$runningLength);
-        
+
         return $ticketLast === $runningNumber;
     }
 
     /**
      * Format prize information for Thai lottery display
+     * Shows all prizes with total reward amount
      */
     private function formatPrizeInfo($winnerInfo)
     {
         $prizeString = $winnerInfo['prize'] ?? 'Unknown Prize';
-        $totalPrizes = $winnerInfo['total_prizes'] ?? 1;
-        $highestReward = $winnerInfo['highest_reward'] ?? 0;
-        
-        // Add reward amount if significant
+        $allWins = $winnerInfo['all_wins'] ?? [];
+
+        // Calculate total reward from all prizes
+        $totalReward = 0;
+        foreach ($allWins as $win) {
+            $totalReward += $win['reward'] ?? 0;
+        }
+
+        // Format: "Prize1 + Prize2 (Total: ฿Amount)"
         $displayPrize = $prizeString;
-        if ($highestReward > 0) {
-            $rewardFormatted = number_format($highestReward);
-            $displayPrize .= " (฿{$rewardFormatted})";
+        if ($totalReward > 0) {
+            $rewardFormatted = number_format($totalReward);
+            $displayPrize .= " (Total: ฿{$rewardFormatted})";
         }
-        
-        // Add multiple prize indicator
-        if ($totalPrizes > 1) {
-            $displayPrize .= " [+{$totalPrizes} prizes]";
-        }
-        
+
         return [
             'display_prize' => $displayPrize,
-            'total_prizes' => $totalPrizes,
-            'highest_reward' => $highestReward,
+            'total_prizes' => $winnerInfo['total_prizes'] ?? 1,
+            'highest_reward' => $winnerInfo['highest_reward'] ?? 0,
+            'total_reward' => $totalReward,
         ];
     }
 
@@ -421,14 +405,14 @@ class SecondaryResultCheckerService
     public function getStatistics()
     {
         $latestDraw = DrawResult::latest('draw_date')->first();
-        
+
         return [
             'total_transactions' => SecondarySalesTransaction::count(),
             'total_revenue' => SecondarySalesTransaction::sum('amount_thb'),
             'total_revenue_mmk' => SecondarySalesTransaction::sum('amount_mmk'),
             'awaiting_check' => SecondarySalesTransaction::where('status', SecondarySalesTransaction::STATUS_PENDING)
-                                              ->whereNull('checked_at')
-                                              ->count(),
+                ->whereNull('checked_at')
+                ->count(),
             'won' => SecondarySalesTransaction::where('status', SecondarySalesTransaction::STATUS_WON)->count(),
             'not_won' => SecondarySalesTransaction::where('status', SecondarySalesTransaction::STATUS_NOT_WON)->count(),
             'pending' => SecondarySalesTransaction::where('status', SecondarySalesTransaction::STATUS_PENDING)->count(),
@@ -447,7 +431,7 @@ class SecondaryResultCheckerService
     public function getTransactionsByDrawStatus()
     {
         $latestDraw = DrawResult::latest('draw_date')->first();
-        
+
         if (!$latestDraw) {
             return [
                 'ready_to_check' => collect(),
@@ -481,20 +465,20 @@ class SecondaryResultCheckerService
 
         foreach ($unchecked as $transaction) {
             $ticket = $transaction->secondaryTicket;
-            
+
             // Enhanced validation for Thai lottery tickets
             if (!$ticket) {
                 $transaction->validation_error = 'No ticket information found';
                 $outdated->push($transaction);
                 continue;
             }
-            
+
             if (!$ticket->withdraw_date) {
                 $transaction->validation_error = 'No draw date specified';
                 $outdated->push($transaction);
                 continue;
             }
-            
+
             // Validate ticket numbers are in correct Thai lottery format
             $ticketNumbers = $this->getTicketNumbers($ticket);
             if (empty($ticketNumbers)) {
@@ -513,11 +497,11 @@ class SecondaryResultCheckerService
             } elseif ($compatibility['status'] === 'compatible') {
                 $transaction->status_info = $compatibility;
                 $transaction->ticket_numbers = $ticketNumbers;
-                
+
                 // Pre-check for Thai lottery validation
                 $preCheck = $this->thaiLotteryPreCheck($ticketNumbers, $latestDraw);
                 $transaction->pre_check_result = $preCheck;
-                
+
                 $readyToCheck->push($transaction);
             } else {
                 $transaction->status_info = $compatibility;
@@ -548,7 +532,7 @@ class SecondaryResultCheckerService
     public function recheckAllTransactions()
     {
         $latestDraw = DrawResult::latest('draw_date')->first();
-        
+
         if (!$latestDraw) {
             return [
                 'success' => false,
@@ -687,7 +671,7 @@ class SecondaryResultCheckerService
     public function recheckTransactions(array $transactionIds)
     {
         $latestDraw = DrawResult::latest('draw_date')->first();
-        
+
         if (!$latestDraw) {
             return [
                 'success' => false,
@@ -785,28 +769,28 @@ class SecondaryResultCheckerService
     private function buildRecheckMessage($changed, $unchanged, $details, $drawDate)
     {
         $parts = [];
-        
+
         $parts[] = "✅ Rechecked <strong>" . ($changed + $unchanged) . "</strong> transaction(s) against draw on <strong>{$drawDate}</strong>";
-        
+
         if ($changed > 0) {
             $parts[] = "🔄 <strong>{$changed}</strong> transaction(s) had status changes";
-            
+
             if (!empty($details['new_winners'])) {
                 $parts[] = "🎉 <strong>" . count($details['new_winners']) . "</strong> new winner(s)";
             }
-            
+
             if (!empty($details['previous_losers'])) {
                 $parts[] = "😔 <strong>" . count($details['previous_losers']) . "</strong> previous winner(s) lost";
             }
         }
-        
+
         if ($unchanged > 0) {
             $parts[] = "✅ <strong>{$unchanged}</strong> transaction(s) unchanged";
         }
 
         return implode('. ', $parts) . '.';
     }
-    
+
     /**
      * Pre-check ticket numbers against Thai lottery rules
      */
@@ -814,16 +798,16 @@ class SecondaryResultCheckerService
     {
         $validNumbers = [];
         $potentialWins = [];
-        
+
         foreach ($ticketNumbers as $ticketNumber) {
             // Validate Thai lottery format
             if (strlen($ticketNumber) !== 6 || !ctype_digit($ticketNumber)) {
                 $validNumbers[] = $ticketNumber . ' (invalid)';
                 continue;
             }
-            
+
             $validNumbers[] = $ticketNumber;
-            
+
             // Quick check against available prizes
             $result = $drawResult->checkNumber($ticketNumber);
             if ($result && is_array($result)) {
@@ -833,7 +817,7 @@ class SecondaryResultCheckerService
                 $potentialWins[] = $ticketNumber . ' (no match)';
             }
         }
-        
+
         return [
             'valid_numbers' => $validNumbers,
             'invalid_numbers' => array_diff($ticketNumbers, $validNumbers),
