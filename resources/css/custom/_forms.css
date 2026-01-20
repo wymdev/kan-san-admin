@@ -19,7 +19,18 @@ _forms.scss
 }
 
 .form-input-sm {
-    @apply h-7.5 text-xs;
+    @apply h-10 text-sm leading-none;
+}
+
+.form-select-sm {
+    @apply h-10 text-sm leading-none py-2.5 px-3.5;
+    display: flex;
+    align-items: center;
+}
+
+/* Standardize button small size to match form elements */
+.btn-sm {
+    @apply h-10 inline-flex items-center justify-center text-sm;
 }
 
 textarea.form-input {
@@ -28,6 +39,57 @@ textarea.form-input {
 
 select.form-input {
     @apply min-w-28;
+}
+
+/* Enhanced Select Box Styling */
+.form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+    padding-right: 2.5rem;
+    transition: all 0.2s ease-in-out;
+    @apply bg-white border-gray-300 rounded-md text-sm text-gray-900 shadow-sm;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.dark .form-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239ca3af' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+    @apply bg-gray-700 border-gray-600 text-gray-100;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+.form-select:hover {
+    @apply border-blue-400;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dark .form-select:hover {
+    @apply border-blue-400;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.form-select:focus {
+    @apply outline-none border-blue-500 ring-blue-200;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dark .form-select:focus {
+    @apply ring-blue-900;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+
+.form-select-sm {
+    @apply py-2 text-sm leading-5 h-10;
+}
+
+.form-select:disabled {
+    @apply opacity-50 cursor-not-allowed bg-gray-50;
+}
+
+.dark .form-select:disabled {
+    @apply bg-gray-900;
 }
 
 .form-radio,

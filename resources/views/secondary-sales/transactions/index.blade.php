@@ -4,39 +4,58 @@
 <style>
     .stat-card {
         background: white;
-        border-radius: 16px;
+        border-radius: 12px;
         padding: 1.25rem;
         border: 1px solid #e5e7eb;
         transition: all 0.2s ease;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        min-height: 80px;
     }
     .dark .stat-card {
         background: rgb(31, 41, 55);
         border-color: rgb(55, 65, 81);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     }
     .stat-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .dark .stat-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     }
     .stat-icon {
         width: 48px;
         height: 48px;
-        border-radius: 12px;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
     }
+    .stat-content {
+        flex: 1;
+        min-width: 0;
+    }
     .stat-value {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
         font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 0.125rem;
+    }
+    .stat-subvalue {
+        font-size: 0.75rem;
+        font-weight: 500;
         line-height: 1.2;
     }
     .stat-label {
         font-size: 0.75rem;
         color: #6b7280;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 0.25rem;
+        letter-spacing: 0.025em;
+        font-weight: 600;
     }
     .dark .stat-label {
         color: #9ca3af;
@@ -56,6 +75,28 @@
         gap: 1rem;
         align-items: end;
     }
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+    }
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        .stat-card {
+            padding: 1rem;
+            min-height: 70px;
+        }
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+        }
+        .stat-value {
+            font-size: 1.125rem;
+        }
+    }
     @media (max-width: 640px) {
         .filter-section {
             grid-template-columns: 1fr 1fr;
@@ -63,8 +104,8 @@
         .filter-section .full-width {
             grid-column: span 2;
         }
-        .stat-value {
-            font-size: 1.25rem;
+        .stats-grid {
+            grid-template-columns: 1fr;
         }
     }
     .table-container {
@@ -91,6 +132,122 @@
         font-size: 0.75rem;
         font-weight: 600;
         border-radius: 9999px;
+    }
+    
+    /* Enhanced Select Box Styling */
+    .form-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1rem;
+        padding-right: 2.5rem;
+        transition: all 0.2s ease-in-out;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        background-color: #ffffff;
+        font-size: 0.875rem;
+        color: #374151;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+    
+    .dark .form-select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239ca3af' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+        background-color: #374151;
+        border-color: #4b5563;
+        color: #f3f4f6;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    .form-select:hover {
+        border-color: #3b82f6;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .dark .form-select:hover {
+        border-color: #60a5fa;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    .form-select:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        background-color: #ffffff;
+    }
+    
+    .dark .form-select:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+        background-color: #374151;
+    }
+
+    .form-select-sm {
+        height: 2.5rem;
+        padding: 0.625rem 2.5rem 0.625rem 0.875rem;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .form-select:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background-color: #f9fafb;
+    }
+    
+    .dark .form-select:disabled {
+        background-color: #1f2937;
+    }
+    
+    /* Enhanced Input Styling */
+    .form-input {
+        transition: all 0.2s ease-in-out;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+    
+    .dark .form-input {
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    }
+    
+    .form-input:hover {
+        border-color: #3b82f6;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .dark .form-input:hover {
+        border-color: #60a5fa;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+    
+    .form-input:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .dark .form-input:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+    }
+    
+    /* Standardize form input small size to match selects */
+    .form-input-sm {
+        height: 2.5rem;
+        padding: 0.625rem 0.875rem 0.625rem 2.25rem;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+    }
+    
+    /* Standardize button small size to match form elements */
+    .btn-sm {
+        height: 2.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
     }
 </style>
 @endsection
@@ -149,77 +306,65 @@
         </div>
 
         {{-- Statistics Cards --}}
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div class="stats-grid">
             <div class="stat-card">
-                <div class="flex items-center gap-3">
-                    <div class="stat-icon bg-indigo-100 dark:bg-indigo-900/30">
-                        <i class="text-indigo-600 dark:text-indigo-400 size-5" data-lucide="receipt"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="stat-label">Total</p>
-                        <p class="stat-value text-gray-900 dark:text-white">{{ $stats['total_transactions'] }}</p>
-                    </div>
+                <div class="stat-icon bg-indigo-100 dark:bg-indigo-900/30">
+                    <i class="text-indigo-600 dark:text-indigo-400 size-5" data-lucide="receipt"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Total Transactions</p>
+                    <p class="stat-value text-gray-900 dark:text-white">{{ $stats['total_transactions'] }}</p>
                 </div>
             </div>
 
             <div class="stat-card">
-                <div class="flex items-center gap-3">
-                    <div class="stat-icon bg-amber-100 dark:bg-amber-900/30">
-                        <i class="text-amber-600 dark:text-amber-400 size-5" data-lucide="clock"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="stat-label">Unchecked</p>
-                        <p class="stat-value text-gray-900 dark:text-white">{{ $stats['awaiting_check'] }}</p>
-                    </div>
+                <div class="stat-icon bg-amber-100 dark:bg-amber-900/30">
+                    <i class="text-amber-600 dark:text-amber-400 size-5" data-lucide="clock"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Pending Check</p>
+                    <p class="stat-value text-gray-900 dark:text-white">{{ $stats['awaiting_check'] }}</p>
                 </div>
             </div>
 
             <div class="stat-card">
-                <div class="flex items-center gap-3">
-                    <div class="stat-icon bg-emerald-100 dark:bg-emerald-900/30">
-                        <i class="text-emerald-600 dark:text-emerald-400 size-5" data-lucide="trophy"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="stat-label">Won</p>
-                        <p class="stat-value text-emerald-600 dark:text-emerald-400">{{ $stats['won'] }}</p>
-                    </div>
+                <div class="stat-icon bg-emerald-100 dark:bg-emerald-900/30">
+                    <i class="text-emerald-600 dark:text-emerald-400 size-5" data-lucide="trophy"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Won Prizes</p>
+                    <p class="stat-value text-emerald-600 dark:text-emerald-400">{{ $stats['won'] }}</p>
                 </div>
             </div>
 
             <div class="stat-card">
-                <div class="flex items-center gap-3">
-                    <div class="stat-icon bg-rose-100 dark:bg-rose-900/30">
-                        <i class="text-rose-600 dark:text-rose-400 size-5" data-lucide="circle-dollar-sign"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="stat-label">Unpaid</p>
-                        <p class="stat-value text-rose-600 dark:text-rose-400">฿{{ number_format($stats['unpaid_amount'], 0) }}</p>
-                        <p class="text-xs text-rose-500">{{ number_format($stats['unpaid_amount_mmk'] ?? 0, 0) }} K</p>
-                    </div>
+                <div class="stat-icon bg-rose-100 dark:bg-rose-900/30">
+                    <i class="text-rose-600 dark:text-rose-400 size-5" data-lucide="circle-dollar-sign"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Unpaid Amount</p>
+                    <p class="stat-value text-rose-600 dark:text-rose-400">฿{{ number_format($stats['unpaid_amount'], 0) }}</p>
+                    <p class="stat-subvalue text-rose-500">{{ number_format($stats['unpaid_amount_mmk'] ?? 0, 0) }} K</p>
                 </div>
             </div>
 
             <div class="stat-card">
-                <div class="flex items-center gap-3">
-                    <div class="stat-icon bg-cyan-100 dark:bg-cyan-900/30">
-                        <i class="text-cyan-600 dark:text-cyan-400 size-5" data-lucide="wallet"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="stat-label">Revenue THB</p>
-                        <p class="stat-value text-gray-900 dark:text-white">฿{{ number_format($stats['total_revenue'], 0) }}</p>
-                    </div>
+                <div class="stat-icon bg-cyan-100 dark:bg-cyan-900/30">
+                    <i class="text-cyan-600 dark:text-cyan-400 size-5" data-lucide="wallet"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Revenue (THB)</p>
+                    <p class="stat-value text-gray-900 dark:text-white">฿{{ number_format($stats['total_revenue'], 0) }}</p>
                 </div>
             </div>
 
             <div class="stat-card">
-                <div class="flex items-center gap-3">
-                    <div class="stat-icon bg-purple-100 dark:bg-purple-900/30">
-                        <i class="text-purple-600 dark:text-purple-400 size-5" data-lucide="banknote"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="stat-label">Revenue MMK</p>
-                        <p class="stat-value text-gray-900 dark:text-white">{{ number_format($stats['total_revenue_mmk'] ?? 0, 0) }}K</p>
-                    </div>
+                <div class="stat-icon bg-purple-100 dark:bg-purple-900/30">
+                    <i class="text-purple-600 dark:text-purple-400 size-5" data-lucide="banknote"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Revenue (MMK)</p>
+                    <p class="stat-value text-gray-900 dark:text-white">{{ number_format($stats['total_revenue_mmk'] ?? 0, 0) }}K</p>
                 </div>
             </div>
         </div>

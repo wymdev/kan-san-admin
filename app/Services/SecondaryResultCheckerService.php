@@ -107,10 +107,13 @@ class SecondaryResultCheckerService
             $isWinner = $this->checkIfWinner($transaction, $latestDraw);
 
             if ($isWinner) {
+                // Enhanced prize information for Thai lottery system
+                $prizeInfo = $this->formatPrizeInfo($isWinner);
+                
                 $transaction->update([
                     'status' => SecondarySalesTransaction::STATUS_WON,
                     'draw_result_id' => $latestDraw->id,
-                    'prize_won' => $isWinner['prize'],
+                    'prize_won' => $prizeInfo['display_prize'],
                     'checked_at' => now(),
                 ]);
                 $wonCount++;
@@ -118,8 +121,11 @@ class SecondaryResultCheckerService
                 $details['winners'][] = [
                     'transaction_number' => $transaction->transaction_number,
                     'customer_name' => $transaction->customer_display_name,
-                    'prize' => $isWinner['prize'],
+                    'prize' => $prizeInfo['display_prize'],
                     'winning_number' => $isWinner['number'],
+                    'total_prizes' => $isWinner['total_prizes'] ?? 1,
+                    'highest_reward' => $isWinner['highest_reward'] ?? 0,
+                    'all_prize_details' => $isWinner['all_wins'] ?? [],
                 ];
             } else {
                 $transaction->update([
@@ -226,45 +232,110 @@ class SecondaryResultCheckerService
 
     /**
      * Check if a transaction is a winner - supports multiple prizes per ticket
+     * Enhanced to match Thai lottery system exactly
      */
     private function checkIfWinner(SecondarySalesTransaction $transaction, DrawResult $drawResult)
     {
         $ticket = $transaction->secondaryTicket;
         
-        // Get ticket numbers
-        $ticketNumbers = is_array($ticket->numbers) ? $ticket->numbers : [$ticket->numbers];
+        // Get ticket numbers - ensure we handle different formats
+        $ticketNumbers = $this->getTicketNumbers($ticket);
         if (empty($ticketNumbers)) {
             return false;
         }
         
-        // Check each number
+        $allWins = [];
+        $allPrizes = [];
+        
+        // Check each number and collect ALL possible wins
         foreach ($ticketNumbers as $ticketNumber) {
-            $ticketNumber = str_replace(' ', '', $ticketNumber);
+            $ticketNumber = str_replace(' ', '', trim($ticketNumber));
+            
+            // Validate 6-digit format (Thai lottery standard)
+            if (strlen($ticketNumber) !== 6 || !ctype_digit($ticketNumber)) {
+                continue;
+            }
             
             $result = $drawResult->checkNumber($ticketNumber);
             
-            if ($result && is_array($result) && count($result) > 0) {
-                // New format: array of prize arrays
+            if ($result && is_array($result)) {
+                // Collect all prizes from this result
                 if (isset($result[0]) && is_array($result[0])) {
-                    // Combine all prize names
-                    $prizes = array_map(fn($p) => $p['prize_name'] ?? 'Prize', $result);
-                    return [
-                        'prize' => implode(', ', $prizes),
-                        'number' => $result[0]['number'] ?? $ticketNumber,
-                        'all_prizes' => $result,
-                    ];
-                }
-                // Old format (single prize)
+                    // Multiple prizes (new format)
+                    foreach ($result as $prize) {
+                        $allWins[] = [
+                            'won' => true,
+                            'prize_id' => $prize['prize_id'] ?? 'unknown',
+                            'prize_name' => $prize['prize_name'] ?? 'Prize',
+                            'number' => $prize['number'] ?? $ticketNumber,
+                            'full_number' => $ticketNumber,
+                            'reward' => $prize['reward'] ?? 0,
+                        ];
+                        $allPrizes[] = $prize['prize_name'] ?? 'Prize';
+                    }
+                } 
+                // Single prize (old format)
                 elseif (isset($result['prize_name'])) {
-                    return [
-                        'prize' => $result['prize_name'],
+                    $allWins[] = [
+                        'won' => true,
+                        'prize_id' => $result['prize_id'] ?? 'unknown',
+                        'prize_name' => $result['prize_name'],
                         'number' => $result['number'] ?? $ticketNumber,
+                        'full_number' => $ticketNumber,
+                        'reward' => $result['reward'] ?? 0,
                     ];
+                    $allPrizes[] = $result['prize_name'];
                 }
             }
         }
+        
+        // Return comprehensive win information
+        if (!empty($allWins)) {
+            // Remove duplicate prizes and combine for display
+            $uniquePrizes = array_unique($allPrizes);
+            $prizeString = implode(', ', $uniquePrizes);
+            
+            return [
+                'prize' => $prizeString,
+                'number' => $allWins[0]['number'] ?? $ticketNumbers[0],
+                'all_wins' => $allWins,
+                'total_prizes' => count($uniquePrizes),
+                'highest_reward' => max(array_column($allWins, 'reward')),
+            ];
+        }
 
         return false;
+    }
+    
+    /**
+     * Extract ticket numbers from different possible formats
+     */
+    private function getTicketNumbers($ticket)
+    {
+        $numbers = [];
+        
+        // Check if numbers field exists and is array
+        if (isset($ticket->numbers) && is_array($ticket->numbers)) {
+            $numbers = $ticket->numbers;
+        }
+        // Check if numbers field exists and is string (comma-separated)
+        elseif (isset($ticket->numbers) && is_string($ticket->numbers)) {
+            $numbers = explode(',', $ticket->numbers);
+        }
+        // Check if there's a single number field
+        elseif (isset($ticket->ticket_number)) {
+            $numbers = [$ticket->ticket_number];
+        }
+        // Fallback to any string representation
+        elseif (isset($ticket)) {
+            $numbers = [(string)$ticket];
+        }
+        
+        // Clean and validate each number
+        return array_filter(array_map(function($num) {
+            $cleaned = preg_replace('/[^0-9]/', '', trim($num));
+            return strlen($cleaned) === 6 ? $cleaned : null;
+        }, $numbers));
     }
 
     /**
@@ -276,6 +347,34 @@ class SecondaryResultCheckerService
         $ticketLast = substr($ticketNumber, -$runningLength);
         
         return $ticketLast === $runningNumber;
+    }
+
+    /**
+     * Format prize information for Thai lottery display
+     */
+    private function formatPrizeInfo($winnerInfo)
+    {
+        $prizeString = $winnerInfo['prize'] ?? 'Unknown Prize';
+        $totalPrizes = $winnerInfo['total_prizes'] ?? 1;
+        $highestReward = $winnerInfo['highest_reward'] ?? 0;
+        
+        // Add reward amount if significant
+        $displayPrize = $prizeString;
+        if ($highestReward > 0) {
+            $rewardFormatted = number_format($highestReward);
+            $displayPrize .= " (฿{$rewardFormatted})";
+        }
+        
+        // Add multiple prize indicator
+        if ($totalPrizes > 1) {
+            $displayPrize .= " [+{$totalPrizes} prizes]";
+        }
+        
+        return [
+            'display_prize' => $displayPrize,
+            'total_prizes' => $totalPrizes,
+            'highest_reward' => $highestReward,
+        ];
     }
 
     /**
@@ -325,6 +424,7 @@ class SecondaryResultCheckerService
 
     /**
      * Get transactions grouped by their draw date status
+     * Enhanced for Thai lottery system
      */
     public function getTransactionsByDrawStatus()
     {
@@ -355,7 +455,23 @@ class SecondaryResultCheckerService
         foreach ($unchecked as $transaction) {
             $ticket = $transaction->secondaryTicket;
             
-            if (!$ticket || !$ticket->withdraw_date) {
+            // Enhanced validation for Thai lottery tickets
+            if (!$ticket) {
+                $transaction->validation_error = 'No ticket information found';
+                $outdated->push($transaction);
+                continue;
+            }
+            
+            if (!$ticket->withdraw_date) {
+                $transaction->validation_error = 'No draw date specified';
+                $outdated->push($transaction);
+                continue;
+            }
+            
+            // Validate ticket numbers are in correct Thai lottery format
+            $ticketNumbers = $this->getTicketNumbers($ticket);
+            if (empty($ticketNumbers)) {
+                $transaction->validation_error = 'Invalid or missing ticket numbers';
                 $outdated->push($transaction);
                 continue;
             }
@@ -365,12 +481,20 @@ class SecondaryResultCheckerService
 
             if ($compatibility['status'] === 'future') {
                 $transaction->status_info = $compatibility;
+                $transaction->ticket_numbers = $ticketNumbers;
                 $waitingForDraw->push($transaction);
             } elseif ($compatibility['status'] === 'compatible') {
                 $transaction->status_info = $compatibility;
+                $transaction->ticket_numbers = $ticketNumbers;
+                
+                // Pre-check for Thai lottery validation
+                $preCheck = $this->thaiLotteryPreCheck($ticketNumbers, $latestDraw);
+                $transaction->pre_check_result = $preCheck;
+                
                 $readyToCheck->push($transaction);
             } else {
                 $transaction->status_info = $compatibility;
+                $transaction->validation_error = 'Draw date too old (more than ' . self::MAX_POSTPONE_DAYS . ' days)';
                 $outdated->push($transaction);
             }
         }
@@ -381,6 +505,46 @@ class SecondaryResultCheckerService
             'outdated' => $outdated,
             'no_draw_available' => false,
             'latest_draw_date' => $actualDrawDate->format('M d, Y'),
+            'latest_draw_data' => [
+                'date' => $actualDrawDate->format('Y-m-d'),
+                'has_prizes' => !empty($latestDraw->prizes),
+                'has_running_numbers' => !empty($latestDraw->running_numbers),
+            ],
+        ];
+    }
+    
+    /**
+     * Pre-check ticket numbers against Thai lottery rules
+     */
+    private function thaiLotteryPreCheck($ticketNumbers, DrawResult $drawResult)
+    {
+        $validNumbers = [];
+        $potentialWins = [];
+        
+        foreach ($ticketNumbers as $ticketNumber) {
+            // Validate Thai lottery format
+            if (strlen($ticketNumber) !== 6 || !ctype_digit($ticketNumber)) {
+                $validNumbers[] = $ticketNumber . ' (invalid)';
+                continue;
+            }
+            
+            $validNumbers[] = $ticketNumber;
+            
+            // Quick check against available prizes
+            $result = $drawResult->checkNumber($ticketNumber);
+            if ($result && is_array($result)) {
+                $prizeCount = is_array($result[0]) ? count($result) : 1;
+                $potentialWins[] = $ticketNumber . " ({$prizeCount} possible)";
+            } else {
+                $potentialWins[] = $ticketNumber . ' (no match)';
+            }
+        }
+        
+        return [
+            'valid_numbers' => $validNumbers,
+            'invalid_numbers' => array_diff($ticketNumbers, $validNumbers),
+            'potential_wins' => $potentialWins,
+            'checkable_count' => count($validNumbers),
         ];
     }
 }
