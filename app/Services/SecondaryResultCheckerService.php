@@ -259,21 +259,39 @@ class SecondaryResultCheckerService
             $result = $drawResult->checkNumber($ticketNumber);
             
             if ($result && is_array($result)) {
-                // Collect all prizes from this result
-                if (isset($result[0]) && is_array($result[0])) {
-                    // Multiple prizes (new format)
-                    foreach ($result as $prize) {
-                        $allWins[] = [
-                            'won' => true,
-                            'prize_id' => $prize['prize_id'] ?? 'unknown',
-                            'prize_name' => $prize['prize_name'] ?? 'Prize',
-                            'number' => $prize['number'] ?? $ticketNumber,
-                            'full_number' => $ticketNumber,
-                            'reward' => $prize['reward'] ?? 0,
-                        ];
-                        $allPrizes[] = $prize['prize_name'] ?? 'Prize';
+            // Collect all prizes from this result - prioritize major prizes
+            if (isset($result[0]) && is_array($result[0])) {
+                // Multiple prizes (new format)
+                $majorPrizes = [];
+                $minorPrizes = [];
+                foreach ($result as $prize) {
+                    $prizeName = $prize['prize_name'] ?? 'Prize';
+                    
+                    // Check if this is a major prize (1st-5th) or running number
+                    $isMajorPrize = !preg_match('/\b(Digit|Front|Rear)\b/', $prizeName);
+                    
+                    $prizeData = [
+                        'won' => true,
+                        'prize_id' => $prize['prize_id'] ?? 'unknown',
+                        'prize_name' => $prizeName,
+                        'number' => $prize['number'] ?? $ticketNumber,
+                        'full_number' => $ticketNumber,
+                        'reward' => $prize['reward'] ?? 0,
+                    ];
+                    
+                    if ($isMajorPrize) {
+                        $majorPrizes[] = $prizeName;
+                    } else {
+                        $minorPrizes[] = $prizeName;
                     }
-                } 
+                    
+                    $allWins[] = $prizeData;
+                }
+                
+                // For display, prioritize major prizes
+                $displayPrizes = !empty($majorPrizes) ? $majorPrizes : $minorPrizes;
+                $allPrizes = !empty($majorPrizes) ? $majorPrizes : array_merge($majorPrizes, $minorPrizes);
+            }
                 // Single prize (old format)
                 elseif (isset($result['prize_name'])) {
                     $allWins[] = [
@@ -452,7 +470,7 @@ class SecondaryResultCheckerService
 
         // Get previously checked transactions that can be rechecked
         $previouslyChecked = SecondarySalesTransaction::with(['secondaryTicket', 'customer', 'drawResult'])
-            ->whereIn('status', [SecondarySalesTransaction::STATUS_WON, SecondarySalesTransaction::STATUS_NOT_WON])
+            ->whereIn('status', ['won', 'not_won'])
             ->whereNotNull('checked_at')
             ->whereNotNull('draw_result_id')
             ->get();
@@ -718,7 +736,7 @@ class SecondaryResultCheckerService
             $oldPrize = $transaction->prize_won;
 
             $newResult = $this->checkIfWinner($transaction, $drawResult);
-            $newStatus = $newResult ? SecondarySalesTransaction::STATUS_WON : SecondarySalesTransaction::STATUS_NOT_WON;
+            $newStatus = $newResult ? 'won' : 'not_won';
             $newPrize = $newResult ? $newResult['prize'] : null;
 
             // Update if anything changed

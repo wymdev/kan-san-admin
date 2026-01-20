@@ -217,15 +217,6 @@
             </div>
         </div>
     </div>
-            <form action="{{ route('secondary-transactions.check-all') }}" method="POST">
-                @csrf
-                <button type="submit" class="btn bg-primary text-white rounded-lg flex items-center gap-2 w-full sm:w-auto" 
-                    {{ $statusGroups['ready_to_check']->count() === 0 ? 'disabled' : '' }}>
-                    <i class="size-5" data-lucide="search"></i> Check All Results
-                </button>
-            </form>
-        </div>
-    </div>
 
     <div class="grid lg:grid-cols-2 gap-6 mb-6">
         {{-- Ready to Check --}}
@@ -317,108 +308,80 @@
         @if($statusGroups['previously_checked']->count() > 0)
             <div class="module-card">
                 <div class="module-header">
-                    <div class="flex items-center justify-between">
-                        <h6 class="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                            <i class="size-4 text-amber-500" data-lucide="history"></i> Previously Checked
-                        </h6>
-                        <span class="badge bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">{{ $statusGroups['previously_checked']->count() }}</span>
-                    </div>
+                    <h6 class="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                        <i class="size-4 text-amber-500" data-lucide="history"></i> Previously Checked
+                    </h6>
+                    <span class="badge bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">{{ $statusGroups['previously_checked']->count() }}</span>
                 </div>
                 
-                {{-- Batch Actions --}}
-                <div class="module-body p-4 border-b border-gray-200 dark:border-gray-700">
-                    <div class="flex flex-col gap-3">
-                        <div class="text-sm text-gray-600 dark:text-gray-400">
-                            <i class="size-4 text-info" data-lucide="info"></i>
-                            <span class="font-medium">Recheck Options:</span>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <form action="{{ route('secondary-transactions.recheck-all') }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn bg-amber-500 hover:bg-amber-600 text-white rounded-lg flex items-center gap-2 w-full">
-                                    <i class="size-5" data-lucide="refresh-cw"></i> Recheck All ({{ $statusGroups['previously_checked']->count() }})
-                                </button>
-                            </form>
-                            
-                            <button type="button" onclick="showRecheckModal()" class="btn bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg flex items-center gap-2 w-full">
-                                <i class="size-5" data-lucide="check-square"></i> Recheck Selected
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                {{-- Previously Checked Transactions Table --}}
-                <div class="overflow-x-auto">
-                    <table class="min-w-full">
-                        <thead class="bg-gray-50 dark:bg-gray-800">
-                            <tr class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
-                                <th class="px-4 py-3 text-left">
-                                    <input type="checkbox" id="selectAllRecheck" onchange="toggleAllRecheck()" class="rounded">
-                                </th>
-                                <th class="px-4 py-3 text-left">Ticket</th>
-                                <th class="px-4 py-3 text-left">Customer</th>
-                                <th class="px-4 py-3 text-left">Current Result</th>
-                                <th class="px-4 py-3 text-left">Checked</th>
-                                <th class="px-4 py-3 text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                            @foreach($statusGroups['previously_checked']->take(20) as $transaction)
-                                <tr class="text-sm hover:bg-amber-50 dark:hover:bg-amber-900/10">
-                                    <td class="px-4 py-3">
-                                        <input type="checkbox" name="recheck_transactions[]" value="{{ $transaction->id }}" 
-                                               class="recheck-checkbox rounded" onchange="updateRecheckButton()">
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        <a href="{{ route('secondary-transactions.show', $transaction) }}" class="font-mono font-bold text-amber-600 dark:text-amber-400 hover:underline">
-                                            {{ $transaction->secondaryTicket?->ticket_number ?? 'N/A' }}
-                                        </a>
-                                    </td>
-                                    <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $transaction->customer_display_name }}</td>
-                                    <td class="px-4 py-3">
-                                        @if($transaction->status == 'won')
-                                            <span class="badge bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 font-bold">
-                                                🎉 {{ $transaction->prize_won }}
-                                            </span>
-                                        @elseif($transaction->status == 'not_won')
-                                            <span class="text-gray-500">Not Won</span>
-                                        @else
-                                            <span class="badge bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">Pending</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-4 py-3 text-xs text-gray-500">{{ $transaction->checked_at?->format('M d, Y H:i') }}</td>
-                                    <td class="px-4 py-3">
-                                        <div class="flex items-center justify-center gap-1">
-                                            <button type="button" onclick="recheckSingle({{ $transaction->id }})" 
-                                                    class="action-btn bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40" 
-                                                    title="Recheck this transaction">
-                                                <i class="size-4" data-lucide="refresh-cw"></i>
-                                            </button>
+                <div class="module-body">
+                    <form action="{{ route('secondary-transactions.recheck-all') }}" method="POST" class="mb-4">
+                        @csrf
+                        <button type="submit" class="btn bg-amber-500 hover:bg-amber-600 text-white rounded-lg flex items-center gap-2">
+                            <i class="size-5" data-lucide="refresh-cw"></i> Recheck All ({{ $statusGroups['previously_checked']->count() }})
+                        </button>
+                    </form>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-800">
+                                <tr class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                                    <th class="px-4 py-3 text-left">Ticket</th>
+                                    <th class="px-4 py-3 text-left">Customer</th>
+                                    <th class="px-4 py-3 text-left">Current Result</th>
+                                    <th class="px-4 py-3 text-left">Checked</th>
+                                    <th class="px-4 py-3 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                @foreach($statusGroups['previously_checked']->take(20) as $transaction)
+                                    <tr class="text-sm hover:bg-amber-50 dark:hover:bg-amber-900/10">
+                                        <td class="px-4 py-3">
+                                            <a href="{{ route('secondary-transactions.show', $transaction) }}" class="font-mono font-bold text-amber-600 dark:text-amber-400 hover:underline">
+                                                {{ $transaction->secondaryTicket?->ticket_number ?? 'N/A' }}
+                                            </a>
+                                        </td>
+                                        <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $transaction->customer_display_name }}</td>
+                                        <td class="px-4 py-3">
+                                            @if($transaction->status == 'won')
+                                                <span class="badge bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 font-bold">
+                                                    🎉 {{ $transaction->prize_won }}
+                                                </span>
+                                            @elseif($transaction->status == 'not_won')
+                                                <span class="text-gray-500">Not Won</span>
+                                            @else
+                                                <span class="badge bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">Pending</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-4 py-3 text-xs text-gray-500">{{ $transaction->checked_at?->format('M d, Y H:i') }}</td>
+                                        <td class="px-4 py-3">
+                                            <div class="flex items-center justify-center gap-1">
+                                                <form action="{{ route('secondary-transactions.recheck-selected') }}" method="POST" style="display:inline;">
+                                                    @csrf
+                                                    <input type="hidden" name="transaction_ids[]" value="{{ $transaction->id }}">
+                                                    <button type="submit" class="action-btn bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40" 
+                                                            title="Recheck this transaction">
+                                                        <i class="size-4" data-lucide="refresh-cw"></i>
+                                                    </button>
+                                                </form>
                                             <a href="{{ route('secondary-transactions.show', $transaction) }}" 
                                                class="action-btn bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40" 
                                                title="View details">
                                                 <i class="size-4" data-lucide="eye"></i>
                                             </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                
-                @if($statusGroups['previously_checked']->count() > 20)
-                    <div class="p-3 border-t border-gray-200 dark:border-gray-700">
-                        <p class="text-sm text-gray-500 dark:text-gray-400 text-center">
-                            Showing 20 of {{ $statusGroups['previously_checked']->count() }} transactions
-                        </p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
-                @endif
+                </div>
             </div>
         @endif
     </div>
 
-    {{-- Recent Winners --}}}
+    {{-- Recent Winners --}}
     @if($recentWinners->count() > 0)
         <div class="module-card">
             <div class="module-header">
@@ -463,96 +426,4 @@
      @endif
 @endsection
 
-@section('script')
-<script>
-// Recheck functionality
-function toggleAllRecheck() {
-    const checkboxes = document.querySelectorAll('.recheck-checkbox');
-    const selectAll = document.getElementById('selectAllRecheck');
-    
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = selectAll.checked;
-    });
-    
-    updateRecheckButton();
-}
 
-function updateRecheckButton() {
-    const checkboxes = document.querySelectorAll('.recheck-checkbox:checked');
-    const selectedButton = document.querySelector('button[onclick="showRecheckModal()"]');
-    
-    if (checkboxes.length > 0) {
-        selectedButton.classList.remove('bg-gray-200', 'hover:bg-gray-300', 'text-gray-700');
-        selectedButton.classList.add('bg-amber-500', 'hover:bg-amber-600', 'text-white');
-        selectedButton.disabled = false;
-    } else {
-        selectedButton.classList.remove('bg-amber-500', 'hover:bg-amber-600', 'text-white');
-        selectedButton.classList.add('bg-gray-200', 'hover:bg-gray-300', 'text-gray-700');
-        selectedButton.disabled = true;
-    }
-}
-
-function showRecheckModal() {
-    const checkboxes = document.querySelectorAll('.recheck-checkbox:checked');
-    const selectedDiv = document.getElementById('selectedTransactions');
-    
-    if (checkboxes.length === 0) {
-        selectedDiv.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 text-center">No transactions selected</p>';
-        document.getElementById('recheckModal').classList.add('hidden');
-        return;
-    }
-    
-    let selectedHtml = '';
-    checkboxes.forEach(checkbox => {
-        const row = checkbox.closest('tr');
-        const ticketCell = row.querySelector('td:nth-child(2) a');
-        const customerCell = row.querySelector('td:nth-child(3)');
-        const statusCell = row.querySelector('td:nth-child(4)');
-        
-        selectedHtml += `
-            <div class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-600">
-                <div>
-                    <span class="font-mono font-semibold text-amber-600 dark:text-amber-400">${ticketCell.textContent}</span>
-                    <span class="text-sm text-gray-600 dark:text-gray-400 ml-2">${customerCell.textContent}</span>
-                </div>
-                <div class="text-sm">${statusCell.innerHTML}</div>
-            </div>
-        `;
-    });
-    
-    selectedDiv.innerHTML = selectedHtml;
-    document.getElementById('recheckModal').classList.remove('hidden');
-}
-
-function hideRecheckModal() {
-    document.getElementById('recheckModal').classList.add('hidden');
-}
-
-function recheckSingle(transactionId) {
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '{{ route("secondary-transactions.recheck-selected") }}';
-    form.style.display = 'none';
-    
-    const csrf = document.createElement('input');
-    csrf.type = 'hidden';
-    csrf.name = '_token';
-    csrf.value = document.querySelector('meta[name="csrf-token"]').content;
-    form.appendChild(csrf);
-    
-    const transactionIds = document.createElement('input');
-    transactionIds.type = 'hidden';
-    transactionIds.name = 'transaction_ids[]';
-    transactionIds.value = transactionId;
-    form.appendChild(transactionIds);
-    
-    document.body.appendChild(form);
-    form.submit();
-}
-
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    updateRecheckButton();
-});
-</script>
-@endsection

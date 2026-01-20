@@ -22,236 +22,128 @@ class SecondarySalesController extends Controller
     }
 
     /**
-     * Display a listing of transactions
+     * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $query = SecondarySalesTransaction::with(['secondaryTicket', 'customer', 'drawResult', 'createdBy']);
+        $query = SecondarySalesTransaction::with(['secondaryTicket', 'customer'])
+            ->leftJoin('secondary_lottery_tickets', 'secondary_sales_transactions.secondary_ticket_id', '=', 'secondary_lottery_tickets.id')
+            ->leftJoin('draw_results', 'secondary_sales_transactions.draw_result_id', '=', 'draw_results.id')
+            ->select(
+                'secondary_sales_transactions.*',
+                'secondary_lottery_tickets.ticket_number',
+                'secondary_lottery_tickets.withdraw_date',
+                'draw_results.date_en as draw_date'
+            );
 
-        // Status filter
+        // Apply filters
         if ($status = $request->input('status')) {
-            $query->where('status', $status);
+            $query->where('secondary_sales_transactions.status', $status);
         }
-
-        // Payment status filter
         if ($request->filled('is_paid')) {
-            $query->where('is_paid', $request->is_paid === 'yes');
+            $query->where('secondary_sales_transactions.is_paid', $request->is_paid === 'yes');
         }
-
-        // Payment method filter
-        if ($request->filled('payment_method')) {
-            $query->where('payment_method', $request->payment_method);
+        if ($request->filled('date_from')) {
+            $query->where('secondary_sales_transactions.purchased_at', '>=', $request->date_from);
         }
-
-        // Customer search
+        if ($request->filled('date_to')) {
+            $query->where('secondary_sales_transactions.purchased_at', '<=', $request->date_to . ' 23:59:59');
+        }
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
-                $q->where('transaction_number', 'like', "%{$search}%")
-                  ->orWhere('customer_name', 'like', "%{$search}%")
-                  ->orWhere('customer_phone', 'like', "%{$search}%")
-                  ->orWhereHas('customer', function ($cq) use ($search) {
-                      $cq->where('full_name', 'like', "%{$search}%")
-                         ->orWhere('phone_number', 'like', "%{$search}%");
-                  });
+                $q->where('secondary_sales_transactions.transaction_number', 'like', "%{$search}%")
+                  ->orWhere('secondary_lottery_tickets.ticket_number', 'like', "%{$search}%")
+                  ->orWhere('secondary_sales_transactions.customer_name', 'like', "%{$search}%")
+                  ->orWhere('secondary_sales_transactions.customer_phone', 'like', "%{$search}%");
             });
         }
 
-        // Date range filter
-        if ($request->filled('date_from')) {
-            $query->where('purchased_at', '>=', $request->date_from);
-        }
-        if ($request->filled('date_to')) {
-            $query->where('purchased_at', '<=', $request->date_to . ' 23:59:59');
-        }
+        $transactions = $query->latest('secondary_sales_transactions.purchased_at')->paginate(25);
 
-        $transactions = $query->latest('purchased_at')->paginate(20)->appends($request->query());
-
-        // Get statistics
-        $stats = $this->checkerService->getStatistics();
-
-        return view('secondary-sales.transactions.index', compact('transactions', 'stats'));
+        return view('secondary-sales.transactions.index', compact('transactions'))
+            ->with('filters', $request->only(['status', 'is_paid', 'payment_method', 'date_from', 'date_to', 'search']));
     }
 
     /**
-     * Show the form for creating a new transaction
-     */
-    public function create(Request $request)
-    {
-        // Get available tickets (optionally filter by a specific ticket)
-        $ticketId = $request->input('ticket_id');
-        $selectedTicket = $ticketId ? SecondaryLotteryTicket::find($ticketId) : null;
-        
-        $tickets = SecondaryLotteryTicket::doesntHave('transactions')->latest()->take(100)->get();
-        
-        // Get customers for searchable dropdown (name + phone)
-        $customers = Customer::select('id', 'full_name', 'phone_number')
-            ->orderBy('full_name')
-            ->take(200)
-            ->get();
-
-        return view('secondary-sales.transactions.create', compact('tickets', 'selectedTicket', 'customers'));
-    }
-
-    /**
-     * Store a newly created transaction
+     * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        $saleType = $request->input('sale_type', 'own');
-        
-        $rules = [
+        $validator = Validator::make($request->all(), [
             'secondary_ticket_id' => 'required|uuid|exists:secondary_lottery_tickets,id',
             'amount_thb' => 'nullable|numeric|min:0',
             'amount_mmk' => 'nullable|numeric|min:0',
             'purchased_at' => 'required|date',
-            'sale_type' => 'required|in:own,other',
+            'customer_name' => 'nullable|string|max:255',
+            'customer_phone' => 'nullable|string|max:20',
             'is_paid' => 'boolean',
             'payment_method' => 'nullable|string|max:50',
             'notes' => 'nullable|string|max:1000',
-        ];
+        ]);
 
-        // Only validate customer fields if sale_type is 'own'
-        if ($saleType === 'own') {
-            $rules['customer_id'] = 'nullable|exists:customers,id';
-            // Phone is now optional, Name is required if creating new
-            $rules['customer_phone'] = 'nullable|string|max:20';
-            $rules['customer_name'] = 'nullable|string|max:255';
-        }
-
-        $validator = \Validator::make($request->all(), $rules);
-
-        // Ensure at least one amount is provided
         $validator->after(function ($validator) use ($request) {
             if (!$request->amount_thb && !$request->amount_mmk) {
-                $validator->errors()->add('amount_thb', 'Please provide either Amount (THB) or Amount (MMK).');
-            }
-            // If creating new customer (no ID provided), name is required
-            if ($request->sale_type === 'own' && !$request->customer_id && !$request->customer_phone && !$request->customer_name) {
-                 $validator->errors()->add('customer_name', 'Customer Name or Phone is required.');
+                $validator->errors()->add('amount_thb', 'Either THB or MMK amount is required');
             }
         });
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            return back()
+                ->withErrors($validator)
+                ->withInput();
         }
 
-        $customerId = $request->input('customer_id');
-        $customerName = null;
-        $customerPhone = null;
-        $publicToken = null;
-        
-        // Handle customer info only for 'own' sales
-        if ($saleType === 'own') {
-            $customerName = $request->input('customer_name');
-            $customerPhone = $request->input('customer_phone');
-            
-            // If customer_id is provided, use existing customer
-            if ($customerId) {
-                $existingCustomer = Customer::find($customerId);
-                if ($existingCustomer) {
-                    $customerName = $existingCustomer->full_name;
-                    $customerPhone = $existingCustomer->phone_number;
-                }
-            } elseif ($request->filled('customer_phone')) {
-                // Try to find existing customer by phone
-                $existingCustomer = Customer::where('phone_number', $request->customer_phone)->first();
-                
-                if ($existingCustomer) {
-                    $customerId = $existingCustomer->id;
-                } elseif ($request->input('create_customer') === 'yes') {
-                    // Create new customer with phone
-                    $newCustomer = Customer::create([
-                        'phone_number' => $request->customer_phone,
-                        'full_name' => $request->customer_name,
-                        'password' => bcrypt('password123'), // Default password
-                    ]);
-                    $customerId = $newCustomer->id;
-                }
-            } elseif ($request->filled('customer_name') && $request->input('create_customer') === 'yes') {
-                 // Create new customer with Name ONLY (no phone)
-                 // We need to handle nullable phone now
-                 $newCustomer = Customer::create([
-                    'full_name' => $request->customer_name,
-                    'phone_number' => null, 
-                    'password' => bcrypt('password123'),
-                 ]);
-                 $customerId = $newCustomer->id;
+        DB::beginTransaction();
+        try {
+            $ticket = SecondaryLotteryTicket::find($request->secondary_ticket_id);
+            if (!$ticket) {
+                throw new \Exception('Ticket not found');
             }
-            
-            // Generate unique public token for result checking link
-            $publicToken = SecondarySalesTransaction::generatePublicToken();
-        }
 
-        $transaction = SecondarySalesTransaction::create([
-            'transaction_number' => SecondarySalesTransaction::generateTransactionNumber(),
-            'sale_type' => $saleType,
-            'secondary_ticket_id' => $request->secondary_ticket_id,
-            'customer_id' => $customerId,
-            'customer_name' => $customerName,
-            'customer_phone' => $customerPhone,
-            'purchased_at' => $request->purchased_at,
-            'amount_thb' => $request->amount_thb,
-            'amount_mmk' => $request->amount_mmk,
-            'is_paid' => $request->boolean('is_paid'),
-            'payment_method' => $request->is_paid ? $request->payment_method : null,
-            'payment_date' => $request->boolean('is_paid') ? now() : null,
-            'notes' => $request->notes,
-            'public_token' => $publicToken,
-            'created_by' => auth()->id(),
-        ]);
-
-        // Generate or reuse batch_token for customer+withdraw_date combination
-        // This ensures ONE link per customer per draw date
-        if ($saleType === 'own') {
-            $ticket = $transaction->secondaryTicket()->first();
-            $withdrawDate = $ticket?->withdraw_date?->format('Y-m-d');
-            
-            // Must have either customer_id or customerPhone, AND a withdraw_date
-            $hasCustomerIdentifier = $customerId || $customerPhone;
-            
-            if ($hasCustomerIdentifier && $withdrawDate) {
-                // Build query to find existing batch_token for same customer + same draw
-                $query = SecondarySalesTransaction::whereHas('secondaryTicket', function($q) use ($withdrawDate) {
-                    $q->whereDate('withdraw_date', $withdrawDate);
-                })
-                ->whereNotNull('batch_token')
-                ->where('id', '!=', $transaction->id);
-                
-                // Match by customer_id if available, otherwise by phone
-                if ($customerId) {
-                    $query->where('customer_id', $customerId);
-                } else {
-                    $query->where('customer_phone', $customerPhone);
-                }
-                
-                $existingBatchToken = $query->latest()->value('batch_token');
-                
-                if ($existingBatchToken) {
-                    $transaction->batch_token = $existingBatchToken;
-                } else {
-                    // Generate new batch_token for this customer+draw combination
-                    $transaction->batch_token = Str::random(32);
-                }
-                $transaction->save();
+            $customerId = null;
+            if ($request->filled('customer_name')) {
+                $customer = Customer::firstOrCreate(
+                    ['full_name' => $request->customer_name],
+                    ['phone_number' => $request->customer_phone ?? null]
+                );
+                $customerId = $customer->id;
             }
-        }
 
-        $message = 'Transaction created successfully! #' . $transaction->transaction_number;
-        
-        // Add batch link info for 'own' sales
-        if ($saleType === 'own' && $transaction->batch_token) {
-            $batchLink = route('public.customer-batch', ['token' => $transaction->batch_token]);
-            $message .= ' <br><small>📱 Batch Link: <a href="' . $batchLink . '" target="_blank" class="text-primary">' . $batchLink . '</a></small>';
-        } elseif ($saleType === 'own' && $publicToken) {
-            $message .= ' <br><small>📱 Public Link: <a href="' . $transaction->public_result_url . '" target="_blank" class="text-primary">' . $transaction->public_result_url . '</a></small>';
-        }
+            $transaction = SecondarySalesTransaction::create([
+                'transaction_number' => $this->generateTransactionNumber(),
+                'secondary_ticket_id' => $request->secondary_ticket_id,
+                'customer_id' => $customerId,
+                'customer_name' => $request->customer_name,
+                'customer_phone' => $request->customer_phone,
+                'purchased_at' => $request->purchased_at,
+                'amount_thb' => $request->amount_thb ?: 0,
+                'amount_mmk' => $request->amount_mmk ?: 0,
+                'is_paid' => $request->boolean('is_paid', false),
+                'payment_method' => $request->payment_method,
+                'payment_date' => $request->is_paid ? now() : null,
+                'notes' => $request->notes,
+                'sale_type' => 'own',
+                'created_by' => auth()->id(),
+                'public_token' => Str::random(32),
+                'batch_token' => Str::random(32),
+            ]);
 
-        return redirect()->route('secondary-transactions.index')
-                         ->with('success', $message);
+            $message = $this->generateSuccessMessage($transaction);
+            DB::commit();
+
+            return redirect()->route('secondary-transactions.index')
+                          ->with('success', $message);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Secondary Transaction Store Error: ' . $e->getMessage());
+            return back()
+                    ->with('error', 'Transaction creation failed: ' . $e->getMessage())
+                    ->withInput();
+        }
     }
 
     /**
-     * Display the specified transaction
+     * Display the specified resource.
      */
     public function show(SecondarySalesTransaction $secondaryTransaction)
     {
@@ -261,7 +153,7 @@ class SecondarySalesController extends Controller
     }
 
     /**
-     * Show the form for editing the specified transaction
+     * Show the form for editing the specified resource.
      */
     public function edit(SecondarySalesTransaction $secondaryTransaction)
     {
@@ -272,7 +164,7 @@ class SecondarySalesController extends Controller
     }
 
     /**
-     * Update the specified transaction
+     * Update the specified resource in storage.
      */
     public function update(Request $request, SecondarySalesTransaction $secondaryTransaction)
     {
@@ -290,45 +182,74 @@ class SecondarySalesController extends Controller
 
         $validator->after(function ($validator) use ($request) {
             if (!$request->amount_thb && !$request->amount_mmk) {
-                $validator->errors()->add('amount_thb', 'Please provide either Amount (THB) or Amount (MMK).');
+                $validator->errors()->add('amount_thb', 'Either THB or MMK amount is required');
             }
         });
 
         if ($validator->fails()) {
-             return redirect()->back()->withErrors($validator)->withInput();
+            return back()
+                ->withErrors($validator)
+                ->withInput();
         }
 
-        $secondaryTransaction->update([
-            'secondary_ticket_id' => $request->secondary_ticket_id,
-            'amount_thb' => $request->amount_thb,
-            'amount_mmk' => $request->amount_mmk,
-            'purchased_at' => $request->purchased_at,
-            'customer_name' => $request->customer_name,
-            'customer_phone' => $request->customer_phone,
-            'is_paid' => $request->boolean('is_paid'),
-            'payment_method' => $request->is_paid ? $request->payment_method : null,
-            'notes' => $request->notes,
-        ]);
+        DB::beginTransaction();
+        try {
+            // Handle customer creation/update
+            $customerId = null;
+            if ($request->filled('customer_name')) {
+                $customer = Customer::firstOrCreate(
+                    ['full_name' => $request->customer_name],
+                    ['phone_number' => $request->customer_phone ?? null]
+                );
+                $customerId = $customer->id;
+            }
 
-        // If marking as paid, set payment date
-        if ($request->boolean('is_paid') && !$secondaryTransaction->payment_date) {
-            $secondaryTransaction->update(['payment_date' => now()]);
+            $secondaryTransaction->update([
+                'secondary_ticket_id' => $request->secondary_ticket_id,
+                'customer_id' => $customerId,
+                'customer_name' => $request->customer_name,
+                'customer_phone' => $request->customer_phone,
+                'purchased_at' => $request->purchased_at,
+                'amount_thb' => $request->amount_thb ?: 0,
+                'amount_mmk' => $request->amount_mmk ?: 0,
+                'is_paid' => $request->boolean('is_paid', false),
+                'payment_method' => $request->payment_method,
+                'payment_date' => $request->is_paid ? now() : null,
+                'notes' => $request->notes,
+            ]);
+
+            $message = 'Transaction updated successfully!';
+            
+            // Add batch link if paid
+            if ($request->is_paid && $secondaryTransaction->batch_token) {
+                $batchLink = route('public.customer-batch', ['token' => $secondaryTransaction->batch_token]);
+                $message .= ' <br><small>📱 Batch Link: <a href="' . $batchLink . '" target="_blank" class="text-primary">' . $batchLink . '</a></small>';
+            } elseif ($request->is_paid && $secondaryTransaction->public_token) {
+                $message .= ' <br><small>📱 Public Link: <a href="' . $secondaryTransaction->public_result_url . '" target="_blank" class="text-primary">' . $secondaryTransaction->public_result_url . '</a></small>';
+            }
+
+            DB::commit();
+
+            return redirect()->route('secondary-transactions.index')
+                          ->with('success', $message);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Secondary Transaction Update Error: ' . $e->getMessage());
+            return back()
+                    ->with('error', 'Transaction update failed: ' . $e->getMessage())
+                    ->withInput();
         }
-
-
-        return redirect()->route('secondary-transactions.index')
-                         ->with('success', 'Transaction updated successfully!');
     }
 
     /**
-     * Remove the specified transaction
+     * Remove the specified resource from storage.
      */
     public function destroy(SecondarySalesTransaction $secondaryTransaction)
     {
         $secondaryTransaction->delete();
 
         return redirect()->route('secondary-transactions.index')
-                         ->with('success', 'Transaction deleted successfully!');
+                          ->with('success', 'Transaction deleted successfully!');
     }
 
     /**
@@ -369,7 +290,7 @@ class SecondarySalesController extends Controller
                 $currentPage,
                 ['path' => request()->url(), 'query' => request()->query()]
             );
-
+            
             $recentWinners = SecondarySalesTransaction::with(['customer', 'secondaryTicket', 'drawResult'])
                 ->where('status', 'won')
                 ->latest('checked_at')
@@ -385,7 +306,7 @@ class SecondarySalesController extends Controller
             
         } catch (\Exception $e) {
             return redirect()->route('secondary-transactions.index')
-                           ->with('error', '❌ Error loading check results page: ' . $e->getMessage());
+                            ->with('error', '❌ Error loading check results page: ' . $e->getMessage());
         }
     }
 
@@ -403,6 +324,47 @@ class SecondarySalesController extends Controller
             
         } catch (\Exception $e) {
             \Log::error('Secondary Check Results Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', '❌ System Error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Recheck all previously checked transactions
+     */
+    public function recheckAll()
+    {
+        try {
+            $result = $this->checkerService->recheckAllTransactions();
+            
+            $flashType = $result['type'] ?? 'info';
+            
+            return redirect()->back()->with($flashType, $result['message']);
+            
+        } catch (\Exception $e) {
+            \Log::error('Secondary Recheck All Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', '❌ System Error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Recheck selected transactions
+     */
+    public function recheckSelected(Request $request)
+    {
+        $request->validate([
+            'transaction_ids' => 'required|array',
+            'transaction_ids.*' => 'exists:secondary_sales_transactions,id',
+        ]);
+
+        try {
+            $result = $this->checkerService->recheckTransactions($request->input('transaction_ids'));
+            
+            $flashType = $result['type'] ?? 'info';
+            
+            return redirect()->back()->with($flashType, $result['message']);
+            
+        } catch (\Exception $e) {
+            \Log::error('Secondary Recheck Selected Error: ' . $e->getMessage());
             return redirect()->back()->with('error', '❌ System Error: ' . $e->getMessage());
         }
     }
@@ -430,24 +392,20 @@ class SecondarySalesController extends Controller
 
         $transactions = $query->latest('purchased_at')->get();
 
-        // Generate CSV
-        $filename = 'secondary_sales_' . date('Y-m-d_His') . '.csv';
-        
         $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Content-Disposition' => 'attachment; filename="secondary_transactions_' . date('Y-m-d_H-i-s') . '.csv"',
         ];
 
         $callback = function () use ($transactions) {
             $file = fopen('php://output', 'w');
             
-            // CSV header
             fputcsv($file, [
-                'Transaction #',
-                'Lottery Number',
+                'Transaction Number',
+                'Ticket Number',
                 'Customer Name',
                 'Customer Phone',
-                'Purchase Date',
+                'Purchased At',
                 'Amount',
                 'Status',
                 'Prize Won',
@@ -502,44 +460,40 @@ class SecondarySalesController extends Controller
         return response()->json($customers);
     }
 
-    /**
-     * Recheck all previously checked transactions
-     */
-    public function recheckAll()
+    private function generateTransactionNumber()
     {
-        try {
-            $result = $this->checkerService->recheckAllTransactions();
-            
-            $flashType = $result['type'] ?? 'info';
-            
-            return redirect()->back()->with($flashType, $result['message']);
-            
-        } catch (\Exception $e) {
-            \Log::error('Secondary Recheck All Error: ' . $e->getMessage());
-            return redirect()->back()->with('error', '❌ System Error: ' . $e->getMessage());
-        }
+        $prefix = date('ym');
+        $counter = DB::table('secondary_sales_transactions')->where('transaction_number', 'like', $prefix . '%')->count();
+        return $prefix . str_pad($counter + 1, 3, '0');
     }
 
-    /**
-     * Recheck selected transactions
-     */
-    public function recheckSelected(Request $request)
+    private function generateSuccessMessage(SecondarySalesTransaction $transaction)
     {
-        $request->validate([
-            'transaction_ids' => 'required|array',
-            'transaction_ids.*' => 'exists:secondary_sales_transactions,id',
-        ]);
+        $saleType = $transaction->sale_type;
+        $saleLabel = ucfirst($saleType);
+        $customerName = $transaction->customer_display_name ?: 'Walk-in Customer';
+        $ticketNumber = $transaction->secondaryTicket->ticket_number;
 
-        try {
-            $result = $this->checkerService->recheckTransactions($request->input('transaction_ids'));
-            
-            $flashType = $result['type'] ?? 'info';
-            
-            return redirect()->back()->with($flashType, $result['message']);
-            
-        } catch (\Exception $e) {
-            \Log::error('Secondary Recheck Selected Error: ' . $e->getMessage());
-            return redirect()->back()->with('error', '❌ System Error: ' . $e->getMessage());
+        if ($transaction->is_paid) {
+            $paymentMethod = $transaction->payment_method ?? 'N/A';
+            $saleStatus = '✅ Transaction completed successfully!';
+            $additionalInfo = "<br>Customer: <strong>{$customerName}</strong><br>Ticket: <strong>{$ticketNumber}</strong><br>Payment: {$paymentMethod}";
+        } else {
+            $saleStatus = '⚠️ Transaction recorded but payment pending!';
+            $additionalInfo = "<br>Customer: <strong>{$customerName}</strong><br>Ticket: <strong>{$ticketNumber}</strong><br><span style=\"color: orange;\">💰 Payment pending</span>";
         }
+
+        $message = "🎟 {$saleLabel} Sale {$saleStatus}{$additionalInfo}";
+
+        if ($transaction->public_token) {
+            $publicUrl = route('public.customer-batch', ['token' => $transaction->public_token]);
+            $message .= ' <br><small>📱 Public Result URL: <a href="' . $publicUrl . '" target="_blank" class="text-primary">' . $publicUrl . '</a></small>';
+        }
+        if ($transaction->batch_token) {
+            $batchUrl = route('public.customer-batch', ['token' => $transaction->batch_token]);
+            $message .= ' <br><small>📱 Batch URL: <a href="' . $batchUrl . '" target="_blank" class="text-primary">' . $batchUrl . '</a></small>';
+        }
+
+        return $message;
     }
 }
