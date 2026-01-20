@@ -1,183 +1,292 @@
 @extends('layouts.vertical', ['title' => 'Check Results'])
 
+@section('css')
+<style>
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.25rem;
+        border: 1px solid #e5e7eb;
+        transition: all 0.2s ease;
+    }
+    .dark .stat-card {
+        background: rgb(31, 41, 55);
+        border-color: rgb(55, 65, 81);
+    }
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+    .stat-label {
+        font-size: 0.75rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+    }
+    .dark .stat-label {
+        color: #9ca3af;
+    }
+    .module-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+    }
+    .dark .module-card {
+        background: rgb(31, 41, 55);
+        border-color: rgb(55, 65, 81);
+    }
+    .module-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .dark .module-header {
+        border-color: rgb(55, 65, 81);
+    }
+    .module-body {
+        padding: 1.25rem;
+    }
+    .action-card {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+        border: 1px solid rgba(99, 102, 241, 0.15);
+        border-radius: 16px;
+        padding: 1.5rem;
+    }
+    .dark .action-card {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+        border-color: rgba(99, 102, 241, 0.25);
+    }
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.625rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border-radius: 9999px;
+    }
+    .alert-box {
+        border-radius: 12px;
+        padding: 0.875rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    @media (max-width: 640px) {
+        .stat-value {
+            font-size: 1.25rem;
+        }
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+        }
+    }
+</style>
+@endsection
+
 @section('content')
     @include('layouts.partials.page-title', ['subtitle' => 'Secondary Sales', 'title' => 'Check Lottery Results'])
 
+    {{-- Alerts --}}
     @if ($message = Session::get('success'))
-        <div class="bg-success/10 border border-success/20 text-success px-4 py-3 rounded relative mb-4" role="alert">
-            <span class="block sm:inline">{!! $message !!}</span>
+        <div class="alert-box bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 mb-4">
+            <i class="size-5" data-lucide="check-circle"></i>
+            <span>{!! $message !!}</span>
         </div>
     @endif
     
     @if ($message = Session::get('warning'))
-        <div class="bg-warning/10 border border-warning/20 text-warning px-4 py-3 rounded relative mb-4" role="alert">
-            <span class="block sm:inline">{!! $message !!}</span>
+        <div class="alert-box bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 mb-4">
+            <i class="size-5" data-lucide="alert-triangle"></i>
+            <span>{!! $message !!}</span>
         </div>
     @endif
     
     @if ($message = Session::get('error'))
-        <div class="bg-danger/10 border border-danger/20 text-danger px-4 py-3 rounded relative mb-4" role="alert">
-            <span class="block sm:inline">{!! $message !!}</span>
+        <div class="alert-box bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 mb-4">
+            <i class="size-5" data-lucide="alert-circle"></i>
+            <span>{!! $message !!}</span>
         </div>
     @endif
     
     @if ($message = Session::get('info'))
-        <div class="bg-info/10 border border-info/20 text-info px-4 py-3 rounded relative mb-4" role="alert">
-            <span class="block sm:inline">{!! $message !!}</span>
+        <div class="alert-box bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800 text-cyan-700 dark:text-cyan-300 mb-4">
+            <i class="size-5" data-lucide="info"></i>
+            <span>{!! $message !!}</span>
         </div>
     @endif
 
     {{-- Statistics --}}
-    <div class="grid lg:grid-cols-4 gap-4 mb-6">
-        <div class="card">
-            <div class="card-body">
-                <div class="flex items-center gap-3">
-                    <div class="p-3 bg-warning/10 rounded-lg">
-                        <i class="text-warning size-6" data-lucide="clock"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm text-default-600">Awaiting Check</p>
-                        <h4 class="text-2xl font-bold">{{ $stats['awaiting_check'] }}</h4>
-                    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="stat-card">
+            <div class="flex items-center gap-3">
+                <div class="stat-icon bg-amber-100 dark:bg-amber-900/30">
+                    <i class="text-amber-600 dark:text-amber-400 size-5" data-lucide="clock"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="stat-label">Awaiting</p>
+                    <p class="stat-value text-amber-600">{{ $stats['awaiting_check'] }}</p>
                 </div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-body">
-                <div class="flex items-center gap-3">
-                    <div class="p-3 bg-success/10 rounded-lg">
-                        <i class="text-success size-6" data-lucide="trophy"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm text-default-600">Total Won</p>
-                        <h4 class="text-2xl font-bold">{{ $stats['won'] }}</h4>
-                    </div>
+        <div class="stat-card">
+            <div class="flex items-center gap-3">
+                <div class="stat-icon bg-violet-100 dark:bg-violet-900/30">
+                    <i class="text-violet-600 dark:text-violet-400 size-5" data-lucide="trophy"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="stat-label">Won</p>
+                    <p class="stat-value text-violet-600">{{ $stats['won'] }}</p>
                 </div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-body">
-                <div class="flex items-center gap-3">
-                    <div class="p-3 bg-gray-100 rounded-lg">
-                        <i class="text-gray-600 size-6" data-lucide="x-circle"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm text-default-600">Not Won</p>
-                        <h4 class="text-2xl font-bold">{{ $stats['not_won'] }}</h4>
-                    </div>
+        <div class="stat-card">
+            <div class="flex items-center gap-3">
+                <div class="stat-icon bg-gray-100 dark:bg-gray-700">
+                    <i class="text-gray-600 dark:text-gray-400 size-5" data-lucide="x-circle"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="stat-label">Not Won</p>
+                    <p class="stat-value text-gray-600 dark:text-gray-300">{{ $stats['not_won'] }}</p>
                 </div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-body">
-                <div class="flex items-center gap-3">
-                    <div class="p-3 bg-info/10 rounded-lg">
-                        <i class="text-info size-6" data-lucide="calendar-check"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm text-default-600">Latest Draw</p>
-                        <h4 class="text-lg font-bold">{{ $stats['latest_draw_date'] }}</h4>
-                    </div>
+        <div class="stat-card">
+            <div class="flex items-center gap-3">
+                <div class="stat-icon bg-cyan-100 dark:bg-cyan-900/30">
+                    <i class="text-cyan-600 dark:text-cyan-400 size-5" data-lucide="calendar-check"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="stat-label">Latest Draw</p>
+                    <p class="stat-value text-gray-900 dark:text-white text-base">{{ $stats['latest_draw_date'] }}</p>
                 </div>
             </div>
         </div>
     </div>
 
     {{-- Check All Button --}}
-    <div class="card mb-6">
-        <div class="card-body">
-            <div class="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <h6 class="font-semibold flex items-center gap-2"><i class="size-4 text-primary" data-lucide="target"></i> Check All Pending Results</h6>
-                    <p class="text-sm text-default-500">
-                        {{ $statusGroups['ready_to_check']->count() }} transaction(s) ready to check against latest draw results.
-                    </p>
-                </div>
-                <form action="{{ route('secondary-transactions.check-all') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="btn bg-primary text-white" {{ $statusGroups['ready_to_check']->count() === 0 ? 'disabled' : '' }}>
-                        <i class="size-4 me-1" data-lucide="search"></i> Check All Results
-                    </button>
-                </form>
+    <div class="action-card mb-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+                <h6 class="font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-1">
+                    <i class="size-5 text-indigo-600" data-lucide="target"></i> Check All Pending Results
+                </h6>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    {{ $statusGroups['ready_to_check']->count() }} transaction(s) ready to check against latest draw results.
+                </p>
             </div>
+            <form action="{{ route('secondary-transactions.check-all') }}" method="POST">
+                @csrf
+                <button type="submit" class="btn bg-primary text-white rounded-lg flex items-center gap-2 w-full sm:w-auto" 
+                    {{ $statusGroups['ready_to_check']->count() === 0 ? 'disabled' : '' }}>
+                    <i class="size-5" data-lucide="search"></i> Check All Results
+                </button>
+            </form>
         </div>
     </div>
 
-    <div class="grid lg:grid-cols-2 gap-6">
+    <div class="grid lg:grid-cols-2 gap-6 mb-6">
         {{-- Ready to Check --}}
-        <div class="card">
-            <div class="card-header">
-                <h6 class="card-title flex items-center gap-2"><i class="size-4 text-success" data-lucide="check-circle"></i> Ready to Check ({{ $readyToCheck->count() }})</h6>
+        <div class="module-card">
+            <div class="module-header">
+                <h6 class="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <i class="size-4 text-emerald-500" data-lucide="check-circle"></i> Ready to Check
+                </h6>
+                <span class="badge bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300">{{ $readyToCheck->count() }}</span>
             </div>
             @if($readyToCheck->count() > 0)
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-default-200">
-                        <thead class="bg-default-150">
-                        <tr class="text-sm font-normal text-default-700">
-                            <th class="px-3.5 py-3 text-start">Ticket</th>
-                            <th class="px-3.5 py-3 text-start">Customer</th>
-                            <th class="px-3.5 py-3 text-start">Draw Date</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($readyToCheck as $transaction)
-                            <tr class="text-sm hover:bg-default-50">
-                                <td class="px-3.5 py-3 font-mono font-bold text-primary">
-                                    {{ $transaction->secondaryTicket?->ticket_number ?? 'N/A' }}
-                                </td>
-                                <td class="px-3.5 py-3">{{ $transaction->customer_display_name }}</td>
-                                <td class="px-3.5 py-3 text-xs">{{ $transaction->secondaryTicket?->withdraw_date?->format('M d') }}</td>
+                    <table class="min-w-full">
+                        <thead class="bg-gray-50 dark:bg-gray-800">
+                            <tr class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                                <th class="px-4 py-3 text-left">Ticket</th>
+                                <th class="px-4 py-3 text-left">Customer</th>
+                                <th class="px-4 py-3 text-left">Draw</th>
                             </tr>
-                        @endforeach
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                            @foreach($readyToCheck as $transaction)
+                                <tr class="text-sm hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="px-4 py-3">
+                                        <span class="font-mono font-bold text-primary">{{ $transaction->secondaryTicket?->ticket_number ?? 'N/A' }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $transaction->customer_display_name }}</td>
+                                    <td class="px-4 py-3 text-xs text-gray-500">{{ $transaction->secondaryTicket?->withdraw_date?->format('M d') }}</td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
-                <div class="card-footer">
+                <div class="p-3 border-t border-gray-200 dark:border-gray-700">
                     {{ $readyToCheck->links() }}
                 </div>
             @else
-                <div class="card-body text-center text-default-500">
-                    <i class="size-8 text-success mx-auto mb-2" data-lucide="check-circle"></i>
-                    <p>No transactions ready to check</p>
+                <div class="module-body text-center py-8">
+                    <div class="w-14 h-14 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="size-7 text-emerald-600" data-lucide="check-circle"></i>
+                    </div>
+                    <p class="text-gray-500 dark:text-gray-400">No transactions ready to check</p>
                 </div>
             @endif
         </div>
 
         {{-- Waiting for Draw --}}
-        <div class="card">
-            <div class="card-header">
-                <h6 class="card-title flex items-center gap-2"><i class="size-4 text-warning" data-lucide="hourglass"></i> Waiting for Future Draw ({{ $statusGroups['waiting_for_draw']->count() }})</h6>
+        <div class="module-card">
+            <div class="module-header">
+                <h6 class="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <i class="size-4 text-amber-500" data-lucide="hourglass"></i> Waiting for Future Draw
+                </h6>
+                <span class="badge bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">{{ $statusGroups['waiting_for_draw']->count() }}</span>
             </div>
             @if($statusGroups['waiting_for_draw']->count() > 0)
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-default-200">
-                        <thead class="bg-default-150">
-                        <tr class="text-sm font-normal text-default-700">
-                            <th class="px-3.5 py-3 text-start">Ticket</th>
-                            <th class="px-3.5 py-3 text-start">Customer</th>
-                            <th class="px-3.5 py-3 text-start">Draw Date</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($statusGroups['waiting_for_draw']->take(10) as $transaction)
-                            <tr class="text-sm hover:bg-default-50">
-                                <td class="px-3.5 py-3 font-mono font-bold text-warning">
-                                    {{ $transaction->secondaryTicket?->ticket_number ?? 'N/A' }}
-                                </td>
-                                <td class="px-3.5 py-3">{{ $transaction->customer_display_name }}</td>
-                                <td class="px-3.5 py-3 text-xs">{{ $transaction->secondaryTicket?->withdraw_date?->format('M d, Y') }}</td>
+                    <table class="min-w-full">
+                        <thead class="bg-gray-50 dark:bg-gray-800">
+                            <tr class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                                <th class="px-4 py-3 text-left">Ticket</th>
+                                <th class="px-4 py-3 text-left">Customer</th>
+                                <th class="px-4 py-3 text-left">Draw Date</th>
                             </tr>
-                        @endforeach
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                            @foreach($statusGroups['waiting_for_draw']->take(10) as $transaction)
+                                <tr class="text-sm hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="px-4 py-3">
+                                        <span class="font-mono font-bold text-amber-600 dark:text-amber-400">{{ $transaction->secondaryTicket?->ticket_number ?? 'N/A' }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $transaction->customer_display_name }}</td>
+                                    <td class="px-4 py-3 text-xs text-gray-500">{{ $transaction->secondaryTicket?->withdraw_date?->format('M d, Y') }}</td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
             @else
-                <div class="card-body text-center text-default-500">
-                    <i class="size-8 text-info mx-auto mb-2" data-lucide="check"></i>
-                    <p>No transactions waiting</p>
+                <div class="module-body text-center py-8">
+                    <div class="w-14 h-14 bg-cyan-100 dark:bg-cyan-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="size-7 text-cyan-600" data-lucide="check"></i>
+                    </div>
+                    <p class="text-gray-500 dark:text-gray-400">No transactions waiting</p>
                 </div>
             @endif
         </div>
@@ -185,37 +294,42 @@
 
     {{-- Recent Winners --}}
     @if($recentWinners->count() > 0)
-        <div class="card mt-6">
-            <div class="card-header">
-                <h6 class="card-title flex items-center gap-2"><i class="size-4 text-purple-600" data-lucide="trophy"></i> Recent Winners</h6>
+        <div class="module-card">
+            <div class="module-header">
+                <h6 class="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <i class="size-4 text-violet-500" data-lucide="trophy"></i> Recent Winners
+                </h6>
+                <span class="badge bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300">{{ $recentWinners->count() }}</span>
             </div>
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-default-200">
-                    <thead class="bg-default-150">
-                    <tr class="text-sm font-normal text-default-700">
-                        <th class="px-3.5 py-3 text-start">Ticket</th>
-                        <th class="px-3.5 py-3 text-start">Customer</th>
-                        <th class="px-3.5 py-3 text-start">Prize</th>
-                        <th class="px-3.5 py-3 text-start">Draw Date</th>
-                        <th class="px-3.5 py-3 text-start">Checked</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($recentWinners as $winner)
-                        <tr class="text-sm hover:bg-purple-50">
-                            <td class="px-3.5 py-3 font-mono font-bold text-purple-600">
-                                {{ $winner->secondaryTicket?->ticket_number ?? 'N/A' }}
-                            </td>
-                            <td class="px-3.5 py-3">{{ $winner->customer_display_name }}</td>
-                            <td class="px-3.5 py-3">
-                                <span class="inline-flex px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-bold">
-                                    {{ $winner->prize_won }}
-                                </span>
-                            </td>
-                            <td class="px-3.5 py-3 text-xs">{{ $winner->drawResult?->date_en }}</td>
-                            <td class="px-3.5 py-3 text-xs">{{ $winner->checked_at?->format('M d, Y H:i') }}</td>
+                <table class="min-w-full">
+                    <thead class="bg-gray-50 dark:bg-gray-800">
+                        <tr class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                            <th class="px-4 py-3 text-left">Ticket</th>
+                            <th class="px-4 py-3 text-left">Customer</th>
+                            <th class="px-4 py-3 text-left">Prize</th>
+                            <th class="px-4 py-3 text-left">Draw Date</th>
+                            <th class="px-4 py-3 text-left">Checked</th>
                         </tr>
-                    @endforeach
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        @foreach($recentWinners as $winner)
+                            <tr class="text-sm hover:bg-violet-50 dark:hover:bg-violet-900/10">
+                                <td class="px-4 py-3">
+                                    <a href="{{ route('secondary-transactions.show', $winner) }}" class="font-mono font-bold text-violet-600 dark:text-violet-400 hover:underline">
+                                        {{ $winner->secondaryTicket?->ticket_number ?? 'N/A' }}
+                                    </a>
+                                </td>
+                                <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $winner->customer_display_name }}</td>
+                                <td class="px-4 py-3">
+                                    <span class="badge bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 font-bold">
+                                        🎉 {{ $winner->prize_won }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-xs text-gray-500">{{ $winner->drawResult?->date_en }}</td>
+                                <td class="px-4 py-3 text-xs text-gray-500">{{ $winner->checked_at?->format('M d, Y H:i') }}</td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>

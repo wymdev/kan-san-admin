@@ -17,6 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Use custom CSRF middleware
+        $middleware->validateCsrfTokens(except: [
+            // Add any routes that should be exempt from CSRF protection
+        ]);
+        
         $middleware->alias([
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
@@ -35,6 +40,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(append: [
             LogCustomerActivity::class,
         ]);
+        
+        // Ensure sessions are encrypted for better security
+        $middleware->encryptCookies(except: []);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Handle validation exceptions for API
