@@ -31,7 +31,7 @@ class SecondarySalesController extends Controller
             ->leftJoin('draw_results', 'secondary_sales_transactions.draw_result_id', '=', 'draw_results.id')
             ->select(
                 'secondary_sales_transactions.*',
-                'secondary_lottery_tickets.ticket_number',
+                'secondary_lottery_tickets.signature',
                 'secondary_lottery_tickets.withdraw_date',
                 'draw_results.date_en as draw_date'
             );
@@ -52,9 +52,9 @@ class SecondarySalesController extends Controller
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('secondary_sales_transactions.transaction_number', 'like', "%{$search}%")
-                  ->orWhere('secondary_lottery_tickets.ticket_number', 'like', "%{$search}%")
-                  ->orWhere('secondary_sales_transactions.customer_name', 'like', "%{$search}%")
-                  ->orWhere('secondary_sales_transactions.customer_phone', 'like', "%{$search}%");
+                    ->orWhere('secondary_lottery_tickets.signature', 'like', "%{$search}%")
+                    ->orWhere('secondary_sales_transactions.customer_name', 'like', "%{$search}%")
+                    ->orWhere('secondary_sales_transactions.customer_phone', 'like', "%{$search}%");
             });
         }
 
@@ -132,13 +132,13 @@ class SecondarySalesController extends Controller
             DB::commit();
 
             return redirect()->route('secondary-transactions.index')
-                          ->with('success', $message);
+                ->with('success', $message);
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Secondary Transaction Store Error: ' . $e->getMessage());
             return back()
-                    ->with('error', 'Transaction creation failed: ' . $e->getMessage())
-                    ->withInput();
+                ->with('error', 'Transaction creation failed: ' . $e->getMessage())
+                ->withInput();
         }
     }
 
@@ -148,7 +148,7 @@ class SecondarySalesController extends Controller
     public function show(SecondarySalesTransaction $secondaryTransaction)
     {
         $secondaryTransaction->load(['secondaryTicket', 'customer', 'drawResult', 'createdBy']);
-        
+
         return view('secondary-sales.transactions.show', compact('secondaryTransaction'));
     }
 
@@ -159,7 +159,7 @@ class SecondarySalesController extends Controller
     {
         $secondaryTransaction->load(['secondaryTicket', 'customer']);
         $tickets = SecondaryLotteryTicket::latest()->take(50)->get();
-        
+
         return view('secondary-sales.transactions.edit', compact('secondaryTransaction', 'tickets'));
     }
 
@@ -219,7 +219,7 @@ class SecondarySalesController extends Controller
             ]);
 
             $message = 'Transaction updated successfully!';
-            
+
             // Add batch link if paid
             if ($request->is_paid && $secondaryTransaction->batch_token) {
                 $batchLink = route('public.customer-batch', ['token' => $secondaryTransaction->batch_token]);
@@ -231,13 +231,13 @@ class SecondarySalesController extends Controller
             DB::commit();
 
             return redirect()->route('secondary-transactions.index')
-                          ->with('success', $message);
+                ->with('success', $message);
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Secondary Transaction Update Error: ' . $e->getMessage());
             return back()
-                    ->with('error', 'Transaction update failed: ' . $e->getMessage())
-                    ->withInput();
+                ->with('error', 'Transaction update failed: ' . $e->getMessage())
+                ->withInput();
         }
     }
 
@@ -249,7 +249,7 @@ class SecondarySalesController extends Controller
         $secondaryTransaction->delete();
 
         return redirect()->route('secondary-transactions.index')
-                          ->with('success', 'Transaction deleted successfully!');
+            ->with('success', 'Transaction deleted successfully!');
     }
 
     /**
@@ -278,7 +278,7 @@ class SecondarySalesController extends Controller
         try {
             $stats = $this->checkerService->getStatistics();
             $statusGroups = $this->checkerService->getTransactionsByDrawStatus();
-            
+
             // Paginate ready to check
             $readyToCheckCollection = $statusGroups['ready_to_check'];
             $perPage = 20;
@@ -290,7 +290,7 @@ class SecondarySalesController extends Controller
                 $currentPage,
                 ['path' => request()->url(), 'query' => request()->query()]
             );
-            
+
             $recentWinners = SecondarySalesTransaction::with(['customer', 'secondaryTicket', 'drawResult'])
                 ->where('status', 'won')
                 ->latest('checked_at')
@@ -298,15 +298,15 @@ class SecondarySalesController extends Controller
                 ->get();
 
             return view('secondary-sales.transactions.check-results', compact(
-                'stats', 
-                'readyToCheck', 
+                'stats',
+                'readyToCheck',
                 'statusGroups',
                 'recentWinners'
             ));
-            
+
         } catch (\Exception $e) {
             return redirect()->route('secondary-transactions.index')
-                            ->with('error', '❌ Error loading check results page: ' . $e->getMessage());
+                ->with('error', '❌ Error loading check results page: ' . $e->getMessage());
         }
     }
 
@@ -319,9 +319,9 @@ class SecondarySalesController extends Controller
             $result = $this->checkerService->checkAllPendingTransactions();
 
             $flashType = $result['type'] ?? 'info';
-            
+
             return redirect()->back()->with($flashType, $result['message']);
-            
+
         } catch (\Exception $e) {
             \Log::error('Secondary Check Results Error: ' . $e->getMessage());
             return redirect()->back()->with('error', '❌ System Error: ' . $e->getMessage());
@@ -335,11 +335,11 @@ class SecondarySalesController extends Controller
     {
         try {
             $result = $this->checkerService->recheckAllTransactions();
-            
+
             $flashType = $result['type'] ?? 'info';
-            
+
             return redirect()->back()->with($flashType, $result['message']);
-            
+
         } catch (\Exception $e) {
             \Log::error('Secondary Recheck All Error: ' . $e->getMessage());
             return redirect()->back()->with('error', '❌ System Error: ' . $e->getMessage());
@@ -358,11 +358,11 @@ class SecondarySalesController extends Controller
 
         try {
             $result = $this->checkerService->recheckTransactions($request->input('transaction_ids'));
-            
+
             $flashType = $result['type'] ?? 'info';
-            
+
             return redirect()->back()->with($flashType, $result['message']);
-            
+
         } catch (\Exception $e) {
             \Log::error('Secondary Recheck Selected Error: ' . $e->getMessage());
             return redirect()->back()->with('error', '❌ System Error: ' . $e->getMessage());
@@ -399,7 +399,7 @@ class SecondarySalesController extends Controller
 
         $callback = function () use ($transactions) {
             $file = fopen('php://output', 'w');
-            
+
             fputcsv($file, [
                 'Transaction Number',
                 'Ticket Number',
@@ -447,7 +447,7 @@ class SecondarySalesController extends Controller
     public function searchCustomers(Request $request)
     {
         $search = $request->input('q', '');
-        
+
         if (strlen($search) < 2) {
             return response()->json([]);
         }
