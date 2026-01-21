@@ -101,6 +101,10 @@ class SecondarySalesController extends Controller
             if (!$request->amount_thb && !$request->amount_mmk) {
                 $validator->errors()->add('amount_thb', 'Either THB or MMK amount is required');
             }
+            if (!$request->filled('customer_name') && !$request->filled('customer_phone')) {
+                $validator->errors()->add('customer_name', 'Either customer name or phone number is required');
+                $validator->errors()->add('customer_phone', 'Either customer name or phone number is required');
+            }
         });
 
         if ($validator->fails()) {
@@ -117,11 +121,34 @@ class SecondarySalesController extends Controller
             }
 
             $customerId = null;
-            if ($request->filled('customer_name')) {
-                $customer = Customer::firstOrCreate(
-                    ['full_name' => $request->customer_name],
-                    ['phone_number' => $request->customer_phone ?? null]
-                );
+            if ($request->filled('customer_name') || $request->filled('customer_phone')) {
+                // Try to find existing customer by phone first
+                $customer = null;
+                if ($request->filled('customer_phone')) {
+                    $customer = Customer::where('phone_number', $request->customer_phone)->first();
+                }
+
+                if (!$customer) {
+                    // Create new customer with default password
+                    $customer = Customer::create([
+                        'full_name' => $request->customer_name ?? 'Customer ' . substr($request->customer_phone ?? uniqid(), -6),
+                        'phone_number' => $request->customer_phone ?? null,
+                        'password' => bcrypt('123456'), // Default password
+                    ]);
+                } else {
+                    // Update existing customer info if provided
+                    $updateData = [];
+                    if ($request->filled('customer_name')) {
+                        $updateData['full_name'] = $request->customer_name;
+                    }
+                    if ($request->filled('customer_phone')) {
+                        $updateData['phone_number'] = $request->customer_phone;
+                    }
+                    if (!empty($updateData)) {
+                        $customer->update($updateData);
+                    }
+                }
+
                 $customerId = $customer->id;
             }
 
@@ -200,6 +227,10 @@ class SecondarySalesController extends Controller
             if (!$request->amount_thb && !$request->amount_mmk) {
                 $validator->errors()->add('amount_thb', 'Either THB or MMK amount is required');
             }
+            if (!$request->filled('customer_name') && !$request->filled('customer_phone')) {
+                $validator->errors()->add('customer_name', 'Either customer name or phone number is required');
+                $validator->errors()->add('customer_phone', 'Either customer name or phone number is required');
+            }
         });
 
         if ($validator->fails()) {
@@ -212,11 +243,34 @@ class SecondarySalesController extends Controller
         try {
             // Handle customer creation/update
             $customerId = null;
-            if ($request->filled('customer_name')) {
-                $customer = Customer::firstOrCreate(
-                    ['full_name' => $request->customer_name],
-                    ['phone_number' => $request->customer_phone ?? null]
-                );
+            if ($request->filled('customer_name') || $request->filled('customer_phone')) {
+                // Try to find existing customer by phone first
+                $customer = null;
+                if ($request->filled('customer_phone')) {
+                    $customer = Customer::where('phone_number', $request->customer_phone)->first();
+                }
+
+                if (!$customer) {
+                    // Create new customer with default password
+                    $customer = Customer::create([
+                        'full_name' => $request->customer_name ?? 'Customer ' . substr($request->customer_phone ?? uniqid(), -6),
+                        'phone_number' => $request->customer_phone ?? null,
+                        'password' => bcrypt('123456'), // Default password
+                    ]);
+                } else {
+                    // Update existing customer info if provided
+                    $updateData = [];
+                    if ($request->filled('customer_name')) {
+                        $updateData['full_name'] = $request->customer_name;
+                    }
+                    if ($request->filled('customer_phone')) {
+                        $updateData['phone_number'] = $request->customer_phone;
+                    }
+                    if (!empty($updateData)) {
+                        $customer->update($updateData);
+                    }
+                }
+
                 $customerId = $customer->id;
             }
 
