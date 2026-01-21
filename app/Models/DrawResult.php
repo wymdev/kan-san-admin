@@ -34,7 +34,7 @@ class DrawResult extends Model
     public function getNormalizedPrizesAttribute()
     {
         $prizes = $this->prizes;
-        
+
         if (!$prizes) {
             return [];
         }
@@ -44,13 +44,21 @@ class DrawResult extends Model
     }
 
     /**
+     * Scope: Find draw result for a specific date
+     */
+    public function scopeForDate($query, $date)
+    {
+        return $query->whereDate('draw_date', $date);
+    }
+
+    /**
      * Check if a number is a winner - returns ALL matching prizes
      */
     public function checkNumber($number)
     {
-        $ticketNumber = str_replace(' ', '', (string)$number);
+        $ticketNumber = str_replace(' ', '', (string) $number);
         $allWins = []; // Collect ALL matching prizes
-        
+
         // 1. Check Standard Prizes (First, Second, etc.) - exact 6-digit match
         $prizes = $this->normalized_prizes;
         if (is_array($prizes)) {
@@ -76,7 +84,7 @@ class DrawResult extends Model
 
         // 2. Check Running Numbers (Front 3, Rear 3, Rear 2) - partial match
         $runningNumbers = $this->running_numbers;
-        
+
         if (is_array($runningNumbers)) {
             foreach ($runningNumbers as $running) {
                 $winningNumbers = [];
@@ -90,7 +98,7 @@ class DrawResult extends Model
                 } elseif (is_array($running)) {
                     $winningNumbers = $running;
                 } else {
-                    continue; 
+                    continue;
                 }
 
                 if (!is_array($winningNumbers)) {
@@ -100,10 +108,10 @@ class DrawResult extends Model
                 foreach ($winningNumbers as $winningNumber) {
                     $winningNumber = str_replace(' ', '', $winningNumber);
                     $len = strlen($winningNumber);
-                    
+
                     if ($len > 0 && strlen($ticketNumber) >= $len) {
                         $isMatch = false;
-                        
+
                         // Check logic based on key
                         if (stripos($runKey, 'Front') !== false || stripos($runKey, 'front') !== false) {
                             // Front Match - compare first N digits
@@ -119,7 +127,7 @@ class DrawResult extends Model
 
                         if ($isMatch) {
                             $reward = $this->getRewardAmount($runKey);
-                            
+
                             // Fallback if 0 (Key mismatch protection)
                             if ($reward == 0) {
                                 if (stripos($prizeName, 'Front 3') !== false || stripos($prizeName, 'Rear 3') !== false) {
@@ -139,7 +147,7 @@ class DrawResult extends Model
                                 'full_number' => $ticketNumber,
                                 'reward' => $reward,
                             ];
-                            
+
                             // Don't break - continue checking for more matches in same category
                             // But avoid duplicate entries for same prize type
                             break;
@@ -153,7 +161,7 @@ class DrawResult extends Model
         if (count($allWins) > 0) {
             return $allWins;
         }
-        
+
         return false;
     }
 
@@ -205,7 +213,7 @@ class DrawResult extends Model
             'runningNumberFrontThree' => 4000,
             'runningNumberBackThree' => 4000,
             'runningNumberBackTwo' => 2000,
-             'running_3_front' => 4000,
+            'running_3_front' => 4000,
             'running_3_back' => 4000,
             'running_2_back' => 2000,
         ];
@@ -236,13 +244,13 @@ class DrawResult extends Model
     private function convertToExpectedFormat($prizes)
     {
         $normalized = [];
-        
+
         foreach ($prizes as $prize) {
             // Check if it's the new object format
             if (is_array($prize) && isset($prize['id']) && isset($prize['number'])) {
                 $key = $this->mapPrizeId($prize['id']);
                 $normalized[$key] = $prize['number'];
-            } 
+            }
             // Handle legacy format if any (key => value) - unlikely with current data but safe to keep checks if needed
             // For now, we assume the structure seen in tinker
         }

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SecondarySalesTransaction;
 use App\Models\SecondaryLotteryTicket;
 use App\Models\Customer;
-use App\Services\SecondaryResultCheckerService;
+use App\Services\LotteryResultCheckerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
@@ -16,7 +16,7 @@ class SecondarySalesController extends Controller
 {
     protected $checkerService;
 
-    public function __construct(SecondaryResultCheckerService $checkerService)
+    public function __construct(LotteryResultCheckerService $checkerService)
     {
         $this->checkerService = $checkerService;
     }
@@ -276,7 +276,7 @@ class SecondarySalesController extends Controller
     public function checkResultsPage()
     {
         try {
-            $stats = $this->checkerService->getStatistics();
+            $stats = $this->checkerService->getTransactionStatistics();
             $statusGroups = $this->checkerService->getTransactionsByDrawStatus();
 
             // Paginate ready to check

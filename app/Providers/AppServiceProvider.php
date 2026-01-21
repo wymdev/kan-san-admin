@@ -23,7 +23,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(LotteryResultCheckerService::class, function ($app) {
             return new LotteryResultCheckerService();
         });
-        
+
         $this->app->singleton(PushNotificationService::class, function ($app) {
             return new PushNotificationService();
         });
@@ -35,10 +35,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //
-	if($this->app->environment('production')) {
+        if ($this->app->environment('production')) {
             URL::forceScheme('https');
-        }	
-	Mail::extend('brevo', function () {
+        }
+        Mail::extend('brevo', function () {
             // It uses the key from your .env file
             return new BrevoApiTransport(config('services.brevo.key') ?? env('BREVO_KEY'));
         });
