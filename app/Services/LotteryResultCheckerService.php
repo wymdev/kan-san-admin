@@ -69,7 +69,7 @@ class LotteryResultCheckerService
 
     /**
      * Get the appropriate draw result for a given date
-     * Supports historical lookups with tolerance for postponements
+     * Supports historical lookups based on Thai lottery schedule (1st and 16th of month)
      */
     public function getDrawResultForDate(Carbon $targetDate): ?DrawResult
     {
@@ -89,6 +89,16 @@ class LotteryResultCheckerService
                 $targetDate->copy()->addDays(self::MAX_POSTPONE_DAYS),
             ])
                 ->orderByRaw("ABS(DATEDIFF(draw_date, ?))", [$targetDate])
+                ->first();
+
+            if ($drawResult) {
+                return $drawResult;
+            }
+
+            // Thai lottery draws on 1st and 16th - find the nearest past draw
+            // Get the draw that should cover this ticket date
+            $drawResult = DrawResult::where('draw_date', '<=', $targetDate)
+                ->orderBy('draw_date', 'desc')
                 ->first();
 
             return $drawResult;
@@ -505,12 +515,12 @@ class LotteryResultCheckerService
         return [
             'success' => true,
             'type' => $changedCount > 0 ? 'success' : 'info',
-            'message' => $this->buildRecheckMessage($changedCount, $unchangedCount, $details, $latestDraw->date_en),
+            'message' => $this->buildRecheckMessage($changedCount, $unchangedCount, $details, 'historical draws'),
             'rechecked' => $previouslyChecked->count(),
             'changed' => $changedCount,
             'unchanged' => $unchangedCount,
             'details' => $details,
-            'draw_date' => $latestDraw->date_en,
+            'draw_date' => 'Multiple historical draws checked',
         ];
     }
 
