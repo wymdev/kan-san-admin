@@ -4,69 +4,9 @@
 
 @section('custom-styles')
     <style>
-        .timer-icon {
-            width: 140px;
-            height: 140px;
-            margin: 0 auto;
-            position: relative;
-        }
-
-        .clock-circle {
-            width: 120px;
-            height: 120px;
-            border: 8px solid #667eea;
-            border-radius: 50%;
-            position: relative;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        .clock-hand {
-            width: 4px;
-            height: 40px;
-            background: #764ba2;
-            position: absolute;
-            bottom: 50%;
-            left: 50%;
-            transform-origin: bottom center;
-            transform: translateX(-50%) rotate(0deg);
-            border-radius: 2px;
-            animation: rotate 4s linear infinite;
-        }
-
-        .clock-center {
-            width: 12px;
-            height: 12px;
-            background: #764ba2;
-            border-radius: 50%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 2;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-
-            50% {
-                transform: scale(1.05);
-                opacity: 0.9;
-            }
-        }
-
-        @keyframes rotate {
-            from {
-                transform: translateX(-50%) rotate(0deg);
-            }
-
-            to {
-                transform: translateX(-50%) rotate(360deg);
-            }
+        .icon-svg {
+            width: 60px;
+            height: 60px;
         }
     </style>
 @endsection
@@ -74,23 +14,35 @@
 @section('content')
     <div class="error-code">419</div>
 
-    <div class="error-animation">
-        <div class="timer-icon">
-            <div class="clock-circle">
-                <div class="clock-hand"></div>
-                <div class="clock-center"></div>
-            </div>
-        </div>
+    <div class="icon-wrapper">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="url(#grad4)" stroke-width="2" />
+            <path d="M12 6V12L16 14" stroke="url(#grad4)" stroke-width="2" stroke-linecap="round" />
+            <defs>
+                <linearGradient id="grad4" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+        </svg>
     </div>
 
-    <h1 class="error-title">Page Expired</h1>
-    <p class="error-message">
-        Your session has expired due to inactivity.
-        Please refresh the page and try again.
-    </p>
+    <h1>Page Expired</h1>
+    <p>Your session has expired due to inactivity. Please refresh the page to continue.</p>
 
-    <div class="error-actions">
-        <a href="{{ url('/') }}" class="btn btn-primary">Go to Homepage</a>
-        <a href="javascript:location.reload()" class="btn btn-secondary">Refresh Page</a>
+    <div class="actions">
+        <a href="{{ url('/') }}" class="btn btn-primary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            </svg>
+            Go Home
+        </a>
+        <a href="javascript:location.reload()" class="btn btn-secondary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 4v6h6M23 20v-6h-6" />
+                <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
+            </svg>
+            Refresh
+        </a>
     </div>
 @endsection
