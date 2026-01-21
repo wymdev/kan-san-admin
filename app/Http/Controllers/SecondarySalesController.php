@@ -70,8 +70,9 @@ class SecondarySalesController extends Controller
     public function create()
     {
         $customers = Customer::orderBy('full_name')->get();
-        $tickets = SecondaryLotteryTicket::where('status', 'available')
-            ->whereNull('sold_at')
+
+        // Get tickets that haven't been sold yet (no transactions)
+        $tickets = SecondaryLotteryTicket::doesntHave('transactions')
             ->orderBy('withdraw_date')
             ->get();
 
