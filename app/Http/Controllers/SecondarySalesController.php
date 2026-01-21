@@ -561,8 +561,24 @@ class SecondarySalesController extends Controller
     private function generateTransactionNumber()
     {
         $prefix = date('ym');
-        $counter = DB::table('secondary_sales_transactions')->where('transaction_number', 'like', $prefix . '%')->count();
-        return $prefix . str_pad($counter + 1, 3, '0');
+
+        // Find the latest transaction number with this prefix
+        $latestTransaction = DB::table('secondary_sales_transactions')
+            ->where('transaction_number', 'like', $prefix . '%')
+            ->orderByRaw('LENGTH(transaction_number) DESC') // Order by length first to handle variable digits
+            ->orderBy('transaction_number', 'desc')
+            ->value('transaction_number');
+
+        if (!$latestTransaction) {
+            return $prefix . '00001';
+        }
+
+        // Extract the sequence number and increment
+        // Assuming format YYMMXXXXX where X is the sequence
+        $numericPart = (int) substr($latestTransaction, strlen($prefix));
+        $nextSequence = $numericPart + 1;
+
+        return $prefix . str_pad($nextSequence, 5, '0', STR_PAD_LEFT);
     }
 
     private function generateSuccessMessage(SecondarySalesTransaction $transaction)
