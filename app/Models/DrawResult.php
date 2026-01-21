@@ -57,6 +57,10 @@ class DrawResult extends Model
     public function checkNumber($number)
     {
         $ticketNumber = str_replace(' ', '', (string) $number);
+
+        // Pad with leading zeros to ensure 6 digits (Thai lottery standard)
+        $ticketNumber = str_pad($ticketNumber, 6, '0', STR_PAD_LEFT);
+
         $allWins = []; // Collect ALL matching prizes
 
         // 1. Check Standard Prizes (First, Second, etc.) - exact 6-digit match

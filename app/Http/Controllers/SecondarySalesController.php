@@ -273,7 +273,7 @@ class SecondarySalesController extends Controller
     /**
      * Check results page
      */
-    public function checkResultsPage()
+    public function checkResultsPage(Request $request)
     {
         try {
             $stats = $this->checkerService->getTransactionStatistics();
@@ -282,14 +282,41 @@ class SecondarySalesController extends Controller
             // Paginate ready to check
             $readyToCheckCollection = $statusGroups['ready_to_check'];
             $perPage = 20;
-            $currentPage = request()->get('page', 1);
+            $currentPage = $request->get('ready_page', 1);
             $readyToCheck = new \Illuminate\Pagination\LengthAwarePaginator(
                 $readyToCheckCollection->forPage($currentPage, $perPage),
                 $readyToCheckCollection->count(),
                 $perPage,
                 $currentPage,
-                ['path' => request()->url(), 'query' => request()->query()]
+                ['path' => $request->url(), 'query' => $request->query(), 'pageName' => 'ready_page']
             );
+
+            // Paginate and search previously checked
+            $previouslyCheckedQuery = SecondarySalesTransaction::with(['secondaryTicket', 'customer', 'drawResult'])
+                ->whereIn('status', ['won', 'not_won'])
+                ->whereNotNull('checked_at')
+                ->whereNotNull('draw_result_id');
+
+            // Apply search
+            if ($search = $request->get('search')) {
+                $previouslyCheckedQuery->where(function ($q) use ($search) {
+                    $q->where('transaction_number', 'like', "%{$search}%")
+                        ->orWhere('customer_name', 'like', "%{$search}%")
+                        ->orWhere('customer_phone', 'like', "%{$search}%")
+                        ->orWhereHas('secondaryTicket', function ($sq) use ($search) {
+                            $sq->where('signature', 'like', "%{$search}%");
+                        });
+                });
+            }
+
+            // Apply status filter
+            if ($statusFilter = $request->get('status_filter')) {
+                $previouslyCheckedQuery->where('status', $statusFilter);
+            }
+
+            $previouslyChecked = $previouslyCheckedQuery
+                ->latest('checked_at')
+                ->paginate(20, ['*'], 'checked_page');
 
             $recentWinners = SecondarySalesTransaction::with(['customer', 'secondaryTicket', 'drawResult'])
                 ->where('status', 'won')
@@ -301,7 +328,8 @@ class SecondarySalesController extends Controller
                 'stats',
                 'readyToCheck',
                 'statusGroups',
-                'recentWinners'
+                'recentWinners',
+                'previouslyChecked'
             ));
 
         } catch (\Exception $e) {

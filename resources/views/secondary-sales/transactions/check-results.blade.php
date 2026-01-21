@@ -304,21 +304,45 @@
             @endif
         </div>
 
-        {{-- Previously Checked --}}
-        @if($statusGroups['previously_checked']->count() > 0)
-            <div class="module-card">
+        {{-- Previously Checked --}}\
+        @if($previouslyChecked->total() > 0)
+            <div class="module-card lg:col-span-2">
                 <div class="module-header">
                     <h6 class="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                         <i class="size-4 text-amber-500" data-lucide="history"></i> Previously Checked
                     </h6>
-                    <span class="badge bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">{{ $statusGroups['previously_checked']->count() }}</span>
+                    <span class="badge bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">{{ $previouslyChecked->total() }}</span>
                 </div>
                 
                 <div class="module-body">
+                    {{-- Search and Filter Form --}}
+                    <form method="GET" class="mb-4 flex flex-col sm:flex-row gap-3">
+                        <div class="flex-1">
+                            <input type="text" name="search" value="{{ request('search') }}" 
+                                   placeholder="Search by ticket, customer, phone..." 
+                                   class="form-input w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700">
+                        </div>
+                        <select name="status_filter" class="form-select rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700">
+                            <option value="">All Status</option>
+                            <option value="won" {{ request('status_filter') == 'won' ? 'selected' : '' }}>Won Only</option>
+                            <option value="not_won" {{ request('status_filter') == 'not_won' ? 'selected' : '' }}>Not Won Only</option>
+                        </select>
+                        <button type="submit" class="btn bg-primary text-white rounded-lg flex items-center gap-2 px-4">
+                            <i class="size-4" data-lucide="search"></i> Search
+                        </button>
+                        @if(request('search') || request('status_filter'))
+                            <a href="{{ route('secondary-transactions.check-results') }}" 
+                               class="btn bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg flex items-center gap-2 px-4">
+                                <i class="size-4" data-lucide="x"></i> Clear
+                            </a>
+                        @endif
+                    </form>
+
+                    {{-- Recheck All Button --}}
                     <form action="{{ route('secondary-transactions.recheck-all') }}" method="POST" class="mb-4">
                         @csrf
                         <button type="submit" class="btn bg-amber-500 hover:bg-amber-600 text-white rounded-lg flex items-center gap-2">
-                            <i class="size-5" data-lucide="refresh-cw"></i> Recheck All ({{ $statusGroups['previously_checked']->count() }})
+                            <i class="size-5" data-lucide="refresh-cw"></i> Recheck All ({{ $previouslyChecked->total() }})
                         </button>
                     </form>
                     
@@ -329,12 +353,13 @@
                                     <th class="px-4 py-3 text-left">Ticket</th>
                                     <th class="px-4 py-3 text-left">Customer</th>
                                     <th class="px-4 py-3 text-left">Current Result</th>
+                                    <th class="px-4 py-3 text-left">Draw Date</th>
                                     <th class="px-4 py-3 text-left">Checked</th>
                                     <th class="px-4 py-3 text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                                @foreach($statusGroups['previously_checked']->take(20) as $transaction)
+                                @forelse($previouslyChecked as $transaction)
                                     <tr class="text-sm hover:bg-amber-50 dark:hover:bg-amber-900/10">
                                         <td class="px-4 py-3">
                                             <a href="{{ route('secondary-transactions.show', $transaction) }}" class="font-mono font-bold text-amber-600 dark:text-amber-400 hover:underline">
@@ -353,6 +378,7 @@
                                                 <span class="badge bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">Pending</span>
                                             @endif
                                         </td>
+                                        <td class="px-4 py-3 text-xs text-gray-500">{{ $transaction->drawResult?->date_en ?? 'N/A' }}</td>
                                         <td class="px-4 py-3 text-xs text-gray-500">{{ $transaction->checked_at?->format('M d, Y H:i') }}</td>
                                         <td class="px-4 py-3">
                                             <div class="flex items-center justify-center gap-1">
@@ -372,10 +398,23 @@
                                             </div>
                                         </td>
                                     </tr>
-                                @endforeach
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+                                            No transactions found matching your search.
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
+
+                    {{-- Pagination --}}
+                    @if($previouslyChecked->hasPages())
+                        <div class="p-3 border-t border-gray-200 dark:border-gray-700">
+                            {{ $previouslyChecked->appends(request()->except('checked_page'))->links() }}
+                        </div>
+                    @endif
                 </div>
             </div>
         @endif

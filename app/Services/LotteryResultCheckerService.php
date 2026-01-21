@@ -782,7 +782,14 @@ class LotteryResultCheckerService
         $numbers = [];
 
         if (isset($ticket->numbers) && is_array($ticket->numbers)) {
-            $numbers = $ticket->numbers;
+            // Check if it's an array of individual digits like ["0","5","6","0","0","9"]
+            if (count($ticket->numbers) === 6 && is_string($ticket->numbers[0]) && strlen($ticket->numbers[0]) === 1) {
+                // Join individual digits into a single 6-digit number
+                $numbers = [implode('', $ticket->numbers)];
+            } else {
+                // Normal array of ticket numbers
+                $numbers = $ticket->numbers;
+            }
         } elseif (isset($ticket->numbers) && is_string($ticket->numbers)) {
             $numbers = explode(',', $ticket->numbers);
         } elseif (isset($ticket->ticket_number)) {
@@ -791,8 +798,13 @@ class LotteryResultCheckerService
 
         // Clean and validate each number (6-digit Thai lottery format)
         return array_filter(array_map(function ($num) {
+            // If it's an array, join it first
+            if (is_array($num)) {
+                $num = implode('', $num);
+            }
             $cleaned = preg_replace('/[^0-9]/', '', trim($num));
-            return strlen($cleaned) === 6 ? $cleaned : null;
+            // Pad to 6 digits if needed
+            return strlen($cleaned) > 0 ? str_pad($cleaned, 6, '0', STR_PAD_LEFT) : null;
         }, $numbers));
     }
 
