@@ -3,80 +3,84 @@
 @section('title', '403 - Access Forbidden')
 
 @section('custom-styles')
-<style>
-    .illustration-403 {
-        position: relative;
-        width: 200px;
-        height: 200px;
-        margin: 0 auto;
-    }
-
-    .lock-body {
-        width: 100px;
-        height: 80px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 12px;
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        animation: shake 3s ease-in-out infinite;
-    }
-
-    .lock-shackle {
-        width: 60px;
-        height: 60px;
-        border: 12px solid #667eea;
-        border-bottom: none;
-        border-radius: 60px 60px 0 0;
-        position: absolute;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-    }
-
-    .lock-keyhole {
-        width: 20px;
-        height: 20px;
-        background: white;
-        border-radius: 50%;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-    }
-
-    .lock-keyhole::after {
-        content: '';
-        width: 6px;
-        height: 20px;
-        background: white;
-        position: absolute;
-        bottom: -20px;
-        left: 50%;
-        transform: translateX(-50%);
-        border-radius: 0 0 3px 3px;
-    }
-
-    @keyframes shake {
-        0%, 100% {
-            transform: translateX(-50%) rotate(0deg);
+    <style>
+        .lock-icon {
+            width: 120px;
+            height: 140px;
+            margin: 0 auto;
+            position: relative;
         }
-        10%, 30%, 50%, 70%, 90% {
-            transform: translateX(-50%) rotate(-5deg);
+
+        .lock-shackle {
+            width: 70px;
+            height: 70px;
+            border: 10px solid #667eea;
+            border-bottom: none;
+            border-radius: 70px 70px 0 0;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: shake 3s ease-in-out infinite;
         }
-        20%, 40%, 60%, 80% {
-            transform: translateX(-50%) rotate(5deg);
+
+        .lock-body {
+            width: 90px;
+            height: 70px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-    }
-</style>
+
+        .lock-keyhole {
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .lock-keyhole::after {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: white;
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 0 0 2px 2px;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(-50%) rotate(0deg);
+            }
+
+            25% {
+                transform: translateX(-50%) rotate(-3deg);
+            }
+
+            75% {
+                transform: translateX(-50%) rotate(3deg);
+            }
+        }
+    </style>
 @endsection
 
 @section('content')
     <div class="error-code">403</div>
-    
+
     <div class="error-animation">
-        <div class="illustration-403">
+        <div class="lock-icon">
             <div class="lock-shackle"></div>
             <div class="lock-body">
                 <div class="lock-keyhole"></div>
@@ -86,12 +90,12 @@
 
     <h1 class="error-title">Access Forbidden</h1>
     <p class="error-message">
-        Sorry, you don't have permission to access this resource. 
+        Sorry, you don't have permission to access this resource.
         If you believe this is a mistake, please contact your administrator.
     </p>
 
-    <div>
-        <a href="{{ url('/') }}" class="btn">Go to Homepage</a>
+    <div class="error-actions">
+        <a href="{{ url('/') }}" class="btn btn-primary">Go to Homepage</a>
         <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
     </div>
 @endsection
