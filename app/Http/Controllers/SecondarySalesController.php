@@ -65,6 +65,21 @@ class SecondarySalesController extends Controller
     }
 
     /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        $customers = Customer::orderBy('full_name')->get();
+        $tickets = SecondaryLotteryTicket::where('status', 'available')
+            ->whereNull('sold_at')
+            ->orderBy('withdraw_date')
+            ->get();
+
+        return view('secondary-sales.transactions.create', compact('customers', 'tickets'));
+    }
+
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
