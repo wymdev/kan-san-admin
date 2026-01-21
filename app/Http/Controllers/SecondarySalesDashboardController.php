@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SecondarySalesTransaction;
 use App\Models\SecondaryLotteryTicket;
 use App\Models\Customer;
-use App\Services\SecondaryResultCheckerService;
+use App\Services\LotteryResultCheckerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -14,7 +14,7 @@ class SecondarySalesDashboardController extends Controller
 {
     protected $checkerService;
 
-    public function __construct(SecondaryResultCheckerService $checkerService)
+    public function __construct(LotteryResultCheckerService $checkerService)
     {
         $this->checkerService = $checkerService;
     }
@@ -29,7 +29,7 @@ class SecondarySalesDashboardController extends Controller
         $dateTo = $request->input('date_to', now()->format('Y-m-d'));
 
         // Basic statistics
-        $stats = $this->checkerService->getStatistics();
+        $stats = $this->checkerService->getTransactionStatistics();
 
         // Revenue statistics
         $revenueStats = $this->getRevenueStats($dateFrom, $dateTo);
@@ -109,8 +109,8 @@ class SecondarySalesDashboardController extends Controller
             Carbon::parse($dateFrom)->subDay()->format('Y-m-d') . ' 23:59:59'
         ])->sum('amount_thb');
 
-        $revenueChange = $previousPeriodRevenue > 0 
-            ? (($periodRevenue - $previousPeriodRevenue) / $previousPeriodRevenue) * 100 
+        $revenueChange = $previousPeriodRevenue > 0
+            ? (($periodRevenue - $previousPeriodRevenue) / $previousPeriodRevenue) * 100
             : 0;
 
         return [
@@ -158,7 +158,7 @@ class SecondarySalesDashboardController extends Controller
 
         // Merge and sort
         $allBuyers = collect();
-        
+
         foreach ($registeredBuyers as $buyer) {
             $allBuyers->push([
                 'name' => $buyer->customer->full_name ?? 'Unknown',
