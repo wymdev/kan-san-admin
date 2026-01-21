@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -40,16 +41,21 @@
         }
 
         @keyframes float {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateY(0) translateX(0) scale(1);
                 opacity: 0;
             }
+
             10% {
                 opacity: 0.3;
             }
+
             90% {
                 opacity: 0.3;
             }
+
             50% {
                 transform: translateY(-100vh) translateX(50px) scale(1.2);
             }
@@ -74,6 +80,7 @@
                 opacity: 0;
                 transform: translateY(40px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -93,9 +100,12 @@
         }
 
         @keyframes pulse {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: scale(1);
             }
+
             50% {
                 transform: scale(1.05);
             }
@@ -116,11 +126,12 @@
         }
 
         .error-animation {
-            margin: 40px 0;
-            height: 200px;
+            margin: 30px 0 40px 0;
+            min-height: 220px;
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
 
         .btn {
@@ -158,16 +169,20 @@
             .error-code {
                 font-size: 80px;
             }
+
             .error-title {
                 font-size: 24px;
             }
+
             .error-container {
                 padding: 40px 24px;
             }
+
             .btn {
                 display: block;
                 margin: 8px 0;
             }
+
             .btn-secondary {
                 margin-left: 0;
             }
@@ -176,6 +191,7 @@
         @yield('custom-styles')
     </style>
 </head>
+
 <body>
     <!-- Animated particles -->
     <div class="particles">
@@ -194,4 +210,5 @@
 
     @yield('scripts')
 </body>
+
 </html>
