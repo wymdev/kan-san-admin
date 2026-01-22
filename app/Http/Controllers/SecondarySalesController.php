@@ -156,8 +156,28 @@ class SecondarySalesController extends Controller
                 $customerPhone = $customer->phone_number;
             }
 
-            // Generate one shared batch_token for all tickets
-            $sharedBatchToken = Str::random(32);
+            // Generate or reuse batch_token based on customer + draw date
+            // Find if customer already has transactions for the same draw date
+            $firstTicket = SecondaryLotteryTicket::find($ticketIds[0]);
+            $drawDate = $firstTicket?->withdraw_date;
+
+            $existingBatchToken = null;
+            if ($customerId && $drawDate) {
+                // Look for existing transactions with same customer and draw date
+                $existingTransaction = SecondarySalesTransaction::where('customer_id', $customerId)
+                    ->whereHas('secondaryTicket', function ($q) use ($drawDate) {
+                        $q->whereDate('withdraw_date', $drawDate);
+                    })
+                    ->whereNotNull('batch_token')
+                    ->first();
+
+                if ($existingTransaction) {
+                    $existingBatchToken = $existingTransaction->batch_token;
+                }
+            }
+
+            // Use existing batch_token or generate new one
+            $sharedBatchToken = $existingBatchToken ?? Str::random(32);
             $transactions = [];
 
             // Calculate amount per ticket (split evenly)
@@ -187,7 +207,7 @@ class SecondarySalesController extends Controller
                     'sale_type' => 'own',
                     'created_by' => auth()->id(),
                     'public_token' => Str::random(32), // Unique per ticket
-                    'batch_token' => $sharedBatchToken, // Same for all tickets in batch
+                    'batch_token' => $sharedBatchToken, // Same for customer + draw date
                 ]);
 
                 $transactions[] = $transaction;
@@ -200,7 +220,8 @@ class SecondarySalesController extends Controller
             $ticketNumbers = collect($transactions)->map(fn($t) => $t->secondaryTicket->ticket_number ?? 'N/A')->join(', ');
             $batchLink = route('public.customer-batch', ['token' => $sharedBatchToken]);
 
-            $message = "✅ {$ticketCount} ticket(s) sold to <strong>{$customerName}</strong>!";
+            $batchStatus = $existingBatchToken ? '(Added to existing batch)' : '(New batch created)';
+            $message = "✅ {$ticketCount} ticket(s) sold to <strong>{$customerName}</strong>! {$batchStatus}";
             $message .= "<br><small>Tickets: {$ticketNumbers}</small>";
             $message .= "<br><br>📱 <strong>Batch Link:</strong> <a href=\"{$batchLink}\" target=\"_blank\" class=\"text-primary\">{$batchLink}</a>";
 
