@@ -294,10 +294,10 @@
                 {{-- Ticket Selection --}}
                 <div class="mb-6">
                     <h6 class="text-base font-semibold mb-3 flex items-center gap-2"><i class="size-4"
-                            data-lucide="ticket"></i> Select Ticket</h6>
+                            data-lucide="ticket"></i> Select Ticket(s) <span class="text-xs text-info">(Multiple selection allowed)</span></h6>
 
                     @if(isset($selectedTicket))
-                        <input type="hidden" name="secondary_ticket_id" value="{{ $selectedTicket->id }}">
+                        <input type="hidden" name="secondary_ticket_ids[]" value="{{ $selectedTicket->id }}">
                         <div class="p-4 bg-primary/5 rounded-lg border border-primary/20">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -313,11 +313,10 @@
                             </div>
                         </div>
                     @else
-                        <select name="secondary_ticket_id" id="ticketSelect"
-                            class="form-select @error('secondary_ticket_id') border-danger @enderror" required>
-                            <option value="">Search or select a ticket...</option>
+                        <select name="secondary_ticket_ids[]" id="ticketSelect" multiple
+                            class="form-select @error('secondary_ticket_ids') border-danger @enderror" required>
                             @foreach($tickets as $ticket)
-                                <option value="{{ $ticket->id }}" {{ old('secondary_ticket_id') == $ticket->id ? 'selected' : '' }}>
+                                <option value="{{ $ticket->id }}" {{ in_array($ticket->id, old('secondary_ticket_ids', [])) ? 'selected' : '' }}>
                                     {{ $ticket->ticket_number }}
                                     @if($ticket->withdraw_date) - Draw: {{ $ticket->withdraw_date->format('M d') }} @endif
                                     @if($ticket->batch_number) - Batch: {{ $ticket->batch_number }} @endif
@@ -325,7 +324,11 @@
                                 </option>
                             @endforeach
                         </select>
-                        @error('secondary_ticket_id')
+                        <p class="text-xs text-default-400 mt-2">💡 Hold Ctrl (Cmd on Mac) to select multiple tickets for the same customer</p>
+                        @error('secondary_ticket_ids')
+                            <span class="text-danger text-sm">{{ $message }}</span>
+                        @enderror
+                        @error('secondary_ticket_ids.*')
                             <span class="text-danger text-sm">{{ $message }}</span>
                         @enderror
                     @endif
@@ -462,18 +465,20 @@
     <script>
         // Initialize Choices.js for searchable selects
         document.addEventListener('DOMContentLoaded', function () {
-            // Ticket select
+            // Ticket select (multi-select enabled)
             const ticketSelect = document.getElementById('ticketSelect');
             if (ticketSelect) {
                 new Choices(ticketSelect, {
                     searchEnabled: true,
-                    itemSelectText: '',
+                    removeItemButton: true,
+                    itemSelectText: 'Press to select',
                     shouldSort: false,
                     placeholder: true,
-                    placeholderValue: 'Search tickets by number...',
+                    placeholderValue: 'Search and select tickets...',
                     searchPlaceholderValue: 'Type ticket number...',
                     noResultsText: 'No tickets found',
                     noChoicesText: 'No tickets available',
+                    maxItemCount: -1, // Unlimited
                 });
             }
 

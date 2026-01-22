@@ -82,11 +82,15 @@ class SecondarySalesController extends Controller
 
     /**
      * Store a newly created resource in storage.
+    /**
+     * Store a newly created resource in storage.
+     * Supports multiple ticket selection with shared batch link.
      */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'secondary_ticket_id' => 'required|uuid|exists:secondary_lottery_tickets,id',
+            'secondary_ticket_ids' => 'required|array|min:1',
+            'secondary_ticket_ids.*' => 'required|uuid|exists:secondary_lottery_tickets,id',
             'amount_thb' => 'nullable|numeric|min:0',
             'amount_mmk' => 'nullable|numeric|min:0',
             'purchased_at' => 'required|date',
@@ -116,10 +120,7 @@ class SecondarySalesController extends Controller
 
         DB::beginTransaction();
         try {
-            $ticket = SecondaryLotteryTicket::find($request->secondary_ticket_id);
-            if (!$ticket) {
-                throw new \Exception('Ticket not found');
-            }
+            $ticketIds = $request->secondary_ticket_ids;
 
             // Handle customer: prioritize dropdown selection, then manual entry
             $customerId = null;
@@ -155,27 +156,53 @@ class SecondarySalesController extends Controller
                 $customerPhone = $customer->phone_number;
             }
 
-            $transaction = SecondarySalesTransaction::create([
-                'transaction_number' => $this->generateTransactionNumber(),
-                'secondary_ticket_id' => $request->secondary_ticket_id,
-                'customer_id' => $customerId,
-                'customer_name' => $customerName,
-                'customer_phone' => $customerPhone,
-                'purchased_at' => $request->purchased_at,
-                'amount_thb' => $request->amount_thb ?: 0,
-                'amount_mmk' => $request->amount_mmk ?: 0,
-                'is_paid' => $request->boolean('is_paid', false),
-                'payment_method' => $request->payment_method,
-                'payment_date' => $request->is_paid ? now() : null,
-                'notes' => $request->notes,
-                'sale_type' => 'own',
-                'created_by' => auth()->id(),
-                'public_token' => Str::random(32),
-                'batch_token' => Str::random(32),
-            ]);
+            // Generate one shared batch_token for all tickets
+            $sharedBatchToken = Str::random(32);
+            $transactions = [];
 
-            $message = $this->generateSuccessMessage($transaction);
+            // Calculate amount per ticket (split evenly)
+            $ticketCount = count($ticketIds);
+            $amountThbPerTicket = $request->amount_thb ? round($request->amount_thb / $ticketCount, 2) : 0;
+            $amountMmkPerTicket = $request->amount_mmk ? round($request->amount_mmk / $ticketCount, 2) : 0;
+
+            foreach ($ticketIds as $ticketId) {
+                $ticket = SecondaryLotteryTicket::find($ticketId);
+                if (!$ticket) {
+                    throw new \Exception('Ticket not found: ' . $ticketId);
+                }
+
+                $transaction = SecondarySalesTransaction::create([
+                    'transaction_number' => $this->generateTransactionNumber(),
+                    'secondary_ticket_id' => $ticketId,
+                    'customer_id' => $customerId,
+                    'customer_name' => $customerName,
+                    'customer_phone' => $customerPhone,
+                    'purchased_at' => $request->purchased_at,
+                    'amount_thb' => $amountThbPerTicket,
+                    'amount_mmk' => $amountMmkPerTicket,
+                    'is_paid' => $request->boolean('is_paid', false),
+                    'payment_method' => $request->payment_method,
+                    'payment_date' => $request->is_paid ? now() : null,
+                    'notes' => $request->notes,
+                    'sale_type' => 'own',
+                    'created_by' => auth()->id(),
+                    'public_token' => Str::random(32), // Unique per ticket
+                    'batch_token' => $sharedBatchToken, // Same for all tickets in batch
+                ]);
+
+                $transactions[] = $transaction;
+            }
+
             DB::commit();
+
+            // Generate success message with batch link
+            $ticketCount = count($transactions);
+            $ticketNumbers = collect($transactions)->map(fn($t) => $t->secondaryTicket->ticket_number ?? 'N/A')->join(', ');
+            $batchLink = route('public.customer-batch', ['token' => $sharedBatchToken]);
+
+            $message = "✅ {$ticketCount} ticket(s) sold to <strong>{$customerName}</strong>!";
+            $message .= "<br><small>Tickets: {$ticketNumbers}</small>";
+            $message .= "<br><br>📱 <strong>Batch Link:</strong> <a href=\"{$batchLink}\" target=\"_blank\" class=\"text-primary\">{$batchLink}</a>";
 
             return redirect()->route('secondary-transactions.index')
                 ->with('success', $message);
