@@ -90,6 +90,7 @@ class SecondarySalesController extends Controller
             'amount_thb' => 'nullable|numeric|min:0',
             'amount_mmk' => 'nullable|numeric|min:0',
             'purchased_at' => 'required|date',
+            'customer_id' => 'nullable|exists:customers,id',
             'customer_name' => 'nullable|string|max:255',
             'customer_phone' => 'nullable|string|max:20',
             'is_paid' => 'boolean',
@@ -101,9 +102,9 @@ class SecondarySalesController extends Controller
             if (!$request->amount_thb && !$request->amount_mmk) {
                 $validator->errors()->add('amount_thb', 'Either THB or MMK amount is required');
             }
-            if (!$request->filled('customer_name') && !$request->filled('customer_phone')) {
-                $validator->errors()->add('customer_name', 'Either customer name or phone number is required');
-                $validator->errors()->add('customer_phone', 'Either customer name or phone number is required');
+            // Customer required: either select from dropdown OR enter name/phone
+            if (!$request->filled('customer_id') && !$request->filled('customer_name') && !$request->filled('customer_phone')) {
+                $validator->errors()->add('customer_name', 'Select a customer or enter name/phone');
             }
         });
 
@@ -120,9 +121,21 @@ class SecondarySalesController extends Controller
                 throw new \Exception('Ticket not found');
             }
 
+            // Handle customer: prioritize dropdown selection, then manual entry
             $customerId = null;
-            if ($request->filled('customer_name') || $request->filled('customer_phone')) {
-                // Try to find existing customer by phone first
+            $customerName = $request->customer_name;
+            $customerPhone = $request->customer_phone;
+
+            if ($request->filled('customer_id')) {
+                // Customer selected from dropdown
+                $customer = Customer::find($request->customer_id);
+                if ($customer) {
+                    $customerId = $customer->id;
+                    $customerName = $customer->full_name;
+                    $customerPhone = $customer->phone_number;
+                }
+            } elseif ($request->filled('customer_name') || $request->filled('customer_phone')) {
+                // Manual entry - find or create customer
                 $customer = null;
                 if ($request->filled('customer_phone')) {
                     $customer = Customer::where('phone_number', $request->customer_phone)->first();
@@ -135,29 +148,19 @@ class SecondarySalesController extends Controller
                         'phone_number' => $request->customer_phone ?? null,
                         'password' => bcrypt('123456'), // Default password
                     ]);
-                } else {
-                    // Update existing customer info if provided
-                    $updateData = [];
-                    if ($request->filled('customer_name')) {
-                        $updateData['full_name'] = $request->customer_name;
-                    }
-                    if ($request->filled('customer_phone')) {
-                        $updateData['phone_number'] = $request->customer_phone;
-                    }
-                    if (!empty($updateData)) {
-                        $customer->update($updateData);
-                    }
                 }
 
                 $customerId = $customer->id;
+                $customerName = $customer->full_name;
+                $customerPhone = $customer->phone_number;
             }
 
             $transaction = SecondarySalesTransaction::create([
                 'transaction_number' => $this->generateTransactionNumber(),
                 'secondary_ticket_id' => $request->secondary_ticket_id,
                 'customer_id' => $customerId,
-                'customer_name' => $request->customer_name,
-                'customer_phone' => $request->customer_phone,
+                'customer_name' => $customerName,
+                'customer_phone' => $customerPhone,
                 'purchased_at' => $request->purchased_at,
                 'amount_thb' => $request->amount_thb ?: 0,
                 'amount_mmk' => $request->amount_mmk ?: 0,
@@ -226,10 +229,6 @@ class SecondarySalesController extends Controller
         $validator->after(function ($validator) use ($request) {
             if (!$request->amount_thb && !$request->amount_mmk) {
                 $validator->errors()->add('amount_thb', 'Either THB or MMK amount is required');
-            }
-            if (!$request->filled('customer_name') && !$request->filled('customer_phone')) {
-                $validator->errors()->add('customer_name', 'Either customer name or phone number is required');
-                $validator->errors()->add('customer_phone', 'Either customer name or phone number is required');
             }
         });
 
