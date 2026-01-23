@@ -485,7 +485,7 @@
             // Customer select
             const customerSelect = document.getElementById('customerSelect');
             if (customerSelect) {
-                new Choices(customerSelect, {
+                const choicesInstance = new Choices(customerSelect, {
                     searchEnabled: true,
                     itemSelectText: '',
                     shouldSort: false,
@@ -495,6 +495,8 @@
                     noResultsText: 'No customers found',
                     noChoicesText: 'No customers available',
                 });
+                // Store instance for later access
+                customerSelect.choicesInstance = choicesInstance;
             }
 
             // Payment method select
@@ -538,13 +540,44 @@
             }
         });
 
-        // When selecting existing customer, fill in phone/name fields
+        // When selecting existing customer, disable manual fields
         document.getElementById('customerSelect')?.addEventListener('change', function () {
+            const phoneInput = document.getElementById('customerPhone');
+            const nameInput = document.getElementById('customerName');
+            
             if (this.value) {
-                // Clear manual fields when existing customer selected
-                document.getElementById('customerPhone').value = '';
-                document.getElementById('customerName').value = '';
+                // Clear and disable manual fields when existing customer selected
+                phoneInput.value = '';
+                nameInput.value = '';
+                phoneInput.disabled = true;
+                nameInput.disabled = true;
+                phoneInput.placeholder = 'Customer selected from dropdown';
+                nameInput.placeholder = 'Customer selected from dropdown';
+            } else {
+                // Re-enable manual fields when dropdown is cleared
+                phoneInput.disabled = false;
+                nameInput.disabled = false;
+                phoneInput.placeholder = 'e.g., 0923471220';
+                nameInput.placeholder = 'Enter customer name';
             }
         });
+
+        // When typing in manual fields, clear dropdown selection
+        function clearCustomerDropdown() {
+            const phoneInput = document.getElementById('customerPhone');
+            const nameInput = document.getElementById('customerName');
+            const customerSelect = document.getElementById('customerSelect');
+            
+            if ((phoneInput.value || nameInput.value) && customerSelect && customerSelect.value) {
+                // Clear dropdown if manual entry is being used
+                const choicesInstance = customerSelect.choicesInstance;
+                if (choicesInstance) {
+                    choicesInstance.setChoiceByValue('');
+                }
+            }
+        }
+
+        document.getElementById('customerPhone')?.addEventListener('input', clearCustomerDropdown);
+        document.getElementById('customerName')?.addEventListener('input', clearCustomerDropdown);
     </script>
 @endsection

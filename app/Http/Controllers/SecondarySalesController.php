@@ -128,7 +128,7 @@ class SecondarySalesController extends Controller
             $customerPhone = $request->customer_phone;
 
             if ($request->filled('customer_id')) {
-                // Customer selected from dropdown
+                // Customer selected from dropdown - USE THIS CUSTOMER, don't create new
                 $customer = Customer::find($request->customer_id);
                 if ($customer) {
                     $customerId = $customer->id;
@@ -136,14 +136,14 @@ class SecondarySalesController extends Controller
                     $customerPhone = $customer->phone_number;
                 }
             } elseif ($request->filled('customer_name') || $request->filled('customer_phone')) {
-                // Manual entry - find or create customer
+                // Manual entry - find or create customer ONLY if not selected from dropdown
                 $customer = null;
                 if ($request->filled('customer_phone')) {
                     $customer = Customer::where('phone_number', $request->customer_phone)->first();
                 }
 
-                if (!$customer) {
-                    // Create new customer with default password
+                if (!$customer && $request->boolean('create_customer', false)) {
+                    // Create new customer only if checkbox is checked
                     $customer = Customer::create([
                         'full_name' => $request->customer_name ?? 'Customer ' . substr($request->customer_phone ?? uniqid(), -6),
                         'phone_number' => $request->customer_phone ?? null,
@@ -151,9 +151,11 @@ class SecondarySalesController extends Controller
                     ]);
                 }
 
-                $customerId = $customer->id;
-                $customerName = $customer->full_name;
-                $customerPhone = $customer->phone_number;
+                if ($customer) {
+                    $customerId = $customer->id;
+                    $customerName = $customer->full_name;
+                    $customerPhone = $customer->phone_number;
+                }
             }
 
             // Generate or reuse batch_token based on customer + draw date
