@@ -11,12 +11,16 @@ class RoutingController extends Controller
 
     public function index(Request $request)
     {
-        return view('dashboards/index');
+        return view('dashboards.index');
     }
 
     public function root(Request $request, $first)
     {
-        // Check if view exists, otherwise return 404
+        // Security check: simple validation
+        if (str_contains($first, '.') || str_contains($first, '/')) {
+            abort(404);
+        }
+
         if (!View::exists($first)) {
             abort(404);
         }
@@ -25,9 +29,13 @@ class RoutingController extends Controller
 
     public function secondLevel(Request $request, $first, $second)
     {
+        // Security check: simple validation
+        if (str_contains($first, '.') || str_contains($second, '.')) {
+            abort(404);
+        }
+
         $viewPath = $first . '.' . $second;
-        
-        // Check if view exists, otherwise return 404
+
         if (!View::exists($viewPath)) {
             abort(404);
         }
@@ -36,9 +44,12 @@ class RoutingController extends Controller
 
     public function thirdLevel(Request $request, $first, $second, $third)
     {
+        if (str_contains($first, '.') || str_contains($second, '.') || str_contains($third, '.')) {
+            abort(404);
+        }
+
         $viewPath = $first . '.' . $second . '.' . $third;
-        
-        // Check if view exists, otherwise return 404
+
         if (!View::exists($viewPath)) {
             abort(404);
         }

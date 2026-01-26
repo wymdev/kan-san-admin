@@ -11,14 +11,17 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Services\SecondarySalesService;
 
 class SecondarySalesController extends Controller
 {
     protected $checkerService;
+    protected $salesService;
 
-    public function __construct(LotteryResultCheckerService $checkerService)
+    public function __construct(LotteryResultCheckerService $checkerService, SecondarySalesService $salesService)
     {
         $this->checkerService = $checkerService;
+        $this->salesService = $salesService;
     }
 
     /**
@@ -122,41 +125,16 @@ class SecondarySalesController extends Controller
         try {
             $ticketIds = $request->secondary_ticket_ids;
 
-            // Handle customer: prioritize dropdown selection, then manual entry
-            $customerId = null;
-            $customerName = $request->customer_name;
-            $customerPhone = $request->customer_phone;
+            // Handle customer using service
+            $customer = $this->salesService->findOrCreateCustomer([
+                'customer_id' => $request->customer_id,
+                'customer_name' => $request->customer_name,
+                'customer_phone' => $request->customer_phone,
+            ], $request->boolean('create_customer', false));
 
-            if ($request->filled('customer_id')) {
-                // Customer selected from dropdown - USE THIS CUSTOMER, don't create new
-                $customer = Customer::find($request->customer_id);
-                if ($customer) {
-                    $customerId = $customer->id;
-                    $customerName = $customer->full_name;
-                    $customerPhone = $customer->phone_number;
-                }
-            } elseif ($request->filled('customer_name') || $request->filled('customer_phone')) {
-                // Manual entry - find or create customer ONLY if not selected from dropdown
-                $customer = null;
-                if ($request->filled('customer_phone')) {
-                    $customer = Customer::where('phone_number', $request->customer_phone)->first();
-                }
-
-                if (!$customer && $request->boolean('create_customer', false)) {
-                    // Create new customer only if checkbox is checked
-                    $customer = Customer::create([
-                        'full_name' => $request->customer_name ?? 'Customer ' . substr($request->customer_phone ?? uniqid(), -6),
-                        'phone_number' => $request->customer_phone ?? null,
-                        'password' => bcrypt('123456'), // Default password
-                    ]);
-                }
-
-                if ($customer) {
-                    $customerId = $customer->id;
-                    $customerName = $customer->full_name;
-                    $customerPhone = $customer->phone_number;
-                }
-            }
+            $customerId = $customer?->id;
+            $customerName = $customer?->full_name ?? $request->customer_name;
+            $customerPhone = $customer?->phone_number ?? $request->customer_phone;
 
             // Generate or reuse batch_token based on customer + draw date
             // Find if customer already has transactions for the same draw date
@@ -194,7 +172,7 @@ class SecondarySalesController extends Controller
                 }
 
                 $transaction = SecondarySalesTransaction::create([
-                    'transaction_number' => $this->generateTransactionNumber(),
+                    'transaction_number' => $this->salesService->generateTransactionNumber(),
                     'secondary_ticket_id' => $ticketId,
                     'customer_id' => $customerId,
                     'customer_name' => $customerName,
@@ -293,34 +271,32 @@ class SecondarySalesController extends Controller
             // Handle customer creation/update
             $customerId = null;
             if ($request->filled('customer_name') || $request->filled('customer_phone')) {
-                // Try to find existing customer by phone first
-                $customer = null;
-                if ($request->filled('customer_phone')) {
-                    $customer = Customer::where('phone_number', $request->customer_phone)->first();
-                }
+                // Use service to find or create
+                $customer = $this->salesService->findOrCreateCustomer([
+                    'customer_name' => $request->customer_name,
+                    'customer_phone' => $request->customer_phone,
+                ], true); // Always create if not found in update context if needed, or refine logic?
 
-                if (!$customer) {
-                    // Create new customer with default password
-                    $customer = Customer::create([
-                        'full_name' => $request->customer_name ?? 'Customer ' . substr($request->customer_phone ?? uniqid(), -6),
-                        'phone_number' => $request->customer_phone ?? null,
-                        'password' => bcrypt('123456'), // Default password
-                    ]);
-                } else {
+                // NOTE: The original logic allowed updating customer details. 
+                // The service mainly finds or creates. 
+                // We should keep the update logic here or move it to service too?
+                // For now, let's keep the update logic simplified or reuse the service carefully.
+                // Actually, original logic *updates* the customer if found. Service just finds/creates.
+
+                if ($customer) {
                     // Update existing customer info if provided
                     $updateData = [];
-                    if ($request->filled('customer_name')) {
+                    if ($request->filled('customer_name') && $customer->full_name !== $request->customer_name) {
                         $updateData['full_name'] = $request->customer_name;
                     }
-                    if ($request->filled('customer_phone')) {
+                    if ($request->filled('customer_phone') && $customer->phone_number !== $request->customer_phone) {
                         $updateData['phone_number'] = $request->customer_phone;
                     }
                     if (!empty($updateData)) {
                         $customer->update($updateData);
                     }
+                    $customerId = $customer->id;
                 }
-
-                $customerId = $customer->id;
             }
 
             $secondaryTransaction->update([
@@ -538,54 +514,7 @@ class SecondarySalesController extends Controller
         }
 
         $transactions = $query->latest('purchased_at')->get();
-
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="secondary_transactions_' . date('Y-m-d_H-i-s') . '.csv"',
-        ];
-
-        $callback = function () use ($transactions) {
-            $file = fopen('php://output', 'w');
-
-            fputcsv($file, [
-                'Transaction Number',
-                'Ticket Number',
-                'Customer Name',
-                'Customer Phone',
-                'Purchased At',
-                'Amount',
-                'Status',
-                'Prize Won',
-                'Draw Date',
-                'Paid',
-                'Payment Method',
-                'Payment Date',
-                'Notes',
-            ]);
-
-            // Data rows
-            foreach ($transactions as $t) {
-                fputcsv($file, [
-                    $t->transaction_number,
-                    $t->secondaryTicket?->ticket_number ?? '-',
-                    $t->customer_display_name,
-                    $t->customer_display_phone,
-                    $t->purchased_at?->format('Y-m-d H:i'),
-                    $t->amount,
-                    $t->status,
-                    $t->prize_won ?? '-',
-                    $t->drawResult?->date_en ?? '-',
-                    $t->is_paid ? 'Yes' : 'No',
-                    $t->payment_method ?? '-',
-                    $t->payment_date?->format('Y-m-d H:i') ?? '-',
-                    $t->notes ?? '-',
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return $this->salesService->exportTransactions($transactions);
     }
 
     /**
@@ -607,28 +536,7 @@ class SecondarySalesController extends Controller
         return response()->json($customers);
     }
 
-    private function generateTransactionNumber()
-    {
-        $prefix = date('ym');
 
-        // Find the latest transaction number with this prefix
-        $latestTransaction = DB::table('secondary_sales_transactions')
-            ->where('transaction_number', 'like', $prefix . '%')
-            ->orderByRaw('LENGTH(transaction_number) DESC') // Order by length first to handle variable digits
-            ->orderBy('transaction_number', 'desc')
-            ->value('transaction_number');
-
-        if (!$latestTransaction) {
-            return $prefix . '00001';
-        }
-
-        // Extract the sequence number and increment
-        // Assuming format YYMMXXXXX where X is the sequence
-        $numericPart = (int) substr($latestTransaction, strlen($prefix));
-        $nextSequence = $numericPart + 1;
-
-        return $prefix . str_pad($nextSequence, 5, '0', STR_PAD_LEFT);
-    }
 
     private function generateSuccessMessage(SecondarySalesTransaction $transaction)
     {

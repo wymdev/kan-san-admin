@@ -222,6 +222,7 @@ Route::middleware(['auth', 'otp.verified', 'sanitizeInput', 'fileTypeCheck'])->g
      // ========================================
 
      // Catch-all routing
+     // Re-enabled with basic security checks in controller
      Route::get('/{first}', [RoutingController::class, 'root'])->name('first');
      Route::get('/{first}/{second}', [RoutingController::class, 'secondLevel'])->name('second');
      Route::get('/{first}/{second}/{third}', [RoutingController::class, 'thirdLevel'])->name('third');
