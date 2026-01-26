@@ -35,37 +35,37 @@ class DrawResultController extends Controller
     public function index(Request $request)
     {
         $query = DrawResult::query();
-        
+
         // Search filter
         if ($request->filled('search')) {
-            $query->where(function($q) use ($request) {
-                $q->where('date_th', 'like', '%'.$request->search.'%')
-                  ->orWhere('date_en', 'like', '%'.$request->search.'%');
+            $query->where(function ($q) use ($request) {
+                $q->where('date_th', 'like', '%' . $request->search . '%')
+                    ->orWhere('date_en', 'like', '%' . $request->search . '%');
             });
         }
-        
+
         // Draw date filter
         if ($request->filled('draw_date')) {
             $query->whereDate('draw_date', $request->draw_date);
         }
-        
+
         // Year filter
         if ($request->filled('year')) {
             $query->whereYear('draw_date', $request->year);
         }
-        
+
         // Month filter
         if ($request->filled('month')) {
             $query->whereMonth('draw_date', $request->month);
         }
-        
+
         // Sort
         $sortBy = $request->get('sort_by', 'draw_date');
         $sortDir = $request->get('sort_dir', 'desc');
         $query->orderBy($sortBy, $sortDir);
-        
+
         $results = $query->paginate(15);
-        
+
         // Get available years for filter
         $years = DrawResult::selectRaw('YEAR(draw_date) as year')
             ->distinct()
@@ -88,7 +88,7 @@ class DrawResultController extends Controller
     public function showDetail($id)
     {
         $result = DrawResult::findOrFail($id);
-        
+
         // Process and sort prizes
         $prizesData = $this->ensureArray($result->prizes);
         $prizes = array_map(function ($p) {
@@ -96,16 +96,16 @@ class DrawResultController extends Controller
             $p['order'] = $this->prizeOrder[$p['name']] ?? 999;
             return $p;
         }, $prizesData);
-        
+
         usort($prizes, fn($a, $b) => $a['order'] <=> $b['order']);
-        
+
         // Process running numbers
         $runningData = $this->ensureArray($result->running_numbers);
         $running_numbers = array_map(function ($r) {
             $r['name'] = $this->nameMapping[$r['name']] ?? $r['name'];
             return $r;
         }, $runningData);
-        
+
         return view('draw_results.show', compact('result', 'prizes', 'running_numbers'));
     }
 
@@ -113,7 +113,7 @@ class DrawResultController extends Controller
     public function show($id)
     {
         $result = DrawResult::findOrFail($id);
-        
+
         // Process and sort prizes
         $prizesData = $this->ensureArray($result->prizes);
         $prizes = array_map(function ($p) {
@@ -121,16 +121,16 @@ class DrawResultController extends Controller
             $p['order'] = $this->prizeOrder[$p['name']] ?? 999;
             return $p;
         }, $prizesData);
-        
+
         usort($prizes, fn($a, $b) => $a['order'] <=> $b['order']);
-        
+
         // Process running numbers
         $runningData = $this->ensureArray($result->running_numbers);
         $running_numbers = array_map(function ($r) {
             $r['name'] = $this->nameMapping[$r['name']] ?? $r['name'];
             return $r;
         }, $runningData);
-        
+
         return response()->json([
             'date_en' => $result->date_en,
             'date_th' => $result->date_th,
@@ -169,13 +169,13 @@ class DrawResultController extends Controller
     {
         try {
             $response = Http::timeout(30)->get('https://lotto.api.rayriffy.com/latest');
-            
+
             if (!$response->ok()) {
                 return back()->with('error', 'Failed to fetch data from API');
             }
-            
+
             $data = $response->json('response');
-            
+
             if (!$data || !isset($data['date'], $data['prizes'])) {
                 return back()->with('error', 'Invalid data format from API');
             }
@@ -184,12 +184,12 @@ class DrawResultController extends Controller
             if (!$this->hasValidPrizeData($data['prizes'])) {
                 return back()->with('warning', 'Lottery results not yet announced. Prizes data contains only placeholders.');
             }
-            
+
             $drawDate = $this->parseApiDate($data['date']);
-            
+
             // Check if record exists and update, otherwise create
             $existingResult = DrawResult::whereDate('draw_date', $drawDate)->first();
-            
+
             if ($existingResult) {
                 $existingResult->update([
                     'date_th' => $data['date'],
@@ -208,7 +208,7 @@ class DrawResultController extends Controller
                     'endpoint' => $data['endpoint'] ?? null,
                 ]);
             }
-            
+
             return back()->with('success', 'Latest lottery result synced successfully.');
         } catch (\Exception $e) {
             return back()->with('error', 'Error: ' . $e->getMessage());
@@ -220,22 +220,52 @@ class DrawResultController extends Controller
     {
         try {
             set_time_limit(300); // 5 minutes
-            
-            $list = Http::timeout(30)->get('https://lotto.api.rayriffy.com/list/1')->json('response');
-            
-            if (!is_array($list)) {
+
+            // 1. Fetch the full list
+            $listResponse = Http::timeout(30)->get('https://lotto.api.rayriffy.com/list/1');
+
+            if (!$listResponse->ok()) {
                 return back()->with('error', 'Failed to fetch list from API');
             }
-            
+
+            $list = $listResponse->json('response');
+
+            if (!is_array($list)) {
+                return back()->with('error', 'Invalid list format from API');
+            }
+
             $imported = 0;
             $skipped = 0;
             $failed = 0;
-            
+            $alreadyExists = 0;
+
             foreach ($list as $entry) {
                 try {
-                    $api = Http::timeout(30)->get('https://lotto.api.rayriffy.com/lotto/' . $entry['id']);
+                    // Optimization: Check if we already have this valid result using the date from the list
+                    // The list has "date" like "1 กุมภาพันธ์ 2569"
+                    $parsedDate = $this->parseApiDate($entry['date']);
+                    $existing = DrawResult::whereDate('draw_date', $parsedDate)->first();
+
+                    // Logic: 
+                    // 1. If result is recent (last 3 months), always fetch/update to catch corrections.
+                    // 2. If result is old (> 3 months) AND we have a valid local copy, skip it to save time.
+                    $isRecent = \Carbon\Carbon::parse($parsedDate)->gt(now()->subMonths(3));
+
+                    if (!$isRecent && $existing && $this->hasValidPrizeData($this->ensureArray($existing->prizes))) {
+                        $alreadyExists++;
+                        continue;
+                    }
+
+                    // Fetch details (if recent OR missing/invalid)
+                    $api = Http::timeout(20)->get('https://lotto.api.rayriffy.com/lotto/' . $entry['id']);
+
+                    if (!$api->ok()) {
+                        $failed++;
+                        continue;
+                    }
+
                     $res = $api->json('response');
-                    
+
                     if (!is_array($res) || !isset($res['date'], $res['prizes'])) {
                         $failed++;
                         continue;
@@ -246,14 +276,12 @@ class DrawResultController extends Controller
                         $skipped++;
                         continue;
                     }
-                    
+
                     $draw_date = $this->parseApiDate($res['date']);
-                    
+
                     // Check if record exists and update, otherwise create
-                    $existingResult = DrawResult::whereDate('draw_date', $draw_date)->first();
-                    
-                    if ($existingResult) {
-                        $existingResult->update([
+                    if ($existing) {
+                        $existing->update([
                             'date_th' => $res['date'],
                             'date_en' => $this->translateThaiDate($res['date']),
                             'prizes' => $res['prizes'],
@@ -270,21 +298,28 @@ class DrawResultController extends Controller
                             'endpoint' => $res['endpoint'] ?? null,
                         ]);
                     }
-                    
+
                     $imported++;
+                    // Small delay to be nice to the API
+                    usleep(100000); // 0.1s
+
                 } catch (\Exception $e) {
                     $failed++;
                 }
             }
-            
-            $message = "Imported {$imported} draw results successfully.";
+
+            $message = "Sync Complete: {$imported} imported/updated.";
+
+            if ($alreadyExists > 0) {
+                $message .= " | {$alreadyExists} up-to-date (skipped).";
+            }
             if ($skipped > 0) {
-                $message .= " {$skipped} skipped (no valid prize data).";
+                $message .= " | {$skipped} skipped (invalid data).";
             }
             if ($failed > 0) {
-                $message .= " {$failed} failed.";
+                $message .= " | {$failed} failed.";
             }
-            
+
             return back()->with('success', $message);
         } catch (\Exception $e) {
             return back()->with('error', 'Error: ' . $e->getMessage());
@@ -295,12 +330,22 @@ class DrawResultController extends Controller
     private function parseApiDate($thaiDate)
     {
         $months = [
-            "มกราคม"=>"01","กุมภาพันธ์"=>"02","มีนาคม"=>"03","เมษายน"=>"04",
-            "พฤษภาคม"=>"05","มิถุนายน"=>"06","กรกฎาคม"=>"07","สิงหาคม"=>"08",
-            "กันยายน"=>"09","ตุลาคม"=>"10","พฤศจิกายน"=>"11","ธันวาคม"=>"12"
+            "มกราคม" => "01",
+            "กุมภาพันธ์" => "02",
+            "มีนาคม" => "03",
+            "เมษายน" => "04",
+            "พฤษภาคม" => "05",
+            "มิถุนายน" => "06",
+            "กรกฎาคม" => "07",
+            "สิงหาคม" => "08",
+            "กันยายน" => "09",
+            "ตุลาคม" => "10",
+            "พฤศจิกายน" => "11",
+            "ธันวาคม" => "12"
         ];
         preg_match('/(\d{1,2}) (\S+) (\d{4})/', $thaiDate, $m);
-        if (count($m) !== 4) return $thaiDate;
+        if (count($m) !== 4)
+            return $thaiDate;
         $y = intval($m[3]) > 2400 ? intval($m[3]) - 543 : intval($m[3]);
         return "$y-{$months[$m[2]]}-" . str_pad($m[1], 2, '0', STR_PAD_LEFT);
     }
@@ -309,18 +354,29 @@ class DrawResultController extends Controller
     public function translateThaiDate($thaiDate)
     {
         $months = [
-            "มกราคม"=>"January","กุมภาพันธ์"=>"February","มีนาคม"=>"March","เมษายน"=>"April",
-            "พฤษภาคม"=>"May","มิถุนายน"=>"June","กรกฎาคม"=>"July","สิงหาคม"=>"August",
-            "กันยายน"=>"September","ตุลาคม"=>"October","พฤศจิกายน"=>"November","ธันวาคม"=>"December"
+            "มกราคม" => "January",
+            "กุมภาพันธ์" => "February",
+            "มีนาคม" => "March",
+            "เมษายน" => "April",
+            "พฤษภาคม" => "May",
+            "มิถุนายน" => "June",
+            "กรกฎาคม" => "July",
+            "สิงหาคม" => "August",
+            "กันยายน" => "September",
+            "ตุลาคม" => "October",
+            "พฤศจิกายน" => "November",
+            "ธันวาคม" => "December"
         ];
         $en = $thaiDate;
-        foreach($months as $th=>$enMonth) $en = str_replace($th, $enMonth, $en);
+        foreach ($months as $th => $enMonth)
+            $en = str_replace($th, $enMonth, $en);
         if (preg_match('/(\d{1,2}) (\w+) (\d{4})/', $en, $parts)) {
             $year = intval($parts[3]);
-            if ($year > 2400) $year -= 543;
+            if ($year > 2400)
+                $year -= 543;
             $en = "{$parts[1]} {$parts[2]} {$year}";
         }
         return $en;
     }
-    
+
 }

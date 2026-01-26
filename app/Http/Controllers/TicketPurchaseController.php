@@ -21,7 +21,7 @@ class TicketPurchaseController extends Controller
         $this->middleware('permission:payment-check', ['only' => ['index', 'show']]);
         $this->middleware('permission:payment-approve', ['only' => ['approve', 'reject']]);
         $this->middleware('permission:lottery-check', ['only' => ['checkResults', 'bulkNotifyResults']]);
-        
+
         $this->pushService = $pushService;
         $this->checkerService = $checkerService;
     }
@@ -49,12 +49,15 @@ class TicketPurchaseController extends Controller
 
         // Search
         if ($search = $request->input('search')) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('order_number', 'like', "%$search%")
-                  ->orWhereHas('customer', function($cq) use ($search) {
-                      $cq->where('full_name', 'like', "%$search%")
-                         ->orWhere('phone_number', 'like', "%$search%");
-                  });
+                    ->orWhereHas('customer', function ($cq) use ($search) {
+                        $cq->where('full_name', 'like', "%$search%")
+                            ->orWhere('phone_number', 'like', "%$search%");
+                    })
+                    ->orWhereHas('lotteryTicket', function ($tq) use ($search) {
+                        $tq->whereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(numbers, '\"', ''), '[', ''), ']', ''), ',', ''), ' ', '') LIKE ?", ["%$search%"]);
+                    });
             });
         }
 
@@ -67,10 +70,10 @@ class TicketPurchaseController extends Controller
         }
 
         $purchases = $query->latest()->paginate(20)->appends($request->query());
-        
+
         // Get statistics
         $stats = $this->checkerService->getStatistics();
-        
+
         return view('tickets.purchases.index', compact('purchases', 'stats'));
     }
 
@@ -130,7 +133,7 @@ class TicketPurchaseController extends Controller
         }
 
         return redirect()->route('purchases.index')
-                         ->with('success', 'Purchase approved successfully!');
+            ->with('success', 'Purchase approved successfully!');
     }
 
     /**
@@ -155,7 +158,7 @@ class TicketPurchaseController extends Controller
         ]);
 
         $customer = $purchase->customer;
-        
+
         // Block customer if requested
         if ($request->boolean('block_customer') && $customer) {
             $customer->update([
@@ -164,7 +167,7 @@ class TicketPurchaseController extends Controller
                 'blocked_by' => auth()->id(),
                 'block_reason' => 'Scammer - ' . $request->rejection_reason,
             ]);
-            
+
             $successMessage = 'Purchase rejected and customer account blocked for fraud.';
         } else {
             $successMessage = 'Purchase rejected.';
@@ -196,7 +199,7 @@ class TicketPurchaseController extends Controller
         }
 
         return redirect()->route('purchases.index')
-                         ->with('success', $successMessage);
+            ->with('success', $successMessage);
     }
 
     /**
@@ -209,9 +212,9 @@ class TicketPurchaseController extends Controller
 
             // Return with appropriate flash message type
             $flashType = $result['type'] ?? 'info'; // success, error, warning, info
-            
+
             return redirect()->back()->with($flashType, $result['message']);
-            
+
         } catch (\Exception $e) {
             \Log::error('Check Results Error: ' . $e->getMessage());
             \Log::error($e->getTraceAsString());
@@ -242,7 +245,7 @@ class TicketPurchaseController extends Controller
 
             foreach ($recentlyChecked as $purchase) {
                 $customer = $purchase->customer;
-                
+
                 if (!$customer || !$customer->expo_push_token) {
                     $failedCount++;
                     continue;
@@ -279,7 +282,7 @@ class TicketPurchaseController extends Controller
                 ];
 
                 $sent = $this->pushService->sendSingleNotification($message, $customer->id);
-                
+
                 if ($sent) {
                     $sentCount++;
                 } else {
@@ -291,17 +294,17 @@ class TicketPurchaseController extends Controller
             }
 
             $message = "📢 Successfully sent <strong>{$sentCount}</strong> notification(s)";
-            
+
             if (count($winners) > 0) {
                 $message .= " | 🎉 <strong>" . count($winners) . "</strong> winner(s) notified";
             }
-            
+
             if ($failedCount > 0) {
                 $message .= " | ⚠️ <strong>{$failedCount}</strong> failed (no push token)";
             }
 
             return redirect()->back()->with('success', $message);
-            
+
         } catch (\Exception $e) {
             \Log::error('Bulk Notify Error: ' . $e->getMessage());
             return redirect()->back()->with('error', '❌ Error sending notifications: ' . $e->getMessage());
@@ -316,7 +319,7 @@ class TicketPurchaseController extends Controller
         try {
             $stats = $this->checkerService->getStatistics();
             $statusGroups = $this->checkerService->getPurchasesByDrawStatus();
-            
+
             // Paginate ready to check
             $readyToCheckCollection = $statusGroups['ready_to_check'];
             $perPage = 20;
@@ -336,16 +339,16 @@ class TicketPurchaseController extends Controller
                 ->get();
 
             return view('tickets.purchases.check-results', compact(
-                'stats', 
-                'readyToCheck', 
+                'stats',
+                'readyToCheck',
                 'statusGroups',
                 'recentWinners'
             ));
-            
+
         } catch (\Exception $e) {
             \Log::error('Check Results Page Error: ' . $e->getMessage());
             return redirect()->route('purchases.index')
-                           ->with('error', '❌ Error loading check results page: ' . $e->getMessage());
+                ->with('error', '❌ Error loading check results page: ' . $e->getMessage());
         }
     }
 

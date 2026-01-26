@@ -39,6 +39,20 @@ class SecondarySalesController extends Controller
                 'draw_results.date_en as draw_date'
             );
 
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                // Transaction Number
+                $q->where('secondary_sales_transactions.transaction_number', 'like', "%$search%")
+                    // Customer
+                    ->orWhereHas('customer', function ($cq) use ($search) {
+                        $cq->where('full_name', 'like', "%$search%")
+                            ->orWhere('phone_number', 'like', "%$search%");
+                    })
+                    // Ticket Number (JSON fix)
+                    ->orWhereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(secondary_lottery_tickets.numbers, '\"', ''), '[', ''), ']', ''), ',', ''), ' ', '') LIKE ?", ["%$search%"]);
+            });
+        }
+
         // Apply filters
         if ($status = $request->input('status')) {
             $query->where('secondary_sales_transactions.status', $status);

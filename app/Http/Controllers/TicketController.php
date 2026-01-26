@@ -29,7 +29,9 @@ class TicketController extends Controller
                     ->orWhere('ticket_name', 'like', "%$search%")
                     ->orWhere('signature', 'like', "%$search%")
                     ->orWhere('period', 'like', "%$search%")
-                    ->orWhere('big_num', 'like', "%$search%");
+                    ->orWhere('big_num', 'like', "%$search%")
+                    // Search within JSON numbers array
+                    ->orWhereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(numbers, '\"', ''), '[', ''), ']', ''), ',', ''), ' ', '') LIKE ?", ["%$search%"]);
             });
         }
         if ($ticketType = $request->input('ticket_type')) {
