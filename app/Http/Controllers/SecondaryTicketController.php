@@ -30,8 +30,8 @@ class SecondaryTicketController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('bar_code', 'like', "%{$search}%")
                     ->orWhere('source_seller', 'like', "%{$search}%")
-                    // Search numbers field as string since it's stored as JSON
-                    ->orWhere('numbers', 'like', "%{$search}%");
+                    // Search within JSON array ["1","2",...] by stripping format chars
+                    ->orWhereRaw("REPLACE(REPLACE(REPLACE(REPLACE(numbers, '\"', ''), '[', ''), ']', ''), ',', '') LIKE ?", ["%{$search}%"]);
             });
         }
 
