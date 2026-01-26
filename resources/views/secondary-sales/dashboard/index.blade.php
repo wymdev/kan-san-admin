@@ -184,6 +184,7 @@
                 <div class="min-w-0">
                     <p class="stat-label">Revenue</p>
                     <p class="stat-value text-emerald-600">฿{{ number_format($revenueStats['period_revenue'], 0) }}</p>
+                    <p class="stat-subvalue text-emerald-500">{{ number_format($revenueStats['period_revenue_mmk'] ?? 0, 0) }} K</p>
                     @if($revenueStats['revenue_change'] != 0)
                         <span class="text-xs {{ $revenueStats['revenue_change'] > 0 ? 'text-emerald-500' : 'text-rose-500' }}">
                             {{ $revenueStats['revenue_change'] > 0 ? '+' : '' }}{{ $revenueStats['revenue_change'] }}%
@@ -214,6 +215,7 @@
                 <div class="min-w-0">
                     <p class="stat-label">Unpaid</p>
                     <p class="stat-value text-rose-600">฿{{ number_format($paymentStats['total_pending'], 0) }}</p>
+                    <p class="stat-subvalue text-rose-500">{{ number_format($paymentStats['total_pending_mmk'] ?? 0, 0) }} K</p>
                     <span class="text-xs text-gray-500">{{ $paymentStats['unpaid_count'] }} txn</span>
                 </div>
             </div>
@@ -329,11 +331,13 @@
                 <div class="grid grid-cols-2 gap-3 mb-6">
                     <div class="stat-box bg-emerald-50 dark:bg-emerald-900/20">
                         <h5 class="text-xl font-bold text-emerald-600">฿{{ number_format($paymentStats['total_collected'], 0) }}</h5>
+                        <p class="text-sm font-semibold text-emerald-500">{{ number_format($paymentStats['total_collected_mmk'] ?? 0, 0) }} K</p>
                         <p class="text-sm text-emerald-600">Collected</p>
                         <p class="text-xs text-gray-500 mt-1">{{ $paymentStats['paid_count'] }} txn</p>
                     </div>
                     <div class="stat-box bg-rose-50 dark:bg-rose-900/20">
                         <h5 class="text-xl font-bold text-rose-600">฿{{ number_format($paymentStats['total_pending'], 0) }}</h5>
+                        <p class="text-sm font-semibold text-rose-500">{{ number_format($paymentStats['total_pending_mmk'] ?? 0, 0) }} K</p>
                         <p class="text-sm text-rose-600">Pending</p>
                         <p class="text-xs text-gray-500 mt-1">{{ $paymentStats['unpaid_count'] }} txn</p>
                     </div>

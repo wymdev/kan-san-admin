@@ -592,6 +592,7 @@ class LotteryResultCheckerService
             'paid' => SecondarySalesTransaction::where('is_paid', true)->count(),
             'unpaid' => SecondarySalesTransaction::where('is_paid', false)->count(),
             'unpaid_amount' => SecondarySalesTransaction::where('is_paid', false)->sum('amount_thb'),
+            'unpaid_amount_mmk' => SecondarySalesTransaction::where('is_paid', false)->sum('amount_mmk'),
             'latest_draw_date' => $latestDraw ? Carbon::parse($latestDraw->draw_date)->format('M d, Y') : 'N/A',
         ];
     }

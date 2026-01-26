@@ -61,9 +61,15 @@ class SecondarySalesDashboardController extends Controller
             'total_collected' => SecondarySalesTransaction::where('is_paid', true)
                 ->whereBetween('purchased_at', [$dateFrom, $dateTo . ' 23:59:59'])
                 ->sum('amount_thb'),
+            'total_collected_mmk' => SecondarySalesTransaction::where('is_paid', true)
+                ->whereBetween('purchased_at', [$dateFrom, $dateTo . ' 23:59:59'])
+                ->sum('amount_mmk'),
             'total_pending' => SecondarySalesTransaction::where('is_paid', false)
                 ->whereBetween('purchased_at', [$dateFrom, $dateTo . ' 23:59:59'])
                 ->sum('amount_thb'),
+            'total_pending_mmk' => SecondarySalesTransaction::where('is_paid', false)
+                ->whereBetween('purchased_at', [$dateFrom, $dateTo . ' 23:59:59'])
+                ->sum('amount_mmk'),
             'paid_count' => SecondarySalesTransaction::where('is_paid', true)
                 ->whereBetween('purchased_at', [$dateFrom, $dateTo . ' 23:59:59'])
                 ->count(),
@@ -113,11 +119,19 @@ class SecondarySalesDashboardController extends Controller
             ? (($periodRevenue - $previousPeriodRevenue) / $previousPeriodRevenue) * 100
             : 0;
 
+        // Calculate MMK stats
+        $periodRevenueMmk = SecondarySalesTransaction::whereBetween('purchased_at', [$dateFrom, $dateTo . ' 23:59:59'])
+            ->sum('amount_mmk');
+
+        $totalRevenueMmk = SecondarySalesTransaction::sum('amount_mmk');
+
         return [
             'period_revenue' => $periodRevenue,
+            'period_revenue_mmk' => $periodRevenueMmk, // Added
             'previous_revenue' => $previousPeriodRevenue,
             'revenue_change' => round($revenueChange, 1),
             'total_revenue' => SecondarySalesTransaction::sum('amount_thb'),
+            'total_revenue_mmk' => $totalRevenueMmk, // Added
             'average_transaction' => SecondarySalesTransaction::whereBetween('purchased_at', [$dateFrom, $dateTo . ' 23:59:59'])
                 ->avg('amount_thb') ?? 0,
             'transaction_count' => SecondarySalesTransaction::whereBetween('purchased_at', [$dateFrom, $dateTo . ' 23:59:59'])
