@@ -20,9 +20,9 @@ class UserController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:user-list|user-create|user-edit|user-delete', ['only' => ['index','show']]);
-        $this->middleware('permission:user-create', ['only' => ['create','store']]);
-        $this->middleware('permission:user-edit', ['only' => ['edit','update']]);
+        $this->middleware('permission:user-list|user-create|user-edit|user-delete', ['only' => ['index', 'show']]);
+        $this->middleware('permission:user-create', ['only' => ['create', 'store']]);
+        $this->middleware('permission:user-edit', ['only' => ['edit', 'update']]);
         $this->middleware('permission:user-delete', ['only' => ['destroy']]);
     }
 
@@ -32,16 +32,16 @@ class UserController extends Controller
     public function index(Request $request): View
     {
         $search = $request->input('search', '');
-        
+
         $query = User::query();
-        
+
         if (!empty($search)) {
             $query->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('email', 'like', '%' . $search . '%');
+                ->orWhere('email', 'like', '%' . $search . '%');
         }
-        
-        $users = $query->orderBy('id', 'DESC')->paginate(5);
-        
+
+        $users = $query->latest()->paginate(5);
+
         return view('misc.admin.index', compact('users', 'search'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
@@ -51,8 +51,8 @@ class UserController extends Controller
      */
     public function create(): View
     {
-        $roles = Role::pluck('name','name')->all();
-        
+        $roles = Role::pluck('name', 'name')->all();
+
         return view('misc.admin.create', compact('roles'));
     }
 
@@ -102,7 +102,7 @@ class UserController extends Controller
     public function show($id): View
     {
         $user = User::findOrFail($id);
-        
+
         return view('misc.admin.show', compact('user'));
     }
 
@@ -112,8 +112,8 @@ class UserController extends Controller
     public function edit($id): View
     {
         $user = User::findOrFail($id);
-        $roles = Role::pluck('name','name')->all();
-        $userRole = $user->roles->pluck('name','name')->all();
+        $roles = Role::pluck('name', 'name')->all();
+        $userRole = $user->roles->pluck('name', 'name')->all();
 
         return view('misc.admin.edit', compact('user', 'roles', 'userRole'));
     }

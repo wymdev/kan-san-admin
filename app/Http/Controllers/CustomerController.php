@@ -21,9 +21,9 @@ class CustomerController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:customer-list|customer-create|customer-edit|customer-delete', ['only' => ['index','show']]);
-        $this->middleware('permission:customer-create', ['only' => ['create','store']]);
-        $this->middleware('permission:customer-edit', ['only' => ['edit','update']]);
+        $this->middleware('permission:customer-list|customer-create|customer-edit|customer-delete', ['only' => ['index', 'show']]);
+        $this->middleware('permission:customer-create', ['only' => ['create', 'store']]);
+        $this->middleware('permission:customer-edit', ['only' => ['edit', 'update']]);
         $this->middleware('permission:customer-delete', ['only' => ['destroy']]);
     }
 
@@ -33,17 +33,17 @@ class CustomerController extends Controller
     public function index(Request $request): View
     {
         $search = $request->input('search', '');
-        
+
         $query = Customer::query();
-        
+
         if (!empty($search)) {
             $query->where('phone_number', 'like', '%' . $search . '%')
-                  ->orWhere('full_name', 'like', '%' . $search . '%')
-                  ->orWhere('email', 'like', '%' . $search . '%');
+                ->orWhere('full_name', 'like', '%' . $search . '%')
+                ->orWhere('email', 'like', '%' . $search . '%');
         }
-        
-        $customers = $query->orderBy('id', 'DESC')->paginate(5);
-        
+
+        $customers = $query->latest()->paginate(5);
+
         return view('customers.index', compact('customers', 'search'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
@@ -116,7 +116,7 @@ class CustomerController extends Controller
         $monthlyData = $customer->monthlyPurchases(6);
         $monthlyLabels = $monthlyData->pluck('month')->toArray();
         $monthlyWins = $monthlyData->pluck('wins')->toArray();
-        $monthlySpent = $monthlyData->pluck('total_spent')->map(fn($v) => (float)$v)->toArray();
+        $monthlySpent = $monthlyData->pluck('total_spent')->map(fn($v) => (float) $v)->toArray();
 
         $winLossTrend = $customer->winLossTrend();
 
@@ -149,7 +149,7 @@ class CustomerController extends Controller
                 unset($requestData['password']);
                 unset($requestData['password_confirmation']);
             }
-            
+
             // Merge back the cleaned data
             $request->merge($requestData);
 
@@ -163,7 +163,7 @@ class CustomerController extends Controller
                 'thai_pin' => 'nullable|string|unique:customers,thai_pin,' . $id,
                 'address' => 'nullable|string|max:500',
             ];
-            
+
             // Only add password validation if password is being changed
             if ($request->has('password') && !empty($request->password)) {
                 $rules['password'] = 'required|string|min:8|confirmed';

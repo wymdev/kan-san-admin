@@ -29,8 +29,9 @@ class SecondaryTicketController extends Controller
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('bar_code', 'like', "%{$search}%")
-                  ->orWhere('source_seller', 'like', "%{$search}%")
-                  ->orWhereRaw("JSON_EXTRACT(numbers, '$') LIKE ?", ["%{$search}%"]);
+                    ->orWhere('source_seller', 'like', "%{$search}%")
+                    // Search numbers field as string since it's stored as JSON
+                    ->orWhere('numbers', 'like', "%{$search}%");
             });
         }
 
@@ -104,17 +105,17 @@ class SecondaryTicketController extends Controller
         // Parse numbers - can be comma-separated for multiple tickets
         $numbersInput = $request->input('numbers');
         $numbersArray = array_map('trim', explode(',', $numbersInput));
-        
+
         $batchNumber = $request->input('batch_number');
         $createdTickets = [];
-        
+
         foreach ($numbersArray as $numberStr) {
             $numberStr = preg_replace('/\D/', '', $numberStr); // Remove non-digits
-            
+
             if (strlen($numberStr) >= 6) {
                 // Store as array of individual digits (like primary tickets)
                 $digits = str_split(substr($numberStr, 0, 6));
-                
+
                 $ticket = SecondaryLotteryTicket::create([
                     'batch_number' => $batchNumber,
                     'ticket_name' => $request->input('ticket_name', 'Secondary Ticket'),
@@ -132,7 +133,7 @@ class SecondaryTicketController extends Controller
                     'notes' => $request->input('notes'),
                     'created_by' => auth()->id(),
                 ]);
-                
+
                 $createdTickets[] = $ticket;
             }
         }
@@ -141,8 +142,8 @@ class SecondaryTicketController extends Controller
             return back()->withInput()->with('error', 'No valid 6-digit numbers found. Please enter valid lottery numbers.');
         }
 
-        $message = count($createdTickets) === 1 
-            ? 'Ticket created successfully!' 
+        $message = count($createdTickets) === 1
+            ? 'Ticket created successfully!'
             : count($createdTickets) . ' tickets created successfully!';
 
         return redirect()->route('secondary-tickets.index')->with('success', $message);
@@ -154,7 +155,7 @@ class SecondaryTicketController extends Controller
     public function show(SecondaryLotteryTicket $secondaryTicket)
     {
         $secondaryTicket->load(['createdBy', 'transactions.customer', 'transactions.drawResult']);
-        
+
         return view('secondary-sales.tickets.show', compact('secondaryTicket'));
     }
 

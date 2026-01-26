@@ -13,7 +13,7 @@ class TicketController extends Controller
     {
         $this->middleware('permission:lottery-list', ['only' => ['index', 'show']]);
         $this->middleware('permission:lottery-create', ['only' => ['create', 'store']]);
-        $this->middleware('permission:lottery-edit',   ['only' => ['edit', 'update']]);
+        $this->middleware('permission:lottery-edit', ['only' => ['edit', 'update']]);
         $this->middleware('permission:lottery-delete', ['only' => ['destroy']]);
     }
 
@@ -24,7 +24,7 @@ class TicketController extends Controller
 
         // Filtering
         if ($search = $request->input('search')) {
-            $q->where(function($query) use ($search) {
+            $q->where(function ($query) use ($search) {
                 $query->where('bar_code', 'like', "%$search%")
                     ->orWhere('ticket_name', 'like', "%$search%")
                     ->orWhere('signature', 'like', "%$search%")
@@ -47,7 +47,7 @@ class TicketController extends Controller
             $q->whereDate('created_at', '<=', $request->date_to);
         }
 
-        $tickets = $q->orderBy('withdraw_date', 'desc')->paginate(15)
+        $tickets = $q->latest()->paginate(15)
             ->appends($request->query());
 
         return view('tickets.index', compact('tickets'));
@@ -78,7 +78,7 @@ class TicketController extends Controller
             'left_icon' => 'nullable|file|image|mimes:jpeg,png,jpg,webp|max:2048'
         ]);
         // Handle file upload
-        if($request->hasFile('left_icon')) {
+        if ($request->hasFile('left_icon')) {
             $validated['left_icon'] = $request->file('left_icon')->store('ticket_icons', 'public');
         }
         LotteryTicket::create($validated);
@@ -97,7 +97,7 @@ class TicketController extends Controller
     public function update(Request $request, $id)
     {
         $ticket = LotteryTicket::findOrFail($id);
-        
+
         $validated = $request->validate([
             'ticket_name' => 'required|max:255',
             'signature' => 'nullable|max:255',
@@ -112,14 +112,14 @@ class TicketController extends Controller
             'price' => 'required|numeric|min:0',
             'left_icon' => 'nullable|file|image|mimes:jpeg,png,jpg,webp|max:2048'
         ]);
-        
+
         // Handle file upload
-        if($request->hasFile('left_icon')) {
+        if ($request->hasFile('left_icon')) {
             $validated['left_icon'] = $request->file('left_icon')->store('ticket_icons', 'public');
         }
-        
+
         $ticket->update($validated);
-        
+
         return redirect()->route('tickets.index')->with('success', 'Ticket updated!');
     }
     // Show Single Ticket
