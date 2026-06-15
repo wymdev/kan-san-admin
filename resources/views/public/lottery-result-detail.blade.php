@@ -25,19 +25,19 @@
     </div>
 
     {{-- Prizes Display --}}
-    @if($drawResult->normalized_prizes)
+    @if($drawResult->prizes)
         <div style="display: grid; gap: 1.5rem;">
-            @foreach($drawResult->normalized_prizes as $prize)
+            @foreach($drawResult->prizes as $prize)
                 <div style="background: #1E293B; border-radius: 1rem; padding: 1.5rem; border: 1px solid rgba(255,215,0,0.2); transition: border-color 0.3s;">
-                    <div style="display: flex; align-items: center; justify-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
                         <h3 style="font-size: 1.25rem; font-weight: 600; color: #FFD700; margin: 0;">{{ $prize['name'] ?? 'Prize' }}</h3>
                         @if(isset($prize['reward']))
-                            <span style="font-size: 1rem; color: rgba(255,255,255,0.8);">{{ $prize['reward'] }}</span>
+                            <span style="font-size: 1rem; color: rgba(255,255,255,0.8);">{{ is_numeric($prize['reward']) ? number_format($prize['reward']) . ' ฿' : $prize['reward'] }}</span>
                         @endif
                     </div>
                     
                     <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
-                        @foreach($prize['numbers'] ?? [] as $number)
+                        @foreach($prize['number'] ?? [] as $number)
                             <div style="background: linear-gradient(135deg, rgba(255,215,0,0.2) 0%, rgba(255,215,0,0.1) 100%); padding: 0.75rem 1.5rem; border-radius: 0.5rem;">
                                 <span style="font-family: 'Courier New', monospace; font-size: 1.5rem; font-weight: 700; color: #FFD700; letter-spacing: 0.2em;">
                                     {{ $number }}
@@ -60,11 +60,11 @@
                         <h3 style="font-size: 1rem; font-weight: 600; color: white; margin-bottom: 0.75rem;">
                             {{ $running['name'] ?? 'Last Digits' }}
                             @if(isset($running['reward']))
-                                <span style="font-size: 0.875rem; color: rgba(255,255,255,0.6); margin-left: 0.5rem;">({{ $running['reward'] }})</span>
+                                <span style="font-size: 0.875rem; color: rgba(255,255,255,0.6); margin-left: 0.5rem;">({{ is_numeric($running['reward']) ? number_format($running['reward']) . ' ฿' : $running['reward'] }})</span>
                             @endif
                         </h3>
                         <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
-                            @foreach($running['numbers'] ?? [] as $number)
+                            @foreach($running['number'] ?? [] as $number)
                                 <div style="background: linear-gradient(135deg, rgba(139,92,246,0.2) 0%, rgba(139,92,246,0.1) 100%); padding: 0.5rem 1.25rem; border-radius: 0.5rem;">
                                     <span style="font-family: 'Courier New', monospace; font-size: 1.25rem; font-weight: 700; color: #8B5CF6; letter-spacing: 0.15em;">
                                         {{ $number }}

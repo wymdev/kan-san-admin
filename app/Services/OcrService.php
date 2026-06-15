@@ -8,17 +8,17 @@ use Illuminate\Support\Facades\Storage;
 
 class OcrService
 {
-    private string $openaiApiKey;
-    private string $model = 'gpt-4o';
+    private string $geminiApiKey;
+    private string $model = 'gemini-2.5-flash';
 
     public function __construct()
     {
-        $this->openaiApiKey = config('services.openai.api_key', env('OPENAI_API_KEY', ''));
+        $this->geminiApiKey = config('services.google.gemini_api_key', env('GOOGLE_GENERATIVE_AI_API_KEY', ''));
     }
 
     /**
-     * Extract lottery numbers from an uploaded image using OpenAI Vision
-     * Falls back to Tesseract if OpenAI is not configured
+     * Extract lottery numbers from an uploaded image using Google Gemini API
+     * Falls back to Tesseract if Gemini is not configured or fails
      */
     public function extractNumbersFromImage(string $imagePath): array
     {
@@ -32,14 +32,14 @@ class OcrService
             ];
         }
 
-        // Try OpenAI Vision first (best accuracy)
-        if (!empty($this->openaiApiKey)) {
-            $result = $this->extractWithOpenAI($fullPath);
+        // Try Gemini OCR first (best speed and accuracy)
+        if (!empty($this->geminiApiKey)) {
+            $result = $this->extractWithGemini($fullPath);
             if ($result['success']) {
                 return $result;
             }
             // Log the error but continue to fallback
-            Log::warning('OpenAI OCR failed, falling back to Tesseract: ' . ($result['error'] ?? 'Unknown error'));
+            Log::warning('Gemini OCR failed, falling back to Tesseract: ' . ($result['error'] ?? 'Unknown error'));
         }
 
         // Fallback to Tesseract
@@ -47,9 +47,9 @@ class OcrService
     }
 
     /**
-     * Extract numbers using OpenAI Vision API (GPT-4o)
+     * Extract numbers using Google Gemini API (gemini-2.5-flash)
      */
-    private function extractWithOpenAI(string $imagePath): array
+    private function extractWithGemini(string $imagePath): array
     {
         try {
             // Convert image to base64
@@ -58,72 +58,79 @@ class OcrService
             $mimeType = mime_content_type($imagePath) ?: 'image/jpeg';
 
             // Prepare the prompt
-            $prompt = "Look at this image of Thai lottery tickets. Extract ONLY the 6-digit lottery numbers from each ticket. The numbers are typically printed in large font on the right side of each ticket.
+            $prompt = "Look at this image of Thai lottery tickets. Extract ALL the 6-digit lottery numbers from each ticket. The numbers are typically printed in large font on the right side of each ticket.
 
 Rules:
 1. Only extract 6-digit numbers (the main lottery numbers)
 2. Ignore serial numbers, dates, and other text
-3. Return ONLY the numbers, one per line
-4. No explanations, no formatting, just the numbers
+3. Return a JSON array containing ONLY the 6-digit lottery numbers as strings.
+4. If no numbers are found, return an empty array []";
 
-Example output format:
-698217
-943015
-703913";
+            // Call Gemini generateContent API
+            $url = "https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent?key={$this->geminiApiKey}";
 
-            // Call OpenAI Vision API
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->openaiApiKey,
                 'Content-Type' => 'application/json',
-            ])->timeout(60)->post('https://api.openai.com/v1/chat/completions', [
-                'model' => $this->model,
-                'messages' => [
+            ])->timeout(30)->post($url, [
+                'contents' => [
                     [
-                        'role' => 'user',
-                        'content' => [
+                        'parts' => [
                             [
-                                'type' => 'text',
                                 'text' => $prompt,
                             ],
                             [
-                                'type' => 'image_url',
-                                'image_url' => [
-                                    'url' => "data:{$mimeType};base64,{$base64Image}",
-                                    'detail' => 'high',
+                                'inlineData' => [
+                                    'mimeType' => $mimeType,
+                                    'data' => $base64Image,
                                 ],
                             ],
                         ],
                     ],
                 ],
-                'max_tokens' => 500,
-                'temperature' => 0,
+                'generationConfig' => [
+                    'responseMimeType' => 'application/json',
+                    'temperature' => 0,
+                ],
             ]);
 
             if ($response->failed()) {
                 $error = $response->json('error.message') ?? $response->body();
-                Log::error('OpenAI API Error: ' . $error);
+                Log::error('Gemini API Error: ' . $error);
                 return [
                     'success' => false,
-                    'error' => 'OpenAI API error: ' . $error,
+                    'error' => 'Gemini API error: ' . $error,
                     'numbers' => [],
                 ];
             }
 
-            $content = $response->json('choices.0.message.content', '');
+            $content = $response->json('candidates.0.content.parts.0.text', '');
             
-            // Extract 6-digit numbers from the response
-            $numbers = $this->extractNumbersFromText($content);
+            // Clean markdown wrap if present
+            $cleanContent = preg_replace('/```(?:json)?|```/', '', $content);
+            $cleanContent = trim($cleanContent);
+
+            $numbers = json_decode($cleanContent, true);
+
+            // Fallback to regex if JSON parsing didn't return an array
+            if (!is_array($numbers)) {
+                $numbers = $this->extractNumbersFromText($content);
+            } else {
+                // Ensure all items are 6-digit strings and clean them up
+                $numbers = array_filter($numbers, fn($n) => is_string($n) && preg_match('/^\d{6}$/', $n));
+                $numbers = array_values($numbers);
+                sort($numbers);
+            }
 
             return [
                 'success' => true,
                 'raw_text' => $content,
                 'numbers' => $numbers,
                 'count' => count($numbers),
-                'source' => 'openai',
+                'source' => 'gemini',
             ];
 
         } catch (\Exception $e) {
-            Log::error('OpenAI Vision OCR Error: ' . $e->getMessage());
+            Log::error('Gemini OCR Error: ' . $e->getMessage());
             return [
                 'success' => false,
                 'error' => $e->getMessage(),
@@ -141,7 +148,7 @@ Example output format:
             if (!$this->isTesseractAvailable()) {
                 return [
                     'success' => false,
-                    'error' => 'Tesseract OCR is not installed and OpenAI API key is not configured.',
+                    'error' => 'Tesseract OCR is not installed and Google Generative AI API key is not configured.',
                     'numbers' => [],
                 ];
             }
@@ -221,7 +228,7 @@ Example output format:
      */
     private function isTesseractAvailable(): bool
     {
-        exec('which tesseract 2>&1', $output, $retval);
+        exec('tesseract --version 2>&1', $output, $retval);
         return $retval === 0;
     }
 

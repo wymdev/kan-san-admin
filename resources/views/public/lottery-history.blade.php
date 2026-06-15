@@ -265,30 +265,27 @@
                         </div>
                         <div class="result-body">
                             @php
-                                $prizes = $result->normalized_prizes;
-                                $firstPrize = collect($prizes)->firstWhere('id', 'first') 
-                                           ?? collect($prizes)->firstWhere('name', 'รางวัลที่ 1')
-                                           ?? collect($prizes)->first();
+                                $p = $result->normalized_prizes ?? [];
+                                $firstPrizeNums = $p['first_prize'] ?? $p['prizeFirst'] ?? $p['prize_1'] ?? null;
                             @endphp
                             
-                            @if($firstPrize)
+                            @if(!empty($firstPrizeNums))
                                 <div class="prize-row">
                                     <span class="prize-name">รางวัลที่ 1</span>
                                     <span class="prize-number">
-                                        {{ is_array($firstPrize['numbers'] ?? null) ? ($firstPrize['numbers'][0] ?? '-') : '-' }}
+                                        {{ $firstPrizeNums[0] ?? '-' }}
                                     </span>
                                 </div>
                             @endif
                             
                             @php
                                 $last2 = collect($result->running_numbers ?? [])->firstWhere('id', 'runningNumberBackTwo');
-                                $last3 = collect($result->running_numbers ?? [])->firstWhere('id', 'runningNumberFrontThree');
                             @endphp
                             
                             @if($last2)
                                 <div class="prize-row">
                                     <span class="prize-name">เลขท้าย 2 ตัว</span>
-                                    <span class="prize-number">{{ implode(', ', $last2['numbers'] ?? []) }}</span>
+                                    <span class="prize-number">{{ implode(', ', $last2['number'] ?? []) }}</span>
                                 </div>
                             @endif
                         </div>

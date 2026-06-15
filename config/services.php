@@ -40,4 +40,13 @@ return [
         ],
     ],
 
+    'google' => [
+        'gemini_api_key' => env('GOOGLE_GENERATIVE_AI_API_KEY'),
+    ],
+
+    'rapidapi' => [
+        'key' => env('RAPIDAPI_KEY'),
+        'host' => env('RAPIDAPI_HOST', 'thai-lottery3.p.rapidapi.com'),
+    ],
+
 ];

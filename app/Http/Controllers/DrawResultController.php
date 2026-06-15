@@ -168,44 +168,63 @@ class DrawResultController extends Controller
     public function syncLatest()
     {
         try {
-            $response = Http::timeout(30)->get('https://lotto.api.rayriffy.com/latest');
+            $apiKey = config('services.rapidapi.key', env('RAPIDAPI_KEY', ''));
+            $host = config('services.rapidapi.host', env('RAPIDAPI_HOST', 'thai-lottery3.p.rapidapi.com'));
+
+            if (empty($apiKey)) {
+                return back()->with('error', 'RapidAPI key is not configured.');
+            }
+
+            $response = Http::withHeaders([
+                'x-rapidapi-host' => $host,
+                'x-rapidapi-key' => $apiKey,
+                'Content-Type' => 'application/json',
+            ])->timeout(30)->get('https://thai-lottery3.p.rapidapi.com/api/v1/latest');
 
             if (!$response->ok()) {
-                return back()->with('error', 'Failed to fetch data from API');
+                return back()->with('error', 'Failed to fetch latest data from RapidAPI. Error: ' . $response->status());
             }
 
-            $data = $response->json('response');
-
-            if (!$data || !isset($data['date'], $data['prizes'])) {
-                return back()->with('error', 'Invalid data format from API');
+            $body = $response->json();
+            if (!isset($body['success']) || !$body['success'] || !isset($body['data'])) {
+                return back()->with('error', 'Invalid or unsuccessful response from RapidAPI.');
             }
 
+            $apiData = $body['data'];
+            $resultDate = $apiData['resultDate'] ?? null;
+
+            if (!$resultDate) {
+                return back()->with('error', 'Invalid draw date in API response.');
+            }
+
+            $mapped = $this->mapRapidApiData($apiData);
+            
             // Validate if prizes contain actual data (not placeholders)
-            if (!$this->hasValidPrizeData($data['prizes'])) {
+            if (!$this->hasValidPrizeData($mapped['prizes'])) {
                 return back()->with('warning', 'Lottery results not yet announced. Prizes data contains only placeholders.');
             }
 
-            $drawDate = $this->parseApiDate($data['date']);
+            $drawDate = \Carbon\Carbon::parse($resultDate);
 
             // Check if record exists and update, otherwise create
             $existingResult = DrawResult::whereDate('draw_date', $drawDate)->first();
 
             if ($existingResult) {
                 $existingResult->update([
-                    'date_th' => $data['date'],
-                    'date_en' => $this->translateThaiDate($data['date']),
-                    'prizes' => $data['prizes'],
-                    'running_numbers' => $data['runningNumbers'] ?? $data['runningnumbers'] ?? [],
-                    'endpoint' => $data['endpoint'] ?? null,
+                    'date_th' => $mapped['date_th'],
+                    'date_en' => $this->formatToEnglishDate($resultDate),
+                    'prizes' => $mapped['prizes'],
+                    'running_numbers' => $mapped['running_numbers'],
+                    'endpoint' => 'https://thai-lottery3.p.rapidapi.com/api/v1/latest',
                 ]);
             } else {
                 DrawResult::create([
                     'draw_date' => $drawDate,
-                    'date_th' => $data['date'],
-                    'date_en' => $this->translateThaiDate($data['date']),
-                    'prizes' => $data['prizes'],
-                    'running_numbers' => $data['runningNumbers'] ?? $data['runningnumbers'] ?? [],
-                    'endpoint' => $data['endpoint'] ?? null,
+                    'date_th' => $mapped['date_th'],
+                    'date_en' => $this->formatToEnglishDate($resultDate),
+                    'prizes' => $mapped['prizes'],
+                    'running_numbers' => $mapped['running_numbers'],
+                    'endpoint' => 'https://thai-lottery3.p.rapidapi.com/api/v1/latest',
                 ]);
             }
 
@@ -221,103 +240,104 @@ class DrawResultController extends Controller
         try {
             set_time_limit(300); // 5 minutes
 
-            // 1. Fetch the full list
-            $listResponse = Http::timeout(30)->get('https://lotto.api.rayriffy.com/list/1');
+            $apiKey = config('services.rapidapi.key', env('RAPIDAPI_KEY', ''));
+            $host = config('services.rapidapi.host', env('RAPIDAPI_HOST', 'thai-lottery3.p.rapidapi.com'));
 
-            if (!$listResponse->ok()) {
-                return back()->with('error', 'Failed to fetch list from API');
+            if (empty($apiKey)) {
+                return back()->with('error', 'RapidAPI key is not configured.');
             }
 
-            $list = $listResponse->json('response');
-
-            if (!is_array($list)) {
-                return back()->with('error', 'Invalid list format from API');
-            }
+            // Generate expected draw dates for the last 3 years (e.g., 2024 to current year)
+            $currentYear = intval(date('Y'));
+            $drawDates = $this->generateDrawDates(2024, $currentYear);
 
             $imported = 0;
             $skipped = 0;
             $failed = 0;
             $alreadyExists = 0;
 
-            foreach ($list as $entry) {
-                try {
-                    // Optimization: Check if we already have this valid result using the date from the list
-                    // The list has "date" like "1 กุมภาพันธ์ 2569"
-                    $parsedDate = $this->parseApiDate($entry['date']);
-                    $existing = DrawResult::whereDate('draw_date', $parsedDate)->first();
+            foreach ($drawDates as $dateString) {
+                // Parse date
+                $drawDate = \Carbon\Carbon::parse($dateString);
 
-                    // Logic: 
-                    // 1. If result is recent (last 3 months), always fetch/update to catch corrections.
-                    // 2. If result is old (> 3 months) AND we have a valid local copy, skip it to save time.
-                    $isRecent = \Carbon\Carbon::parse($parsedDate)->gt(now()->subMonths(3));
-
-                    if (!$isRecent && $existing && $this->hasValidPrizeData($this->ensureArray($existing->prizes))) {
-                        $alreadyExists++;
-                        continue;
-                    }
-
-                    // Fetch details (if recent OR missing/invalid)
-                    $api = Http::timeout(20)->get('https://lotto.api.rayriffy.com/lotto/' . $entry['id']);
-
-                    if (!$api->ok()) {
-                        $failed++;
-                        continue;
-                    }
-
-                    $res = $api->json('response');
-
-                    if (!is_array($res) || !isset($res['date'], $res['prizes'])) {
-                        $failed++;
-                        continue;
-                    }
-
-                    // Skip if prizes don't have valid data
-                    if (!$this->hasValidPrizeData($res['prizes'])) {
-                        $skipped++;
-                        continue;
-                    }
-
-                    $draw_date = $this->parseApiDate($res['date']);
-
-                    // Check if record exists and update, otherwise create
-                    if ($existing) {
-                        $existing->update([
-                            'date_th' => $res['date'],
-                            'date_en' => $this->translateThaiDate($res['date']),
-                            'prizes' => $res['prizes'],
-                            'running_numbers' => $res['runningNumbers'] ?? $res['runningnumbers'] ?? [],
-                            'endpoint' => $res['endpoint'] ?? null,
-                        ]);
-                    } else {
-                        DrawResult::create([
-                            'draw_date' => $draw_date,
-                            'date_th' => $res['date'],
-                            'date_en' => $this->translateThaiDate($res['date']),
-                            'prizes' => $res['prizes'],
-                            'running_numbers' => $res['runningNumbers'] ?? $res['runningnumbers'] ?? [],
-                            'endpoint' => $res['endpoint'] ?? null,
-                        ]);
-                    }
-
-                    $imported++;
-                    // Small delay to be nice to the API
-                    usleep(100000); // 0.1s
-
-                } catch (\Exception $e) {
-                    $failed++;
+                // Skip if date is in the future
+                if ($drawDate->gt(now())) {
+                    continue;
                 }
+
+                // Check if we already have this draw result
+                $existing = DrawResult::whereDate('draw_date', $drawDate)->first();
+
+                // If draw is older than 1 month and already exists with valid data, skip API call
+                $isRecent = $drawDate->gt(now()->subMonth());
+                if (!$isRecent && $existing && $this->hasValidPrizeData($this->ensureArray($existing->prizes))) {
+                    $alreadyExists++;
+                    continue;
+                }
+
+                // Fetch from RapidAPI
+                $response = Http::withHeaders([
+                    'x-rapidapi-host' => $host,
+                    'x-rapidapi-key' => $apiKey,
+                    'Content-Type' => 'application/json',
+                ])->timeout(20)->get("https://thai-lottery3.p.rapidapi.com/api/v1/result/{$dateString}");
+
+                if (!$response->ok()) {
+                    $failed++;
+                    continue;
+                }
+
+                $body = $response->json();
+                if (!isset($body['success']) || !$body['success'] || !isset($body['data'])) {
+                    $failed++;
+                    continue;
+                }
+
+                $apiData = $body['data'];
+                $mapped = $this->mapRapidApiData($apiData);
+
+                // Validate if prizes contain actual data
+                if (!$this->hasValidPrizeData($mapped['prizes'])) {
+                    $skipped++;
+                    continue;
+                }
+
+                // Update or Create
+                if ($existing) {
+                    $existing->update([
+                        'date_th' => $mapped['date_th'],
+                        'date_en' => $this->formatToEnglishDate($dateString),
+                        'prizes' => $mapped['prizes'],
+                        'running_numbers' => $mapped['running_numbers'],
+                        'endpoint' => "https://thai-lottery3.p.rapidapi.com/api/v1/result/{$dateString}",
+                    ]);
+                } else {
+                    DrawResult::create([
+                        'draw_date' => $drawDate,
+                        'date_th' => $mapped['date_th'],
+                        'date_en' => $this->formatToEnglishDate($dateString),
+                        'prizes' => $mapped['prizes'],
+                        'running_numbers' => $mapped['running_numbers'],
+                        'endpoint' => "https://thai-lottery3.p.rapidapi.com/api/v1/result/{$dateString}",
+                    ]);
+                }
+
+                $imported++;
+
+                // Small delay to be polite to the API
+                usleep(150000); // 0.15s
             }
 
             $message = "Sync Complete: {$imported} imported/updated.";
 
             if ($alreadyExists > 0) {
-                $message .= " | {$alreadyExists} up-to-date (skipped).";
+                $message .= " | {$alreadyExists} up-to-date (skipped API call).";
             }
             if ($skipped > 0) {
                 $message .= " | {$skipped} skipped (invalid data).";
             }
             if ($failed > 0) {
-                $message .= " | {$failed} failed.";
+                $message .= " | {$failed} failed/not found.";
             }
 
             return back()->with('success', $message);
@@ -326,57 +346,158 @@ class DrawResultController extends Controller
         }
     }
 
-    // Utility: convert Thai date to Y-m-d
-    private function parseApiDate($thaiDate)
+    /**
+     * Map RapidAPI data format to application's standard DB format
+     */
+    private function mapRapidApiData($apiData)
     {
-        $months = [
-            "มกราคม" => "01",
-            "กุมภาพันธ์" => "02",
-            "มีนาคม" => "03",
-            "เมษายน" => "04",
-            "พฤษภาคม" => "05",
-            "มิถุนายน" => "06",
-            "กรกฎาคม" => "07",
-            "สิงหาคม" => "08",
-            "กันยายน" => "09",
-            "ตุลาคม" => "10",
-            "พฤศจิกายน" => "11",
-            "ธันวาคม" => "12"
-        ];
-        preg_match('/(\d{1,2}) (\S+) (\d{4})/', $thaiDate, $m);
-        if (count($m) !== 4)
-            return $thaiDate;
-        $y = intval($m[3]) > 2400 ? intval($m[3]) - 543 : intval($m[3]);
-        return "$y-{$months[$m[2]]}-" . str_pad($m[1], 2, '0', STR_PAD_LEFT);
-    }
+        $resultDate = $apiData['resultDate'] ?? '';
+        $results = $apiData['results'] ?? [];
 
-    // Thai to English date, for display
-    public function translateThaiDate($thaiDate)
-    {
-        $months = [
-            "มกราคม" => "January",
-            "กุมภาพันธ์" => "February",
-            "มีนาคม" => "March",
-            "เมษายน" => "April",
-            "พฤษภาคม" => "May",
-            "มิถุนายน" => "June",
-            "กรกฎาคม" => "July",
-            "สิงหาคม" => "August",
-            "กันยายน" => "September",
-            "ตุลาคม" => "October",
-            "พฤศจิกายน" => "November",
-            "ธันวาคม" => "December"
+        $dateTh = $this->formatToThaiDate($resultDate);
+
+        $prizes = [];
+        $runningNumbers = [];
+
+        $prizeMapping = [
+            'first' => ['id' => 'prizeFirst', 'name' => 'รางวัลที่ 1', 'reward' => 6000000],
+            'near1' => ['id' => 'prizeFirstNear', 'name' => 'รางวัลข้างเคียงรางวัลที่ 1', 'reward' => 100000],
+            'second' => ['id' => 'prizeSecond', 'name' => 'รางวัลที่ 2', 'reward' => 200000],
+            'third' => ['id' => 'prizeThird', 'name' => 'รางวัลที่ 3', 'reward' => 80000],
+            'fourth' => ['id' => 'prizeForth', 'name' => 'รางวัลที่ 4', 'reward' => 40000],
+            'fifth' => ['id' => 'prizeFifth', 'name' => 'รางวัลที่ 5', 'reward' => 20000],
         ];
-        $en = $thaiDate;
-        foreach ($months as $th => $enMonth)
-            $en = str_replace($th, $enMonth, $en);
-        if (preg_match('/(\d{1,2}) (\w+) (\d{4})/', $en, $parts)) {
-            $year = intval($parts[3]);
-            if ($year > 2400)
-                $year -= 543;
-            $en = "{$parts[1]} {$parts[2]} {$year}";
+
+        $runningMapping = [
+            'last3f' => ['id' => 'runningNumberFrontThree', 'name' => 'รางวัลเลขหน้า 3 ตัว', 'reward' => 4000],
+            'last3b' => ['id' => 'runningNumberBackThree', 'name' => 'รางวัลเลขท้าย 3 ตัว', 'reward' => 4000],
+            'last2' => ['id' => 'runningNumberBackTwo', 'name' => 'รางวัลเลขท้าย 2 ตัว', 'reward' => 2000],
+        ];
+
+        foreach ($results as $item) {
+            $fieldName = $item['fieldName'] ?? '';
+            $numbers = isset($item['numbers']) ? array_column($item['numbers'], 'value') : [];
+
+            if (isset($prizeMapping[$fieldName])) {
+                $prizes[] = [
+                    'id' => $prizeMapping[$fieldName]['id'],
+                    'name' => $prizeMapping[$fieldName]['name'],
+                    'reward' => $item['price'] ?? $prizeMapping[$fieldName]['reward'],
+                    'amount' => count($numbers),
+                    'number' => $numbers,
+                ];
+            } elseif (isset($runningMapping[$fieldName])) {
+                $runningNumbers[] = [
+                    'id' => $runningMapping[$fieldName]['id'],
+                    'name' => $runningMapping[$fieldName]['name'],
+                    'reward' => $item['price'] ?? $runningMapping[$fieldName]['reward'],
+                    'amount' => count($numbers),
+                    'number' => $numbers,
+                ];
+            }
         }
-        return $en;
+
+        return [
+            'date_th' => $dateTh,
+            'prizes' => $prizes,
+            'running_numbers' => $runningNumbers,
+        ];
     }
 
+    /**
+     * Format standard date YYYY-MM-DD to Thai display format
+     */
+    private function formatToThaiDate($ymdDate)
+    {
+        $monthsTh = [
+            "01" => "มกราคม",
+            "02" => "กุมภาพันธ์",
+            "03" => "มีนาคม",
+            "04" => "เมษายน",
+            "05" => "พฤษภาคม",
+            "06" => "มิถุนายน",
+            "07" => "กรกฎาคม",
+            "08" => "สิงหาคม",
+            "09" => "กันยายน",
+            "10" => "ตุลาคม",
+            "11" => "พฤศจิกายน",
+            "12" => "ธันวาคม"
+        ];
+
+        $parts = explode('-', $ymdDate);
+        if (count($parts) !== 3) {
+            return $ymdDate;
+        }
+
+        $year = intval($parts[0]) + 543;
+        $month = $monthsTh[$parts[1]] ?? '';
+        $day = intval($parts[2]);
+
+        return "{$day} {$month} {$year}";
+    }
+
+    /**
+     * Format standard date YYYY-MM-DD to English display format
+     */
+    private function formatToEnglishDate($ymdDate)
+    {
+        $monthsEn = [
+            "01" => "January",
+            "02" => "February",
+            "03" => "March",
+            "04" => "April",
+            "05" => "May",
+            "06" => "June",
+            "07" => "July",
+            "08" => "August",
+            "09" => "September",
+            "10" => "October",
+            "11" => "November",
+            "12" => "December"
+        ];
+
+        $parts = explode('-', $ymdDate);
+        if (count($parts) !== 3) {
+            return $ymdDate;
+        }
+
+        $year = intval($parts[0]);
+        $month = $monthsEn[$parts[1]] ?? '';
+        $day = intval($parts[2]);
+
+        return "{$day} {$month} {$year}";
+    }
+
+    /**
+     * Generate expected Thai lottery draw dates for a given year range
+     */
+    private function generateDrawDates($startYear, $endYear)
+    {
+        $dates = [];
+        for ($year = $startYear; $year <= $endYear; $year++) {
+            for ($month = 1; $month <= 12; $month++) {
+                // First draw of month
+                if ($month == 1) {
+                    // Handled as Dec 30th of previous year
+                } elseif ($month == 5) {
+                    $dates[] = sprintf("%04d-%02d-02", $year, $month); // May 2 (Labor Day holiday)
+                } else {
+                    $dates[] = sprintf("%04d-%02d-01", $year, $month); // 1st of month
+                }
+
+                // Second draw of month
+                if ($month == 1) {
+                    $dates[] = sprintf("%04d-%02d-17", $year, $month); // Jan 17 (Teachers' Day holiday)
+                } else {
+                    $dates[] = sprintf("%04d-%02d-16", $year, $month); // 16th of month
+                }
+            }
+            // Dec 30 draw of each year (New Year's Eve holiday)
+            $dates[] = sprintf("%04d-12-30", $year);
+        }
+        
+        rsort($dates);
+        
+        return $dates;
+    }
 }
