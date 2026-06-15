@@ -43,6 +43,9 @@ return Application::configure(basePath: dirname(__DIR__))
         
         // Ensure sessions are encrypted for better security
         $middleware->encryptCookies(except: []);
+
+        // Trust all proxies for secure cookies and HTTPS detection behind load balancers
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Handle validation exceptions for API
