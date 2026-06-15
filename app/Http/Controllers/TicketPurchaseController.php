@@ -72,7 +72,7 @@ class TicketPurchaseController extends Controller
         $purchases = $query->latest()->paginate(20)->appends($request->query());
 
         // Get statistics
-        $stats = $this->checkerService->getStatistics();
+        $stats = $this->checkerService->getPurchaseStatistics();
 
         return view('tickets.purchases.index', compact('purchases', 'stats'));
     }
@@ -317,7 +317,7 @@ class TicketPurchaseController extends Controller
     public function checkResultsPage()
     {
         try {
-            $stats = $this->checkerService->getStatistics();
+            $stats = $this->checkerService->getPurchaseStatistics();
             $statusGroups = $this->checkerService->getPurchasesByDrawStatus();
 
             // Paginate ready to check
