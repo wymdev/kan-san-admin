@@ -7,7 +7,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Production PHP environment
-FROM php:8.2-fpm-bookworm
+FROM php:8.4-fpm-bookworm
 
 # Set working directory
 WORKDIR /var/www/html
