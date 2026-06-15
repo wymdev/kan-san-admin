@@ -2,9 +2,8 @@
 
 require __DIR__.'/../vendor/autoload.php';
 $app = require_once __DIR__.'/../bootstrap/app.php';
-$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
-// Force routing to avoid executing other HTTP pipeline logic
 use Illuminate\Support\Facades\DB;
 
 header('Content-Type: text/plain');
