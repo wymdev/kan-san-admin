@@ -8,15 +8,31 @@ use Illuminate\Support\Facades\DB;
 
 header('Content-Type: text/plain');
 echo "=== Database Latency Test ===\n";
-echo "DB_HOST: " . config('database.connections.mysql.host') . "\n";
-echo "DB_PORT: " . config('database.connections.mysql.port') . "\n";
-echo "DB_DATABASE: " . config('database.connections.mysql.database') . "\n";
+$host = config('database.connections.mysql.host');
+$port = config('database.connections.mysql.port');
+$database = config('database.connections.mysql.database');
 
+echo "DB_HOST: " . $host . "\n";
+echo "DB_PORT: " . $port . "\n";
+echo "DB_DATABASE: " . $database . "\n";
+
+echo "\n=== Network Ping (TCP Connect RTT) ===\n";
+$fs_start = microtime(true);
+$fp = @fsockopen($host, $port, $errno, $errstr, 5);
+if ($fp) {
+    $fs_time = (microtime(true) - $fs_start) * 1000;
+    echo "fsockopen Connect Latency: " . number_format($fs_time, 2) . " ms\n";
+    fclose($fp);
+} else {
+    echo "fsockopen Connect Failed: $errstr ($errno)\n";
+}
+
+echo "\n=== Database Query Latency ===\n";
 try {
     $start = microtime(true);
     DB::connection()->getPdo();
     $conn_time = (microtime(true) - $start) * 1000;
-    echo "Connection Time: " . number_format($conn_time, 2) . " ms\n";
+    echo "PDO Connection Time: " . number_format($conn_time, 2) . " ms\n";
     
     $times = [];
     for ($i = 0; $i < 20; $i++) {
