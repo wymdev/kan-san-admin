@@ -110,7 +110,7 @@
         color: #9ca3af;
     }
     
-    .input-group {
+    .login-form-group {
         margin-bottom: 1.25rem;
     }
     
@@ -313,7 +313,7 @@
         <form method="POST" action="{{ route('login') }}">
             @csrf
 
-            <div class="input-group">
+            <div class="login-form-group">
                 <label class="input-label" for="email">Email</label>
                 <div class="input-wrapper">
                     <input 
@@ -341,7 +341,7 @@
                 @enderror
             </div>
 
-            <div class="input-group">
+            <div class="login-form-group">
                 <label class="input-label" for="password">Password</label>
                 <div class="input-wrapper">
                     <input 
