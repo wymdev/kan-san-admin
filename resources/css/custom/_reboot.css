@@ -24,6 +24,12 @@
         -webkit-tap-highlight-color: transparent;
         @apply size-full antialiased font-body font-normal text-sm leading-normal bg-body-bg text-body-color;
     }
+
+    ul, ol {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
 }
 
 

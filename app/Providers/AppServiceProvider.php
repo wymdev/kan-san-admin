@@ -34,8 +34,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
-        if ($this->app->environment('production') || str_starts_with(config('app.url', ''), 'https://')) {
+        // Force HTTPS in production, secure environments, or when accessed via HTTPS proxy
+        if (
+            $this->app->environment('production') ||
+            str_starts_with(config('app.url', ''), 'https://') ||
+            (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||
+            request()->secure()
+        ) {
             URL::forceScheme('https');
         }
         Mail::extend('brevo', function () {
