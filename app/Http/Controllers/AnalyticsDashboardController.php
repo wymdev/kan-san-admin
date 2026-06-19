@@ -10,6 +10,7 @@ use App\Models\ActivityLog;
 use App\Models\SecondarySalesTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 
 class AnalyticsDashboardController extends Controller
@@ -18,42 +19,49 @@ class AnalyticsDashboardController extends Controller
     {
         $period = $request->get('period', 'month');
         $dateRange = $this->getDateRange($period);
+        $cacheKey = 'analytics_dashboard_' . $period;
+        $cacheTtl = 600; // 10 minutes
         
-        // Get all business insights data
-        $data = [
-            'period' => $period,
-            'dateRange' => $dateRange,
-            
-            // Key Performance Indicators
-            'kpis' => $this->getKPIs($dateRange),
-            
-            // Revenue Analytics
-            'revenueData' => $this->getRevenueAnalytics($dateRange),
-            
-            // Customer Analytics
-            'customerData' => $this->getCustomerAnalytics($dateRange),
-            
-            // Sales Analytics
-            'salesData' => $this->getSalesAnalytics($dateRange),
-            
-            // Product Performance
-            'productData' => $this->getProductPerformance($dateRange),
-            
-            // Platform Analytics
-            'platformData' => $this->getPlatformAnalytics(),
-            
-            // Activity Trends
-            'activityData' => $this->getActivityTrends($dateRange),
-            
-            // Winning Analytics
-            'winningData' => $this->getWinningAnalytics($dateRange),
-            
-            // NEW: Advanced Business Insights
-            'advancedInsights' => $this->getAdvancedInsights($dateRange),
+        // Get all business insights data (cached per period)
+        $data = Cache::remember($cacheKey, $cacheTtl, function () use ($period, $dateRange) {
+            return [
+                'period' => $period,
+                'dateRange' => $dateRange,
+                
+                // Key Performance Indicators
+                'kpis' => $this->getKPIs($dateRange),
+                
+                // Revenue Analytics
+                'revenueData' => $this->getRevenueAnalytics($dateRange),
+                
+                // Customer Analytics
+                'customerData' => $this->getCustomerAnalytics($dateRange),
+                
+                // Sales Analytics
+                'salesData' => $this->getSalesAnalytics($dateRange),
+                
+                // Product Performance
+                'productData' => $this->getProductPerformance($dateRange),
+                
+                // Platform Analytics
+                'platformData' => $this->getPlatformAnalytics(),
+                
+                // Activity Trends
+                'activityData' => $this->getActivityTrends($dateRange),
+                
+                // Winning Analytics
+                'winningData' => $this->getWinningAnalytics($dateRange),
+                
+                // Advanced Business Insights
+                'advancedInsights' => $this->getAdvancedInsights($dateRange),
 
-            // Secondary Sales Module
-            'secondarySales' => $this->getSecondarySalesData($dateRange),
-        ];
+                // Secondary Sales Module
+                'secondarySales' => $this->getSecondarySalesData($dateRange),
+            ];
+        });
+        
+        // Ensure period is always current (not from cache)
+        $data['period'] = $period;
         
         return view('dashboards.analytics', $data);
     }
@@ -365,30 +373,24 @@ class AnalyticsDashboardController extends Controller
     
     private function getAgeDistribution()
     {
-        $customers = Customer::selectRaw("
-                TIMESTAMPDIFF(YEAR, dob, CURDATE()) as age
+        // Use SQL CASE WHEN instead of loading all customers into PHP
+        $results = Customer::selectRaw("
+                SUM(CASE WHEN TIMESTAMPDIFF(YEAR, dob, CURDATE()) BETWEEN 18 AND 25 THEN 1 ELSE 0 END) as age_18_25,
+                SUM(CASE WHEN TIMESTAMPDIFF(YEAR, dob, CURDATE()) BETWEEN 26 AND 35 THEN 1 ELSE 0 END) as age_26_35,
+                SUM(CASE WHEN TIMESTAMPDIFF(YEAR, dob, CURDATE()) BETWEEN 36 AND 45 THEN 1 ELSE 0 END) as age_36_45,
+                SUM(CASE WHEN TIMESTAMPDIFF(YEAR, dob, CURDATE()) BETWEEN 46 AND 55 THEN 1 ELSE 0 END) as age_46_55,
+                SUM(CASE WHEN TIMESTAMPDIFF(YEAR, dob, CURDATE()) > 55 THEN 1 ELSE 0 END) as age_56_plus
             ")
             ->whereNotNull('dob')
-            ->get();
+            ->first();
         
-        $ageGroups = [
-            '18-25' => 0,
-            '26-35' => 0,
-            '36-45' => 0,
-            '46-55' => 0,
-            '56+' => 0
+        return [
+            '18-25' => (int) ($results->age_18_25 ?? 0),
+            '26-35' => (int) ($results->age_26_35 ?? 0),
+            '36-45' => (int) ($results->age_36_45 ?? 0),
+            '46-55' => (int) ($results->age_46_55 ?? 0),
+            '56+' => (int) ($results->age_56_plus ?? 0),
         ];
-        
-        foreach ($customers as $customer) {
-            $age = $customer->age;
-            if ($age >= 18 && $age <= 25) $ageGroups['18-25']++;
-            elseif ($age >= 26 && $age <= 35) $ageGroups['26-35']++;
-            elseif ($age >= 36 && $age <= 45) $ageGroups['36-45']++;
-            elseif ($age >= 46 && $age <= 55) $ageGroups['46-55']++;
-            elseif ($age > 55) $ageGroups['56+']++;
-        }
-        
-        return $ageGroups;
     }
     
     private function getGroupByFormat($dateRange)

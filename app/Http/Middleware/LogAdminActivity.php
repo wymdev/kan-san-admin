@@ -14,13 +14,17 @@ class LogAdminActivity
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $startTime = microtime(true);
+        // Only log state-changing requests (skip GET/HEAD/OPTIONS to reduce CPU/DB load)
+        $loggableMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
+        $shouldLog = in_array($request->method(), $loggableMethods);
+        
+        $startTime = $shouldLog ? microtime(true) : 0;
         
         // Process the request
         $response = $next($request);
         
-        // Log after response
-        if (auth()->guard('web')->check()) {
+        // Log after response (only for state-changing methods)
+        if ($shouldLog && auth()->guard('web')->check()) {
             $this->logActivity($request, $response, $startTime);
         }
         
