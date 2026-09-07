@@ -145,22 +145,24 @@ $batchToken = $existingTransaction?->batch_token ?? Str::random(32);
 ### Running the app locally (and why it matters for speed)
 
 ```bash
-composer serve      # http://127.0.0.1:8000
+composer serve          # http://127.0.0.1:8000
+php artisan serve       # equivalent
 ```
 
-Use `composer serve`, **not** `php artisan serve`. Both run PHP's built-in
-server, but the `artisan serve` wrapper adds roughly 700 ms of overhead per
-request on Windows. Measured on this project, same code and same PHP build:
+Both run PHP's built-in server through the project's own `server.php` router.
+That router resolves `public/` from `__DIR__` rather than `getcwd()`, so it works
+regardless of which directory the server was started from; Laravel's bundled
+copy only works when the process starts inside `public/`.
 
-| Server | Warm response |
-|---|---|
-| `php artisan serve` | 700–1,500 ms |
-| `composer serve` | 70–300 ms |
+Neither dev server is representative of production throughput — they are
+single-process and do not use PHP-FPM. Use them for development only.
 
 ### OPcache is required
 
-Without OPcache, PHP recompiles ~800 framework files on **every** request and
-pages take 2–5 seconds. OPcache is enabled in `C:\ServBay\etc\php\8.4\php.ini`
+Without OPcache, PHP recompiles ~800 framework files on **every** request. Cold
+framework boot measured 2,005 ms against 12–30 ms of actual request handling
+(2–4 queries), so essentially all of the wait was recompilation. OPcache is
+enabled in `C:\ServBay\etc\php\8.4\php.ini`
 under the `[opcache-servbay-dev]` section (a backup of the original sits beside
 it as `php.ini.bak-before-opcache`). Confirm it is loaded with:
 

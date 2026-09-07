@@ -9,6 +9,8 @@ use App\Http\Controllers\Api\CustomerPurchaseController;
 use App\Http\Controllers\Api\CustomerNotificationController;
 use App\Http\Controllers\Api\ActivityLogApiController;
 use App\Http\Controllers\Api\AppBannerApiController;
+use App\Http\Controllers\Api\AppConfigApiController;
+use App\Http\Controllers\Api\AppPageApiController;
 use App\Http\Controllers\Api\DrawResultApiController;
 use Illuminate\Support\Facades\Route;
 

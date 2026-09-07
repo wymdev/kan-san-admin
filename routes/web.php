@@ -35,6 +35,10 @@ Route::get('/about-us', [App\Http\Controllers\PublicPageController::class, 'abou
 
 // Public Lottery Portal (accessible without authentication)
 Route::prefix('lottery')->name('public.')->group(function () {
+     // Bare /lottery is the entry point people share and type; send it to the
+     // check page rather than letting it fall through to the catch-all 404.
+     Route::redirect('/', '/lottery/check')->name('lottery');
+
      // Main lottery check page
      Route::get('/check', [PublicLotteryController::class, 'index'])->name('lottery-check');
      Route::post('/check', [PublicLotteryController::class, 'check'])->name('lottery-check.submit');

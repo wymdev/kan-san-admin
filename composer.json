@@ -66,7 +66,7 @@
         ],
         "serve": [
             "Composer\\Config::disableProcessTimeout",
-            "@php -S 127.0.0.1:8000 -t public vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php"
+            "@php -S 127.0.0.1:8000 -t public server.php"
         ],
         "optimize": [
             "@php artisan optimize"
