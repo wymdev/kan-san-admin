@@ -31,72 +31,72 @@
                     <div class="col-span-1">
                         <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="firstNameInput">First
                             Name</label>
-                        <input
+                        <x-ui.input
                             class="form-input"
-                            id="firstNameInput" placeholder="Enter First Name" type="text"/>
+                            id="firstNameInput" placeholder="Enter First Name" type="text" />
                     </div>
                     <div class="col-span-1">
                         <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="middleNameInput">Middle
                             Name</label>
-                        <input
+                        <x-ui.input
                             class="form-input"
-                            id="middleNameInput" placeholder="Enter Middle Name" type="text"/>
+                            id="middleNameInput" placeholder="Enter Middle Name" type="text" />
                     </div>
                     <div class="col-span-1">
                         <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="lastNameInput">Last
                             Name</label>
-                        <input
+                        <x-ui.input
                             class="form-input"
-                            id="lastNameInput" placeholder="Enter Last Name" type="text"/>
+                            id="lastNameInput" placeholder="Enter Last Name" type="text" />
                     </div>
                     <div class="col-span-1">
                         <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="phoneNumberInput">Phone
                             Number</label>
-                        <input
+                        <x-ui.input
                             class="form-input"
-                            id="phoneNumberInput" placeholder="(012) 345 678 9010" type="text"/>
+                            id="phoneNumberInput" placeholder="(012) 345 678 9010" type="text" />
                     </div>
                     <div class="col-span-1">
                         <label class="inline-block mb-2 text-sm text-default-800 font-medium"
                                for="alternativeNumberInput">Alternative Number</label>
-                        <input
+                        <x-ui.input
                             class="form-input"
-                            id="alternativeNumberInput" placeholder="(012) 345 678 9010" type="text"/>
+                            id="alternativeNumberInput" placeholder="(012) 345 678 9010" type="text" />
                     </div>
                     <div class="col-span-1">
                         <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="emailAddressInput">Email
                             Address</label>
-                        <input
+                        <x-ui.input
                             class="form-input"
-                            id="emailAddressInput" placeholder="Enter email" type="email"/>
+                            id="emailAddressInput" placeholder="Enter email" type="email" />
                     </div>
                 </div>
                 <div class="mb-5">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="streetAddressInput">Street
                         Address</label>
-                    <input
+                    <x-ui.input
                         class="form-input"
-                        id="streetAddressInput" placeholder="Street address" type="text"/>
+                        id="streetAddressInput" placeholder="Street address" type="text" />
                 </div>
                 <div class="mb-5">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium"
                            for="townCityInput">Town/City</label>
-                    <input
+                    <x-ui.input
                         class="form-input"
-                        id="townCityInput" placeholder="Town/City" type="text"/>
+                        id="townCityInput" placeholder="Town/City" type="text" />
                 </div>
                 <div class="grid lg:grid-cols-3 grid-cols-1 gap-5">
                     <div class="col-span-1">
                         <label class="inline-block mb-2 text-sm text-default-800 font-medium"
                                for="stateInput">State</label>
-                        <input
+                        <x-ui.input
                             class="form-input"
-                            id="stateInput" placeholder="State" type="text"/>
+                            id="stateInput" placeholder="State" type="text" />
                     </div>
                     <div class="col-span-1">
                         <label class="inline-block mb-2 text-sm text-default-800 font-medium"
                                for="stateInput">Country</label>
-                        <select
+                        <x-ui.select
                             class="form-input">
                             <option value="Afghanistan">Afghanistan</option>
                             <option value="Åland Islands">Åland Islands</option>
@@ -351,14 +351,14 @@
                             <option value="Yemen">Yemen</option>
                             <option value="Zambia">Zambia</option>
                             <option value="Zimbabwe">Zimbabwe</option>
-                        </select>
+                        </x-ui.select>
                     </div>
                     <div class="col-span-1">
                         <label class="inline-block mb-2 text-sm text-default-800 font-medium"
                                for="zipcodeInput">ZipCode</label>
-                        <input
+                        <x-ui.input
                             class="form-input"
-                            id="zipcodeInput" placeholder="ZipCode" type="text"/>
+                            id="zipcodeInput" placeholder="ZipCode" type="text" />
                     </div>
                 </div>
             </div>
@@ -366,7 +366,7 @@
                 <h6 class="card-title mb-4">Delivery</h6>
                 <div class="grid lg:grid-cols-2 grid-cols-1 gap-5">
                     <div class="flex gap-2.5 items-center">
-                        <input checked="" class="peer form-radio" id="radio_1" name="level" type="radio" value="1">
+                        <x-ui.input checked="" class="peer form-radio" id="radio_1" name="level" type="radio" value="1" />
                         <label
                             class="flex lg:flex-nowrap flex-wrap justify-between border border-default-200 w-full peer-checked:border-primary rounded-md p-5 gap-4"
                             for="radio_1">
@@ -381,7 +381,7 @@
                         </label>
                         </input></div>
                     <div class="flex items-center gap-2.5">
-                        <input class="peer form-radio" id="radio_2" name="level" type="radio" value="2">
+                        <x-ui.input class="peer form-radio" id="radio_2" name="level" type="radio" value="2" />
                         <label
                             class="flex flex-wrap justify-between border border-default-200 w-full peer-checked:border-primary rounded-md p-5 gap-4"
                             for="radio_2">
@@ -396,7 +396,7 @@
                         </label>
                         </input></div>
                     <div class="flex gap-2.5 items-center">
-                        <input class="peer form-radio" id="radio_3" name="level" type="radio" value="3">
+                        <x-ui.input class="peer form-radio" id="radio_3" name="level" type="radio" value="3" />
                         <label
                             class="flex flex-wrap justify-between border border-default-200 w-full peer-checked:border-primary rounded-md p-5 gap-4"
                             for="radio_3">
@@ -417,25 +417,25 @@
                 <div class="mb-5">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="cardNumberInput">Card
                         Number</label>
-                    <input
+                    <x-ui.input
                         class="form-input"
                         id="cardNumberInput" maxlength="16" pattern="\d*" placeholder="XXXX XXXX XXXX XXXX"
-                        type="text"/>
+                        type="text" />
                 </div>
                 <div class="grid lg:grid-cols-2 grid-cols-1 gap-5">
                     <div class="col-span-1">
                         <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="expiringInput">Expiring
                             (MM/YY)</label>
-                        <input
+                        <x-ui.input
                             class="form-input"
-                            id="expiringInput" maxlength="4" pattern="\d*" placeholder="MM/YY" type="text"/>
+                            id="expiringInput" maxlength="4" pattern="\d*" placeholder="MM/YY" type="text" />
                     </div>
                     <div class="col-span-1">
                         <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="cvvInput">CVV
                             Code</label>
-                        <input
+                        <x-ui.input
                             class="form-input"
-                            id="cvvInput" maxlength="3" pattern="\d*" placeholder="000" type="text"/>
+                            id="cvvInput" maxlength="3" pattern="\d*" placeholder="000" type="text" />
                     </div>
                 </div>
                 <div class="mt-3">
@@ -541,7 +541,7 @@
                         </div>
                         <div class="flex items-center gap-3">
                             <label class="text-default-800 font-semibold text-sm" for="switchPrice1">$24.99</label>
-                            <input class="form-switch" id="switchPrice1" type="checkbox"/>
+                            <x-ui.input class="form-switch" id="switchPrice1" type="checkbox" />
                         </div>
                     </div>
                 </div>
@@ -555,7 +555,7 @@
                         </div>
                         <div class="flex items-center gap-3">
                             <label class="text-default-800 font-semibold text-sm" for="switchPrice2">$19.99</label>
-                            <input class="form-switch" id="switchPrice2" type="checkbox"/>
+                            <x-ui.input class="form-switch" id="switchPrice2" type="checkbox" />
                         </div>
                     </div>
                 </div>

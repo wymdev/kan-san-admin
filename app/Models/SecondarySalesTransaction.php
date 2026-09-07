@@ -205,11 +205,11 @@ class SecondarySalesTransaction extends Model
     public function scopeCustomerSearch($query, $search)
     {
         return $query->where(function ($q) use ($search) {
-            $q->where('customer_name', 'like', "%{$search}%")
-              ->orWhere('customer_phone', 'like', "%{$search}%")
+            $q->whereLike('customer_name', "%{$search}%")
+              ->orWhereLike('customer_phone', "%{$search}%")
               ->orWhereHas('customer', function ($cq) use ($search) {
-                  $cq->where('full_name', 'like', "%{$search}%")
-                     ->orWhere('phone_number', 'like', "%{$search}%");
+                  $cq->whereLike('full_name', "%{$search}%")
+                     ->orWhereLike('phone_number', "%{$search}%");
               });
         });
     }

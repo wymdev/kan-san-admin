@@ -47,27 +47,27 @@
     {{-- Advanced Filter Section --}}
     <div class="card mb-5">
         <div class="card-body">
-            <form method="GET" action="{{ route('analytics.customers') }}">
+            <x-ui.filter action="{{ route('analytics.customers') }}">
                 <div class="grid lg:grid-cols-6 md:grid-cols-3 grid-cols-1 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-default-900 mb-2">
                             <i class="size-3.5 me-1" data-lucide="calendar"></i> Time Period
                         </label>
-                        <select name="period" class="form-select border-default-300" onchange="this.form.submit()">
+                        <x-ui.select name="period" class="form-select border-default-300" onchange="this.form.submit()">
                             <option value="today" {{ $dateRange['period'] == 'today' ? 'selected' : '' }}>Today</option>
                             <option value="week" {{ $dateRange['period'] == 'week' ? 'selected' : '' }}>Last 7 Days</option>
                             <option value="month" {{ $dateRange['period'] == 'month' ? 'selected' : '' }}>Last Month</option>
                             <option value="3months" {{ $dateRange['period'] == '3months' ? 'selected' : '' }}>Last 3 Months</option>
                             <option value="6months" {{ $dateRange['period'] == '6months' ? 'selected' : '' }}>Last 6 Months</option>
                             <option value="year" {{ $dateRange['period'] == 'year' ? 'selected' : '' }}>Last Year</option>
-                        </select>
+                        </x-ui.select>
                     </div>
                     
                     <div class="lg:col-span-2">
                         <label class="block text-sm font-medium text-default-900 mb-2">
                             <i class="size-3.5 me-1" data-lucide="search"></i> Quick Search
                         </label>
-                        <input type="text" class="form-input border-default-300" placeholder="Search customers, orders..." />
+                        <x-ui.input type="text" class="form-input border-default-300" placeholder="Search customers, orders..."  />
                     </div>
 
                     <div class="lg:col-span-3 flex items-end gap-2">
@@ -95,7 +95,7 @@
                         </button>
                     </div>
                 </div>
-            </form>
+            </x-ui.filter>
         </div>
     </div>
 
@@ -377,7 +377,7 @@
             <span class="text-sm text-default-600">Ranked by total spending</span>
         </div>
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-default-200">
+            <x-ui.table class="min-w-full divide-y divide-default-200">
                 <thead class="bg-default-50">
                     <tr>
                         <th class="px-4 py-3 text-start text-xs font-semibold text-default-700">Rank</th>
@@ -458,7 +458,7 @@
                     </tr>
                     @endforelse
                 </tbody>
-            </table>
+            </x-ui.table>
         </div>
     </div>
 

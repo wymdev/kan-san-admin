@@ -18,7 +18,7 @@
                             guidance, allowing you to gain a deeper understanding of our products and access a treasure
                             trove of additional knowledge.</p>
                         <div class="relative">
-                            <input class="form-input form-input-lg" placeholder="Ask a question" type="email"/>
+                            <x-ui.input class="form-input form-input-lg" placeholder="Ask a question" type="email" />
                             <div
                                 class="absolute inset-y-0 end-4 flex items-center pointer-events-none ps-4 peer-disabled:opacity-50 peer-disabled:pointer-events-none">
                                 <i class="size-4 flex items-center text-default-500" data-lucide="search"></i>

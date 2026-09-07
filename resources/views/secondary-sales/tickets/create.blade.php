@@ -95,7 +95,7 @@
             </div>
             <div class="card-body">
                 <div class="ocr-zone" id="ocrZone">
-                    <input type="file" id="fileInput" accept="image/*" class="hidden">
+                    <x-ui.input type="file" id="fileInput" accept="image/*" class="hidden" />
                     
                     <div id="uploadPrompt">
                         <div class="icon">
@@ -148,9 +148,9 @@
                         <label class="form-label font-semibold flex items-center gap-2">
                         <i class="size-4" data-lucide="package"></i> Batch Number <span class="text-xs text-default-400 font-normal">(group tickets)</span>
                         </label>
-                        <input type="text" name="batch_number" value="{{ old('batch_number') }}" 
-                               class="form-input @error('batch_number') border-danger @enderror" 
-                               placeholder="e.g., 45, 46, BATCH-A">
+                        <x-ui.input type="text" name="batch_number" value="{{ old('batch_number') }}"
+                               class="form-input "
+                               placeholder="e.g., 45, 46, BATCH-A" />
                         <p class="text-xs text-default-400 mt-1">Tickets with same batch will be grouped for customer's public link</p>
                         @error('batch_number')
                             <span class="text-danger text-sm">{{ $message }}</span>
@@ -160,9 +160,9 @@
                     {{-- Ticket Numbers --}}
                     <div class="mb-4">
                         <label class="form-label">Ticket Number(s) <span class="text-danger">*</span></label>
-                        <input type="text" name="numbers" id="numbersInput" value="{{ old('numbers') }}" 
-                               class="form-input font-mono text-lg @error('numbers') border-danger @enderror" 
-                               placeholder="123456, 654321, 111222" required>
+                        <x-ui.input type="text" name="numbers" id="numbersInput" value="{{ old('numbers') }}"
+                               class="form-input font-mono text-lg "
+                               placeholder="123456, 654321, 111222" required />
                         <p class="text-xs text-default-400 mt-1">Enter 6-digit numbers separated by commas</p>
                         @error('numbers')
                             <span class="text-danger text-sm">{{ $message }}</span>
@@ -172,28 +172,28 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div class="mb-4">
                             <label class="form-label">Draw Date</label>
-                            <input type="date" name="withdraw_date" value="{{ old('withdraw_date') }}" class="form-input">
+                            <x-ui.input type="date" name="withdraw_date" value="{{ old('withdraw_date') }}" class="form-input" />
                         </div>
                         <div class="mb-4">
                             <label class="form-label">Price (฿)</label>
-                            <input type="number" name="price" value="{{ old('price', 80) }}" step="0.01" min="0" class="form-input">
+                            <x-ui.input type="number" name="price" value="{{ old('price', 80) }}" step="0.01" min="0" class="form-input" />
                         </div>
                     </div>
 
                     <div class="mb-4">
                         <label class="form-label">Source Seller</label>
-                        <input type="text" name="source_seller" value="{{ old('source_seller') }}" 
-                               class="form-input" placeholder="Where did you buy this ticket?">
+                        <x-ui.input type="text" name="source_seller" value="{{ old('source_seller') }}"
+                               class="form-input" placeholder="Where did you buy this ticket?" />
                     </div>
 
                     <div class="mb-4">
                         <label class="form-label">Notes (optional)</label>
-                        <textarea name="notes" rows="2" class="form-input" placeholder="Optional notes...">{{ old('notes') }}</textarea>
+                        <x-ui.textarea name="notes" rows="2" class="form-input" placeholder="Optional notes...">{{ old('notes') }}</x-ui.textarea>
                     </div>
 
                     <div class="mb-4">
                         <label class="form-label">Attach Image <span class="text-xs text-default-400">(optional)</span></label>
-                        <input type="file" name="source_image" id="attachImage" accept="image/*" class="form-input">
+                        <x-ui.input type="file" name="source_image" id="attachImage" accept="image/*" class="form-input" />
                     </div>
 
                     <div class="flex gap-3 mt-6">

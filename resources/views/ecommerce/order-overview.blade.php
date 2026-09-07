@@ -259,7 +259,7 @@
                 <div class="card-body">
                     <h6 class="mb-3 card-title">Documents</h6>
                     <div class="overflow-x-auto">
-                        <table class="w-full">
+                        <x-ui.table class="w-full">
                             <tbody>
                             <tr>
                                 <td class="pe-3.5 py-2 text-default-500 text-sm">Invoice No.</td>
@@ -272,7 +272,7 @@
                                 <td class="ps-3.5 py-2 text-sm"><a class="text-primary" href="#">#TWS987102301</a></td>
                             </tr>
                             </tbody>
-                        </table>
+                        </x-ui.table>
                     </div>
                 </div>
             </div>

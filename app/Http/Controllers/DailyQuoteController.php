@@ -27,8 +27,8 @@ class DailyQuoteController extends Controller
         $query = DailyQuote::query();
         
         if (!empty($search)) {
-            $query->where('quote', 'like', '%' . $search . '%')
-                  ->orWhere('author', 'like', '%' . $search . '%');
+            $query->whereLike('quote', '%' . $search . '%')
+                  ->orWhereLike('author', '%' . $search . '%');
         }
         
         if ($status === 'sent') {

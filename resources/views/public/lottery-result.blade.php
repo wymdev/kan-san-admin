@@ -1,511 +1,349 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lottery Result Check</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=Courier+Prime:wght@700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
+@extends('public.lottery.layout')
+
+@section('title', 'Ticket Result')
+@section('description', 'Result for your lottery ticket.')
+
+@push('styles')
     <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
-            --glass-bg: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --shadow-premium: 0 20px 40px -5px rgba(0, 0, 0, 0.3);
+        .ticket-stage {
+            max-width: 560px;
+            margin: 0 auto;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Sarabun', sans-serif;
-            min-height: 100vh;
-            background: #0f172a;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.3) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.3) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.3) 0px, transparent 50%),
-                radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.3) 0px, transparent 50%);
+        /* The ticket keeps its physical metaphor: two panes split by a
+           perforation, with a status stamp across the face. */
+        .stub {
+            position: relative;
             display: flex;
+            border-radius: var(--r-lg);
+            overflow: hidden;
+            background: #f8fafc;
+            color: #0f172a;
+            box-shadow: var(--shadow);
+        }
+
+        .stub::before,
+        .stub::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--bg);
+            z-index: 2;
+        }
+
+        .stub-side {
+            flex: none;
+            width: 116px;
+            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 1rem;
-            overflow-x: hidden;
-            flex-direction: column;
-            color: white;
+            gap: .5rem;
+            padding: 1.25rem .75rem;
+            background: #eef2f7;
+            border-right: 2px dashed #cbd5e1;
         }
 
-        /* Floating background particles */
-        .bg-particle {
-            position: absolute;
-            border-radius: 50%;
-            background: white;
-            opacity: 0.1;
-            z-index: 0;
-            animation: float 20s infinite linear;
+        .stub::before {
+            top: -11px;
+            left: 105px;
         }
 
-        @keyframes float {
-            0% { transform: translateY(0) rotate(0deg); }
-            100% { transform: translateY(-100vh) rotate(360deg); }
+        .stub::after {
+            bottom: -11px;
+            left: 105px;
         }
 
-        .container {
-            width: 100%;
-            max-width: 600px;
-            position: relative;
-            z-index: 10;
-            animation: slideUpFade 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        .stub-logo {
+            width: 44px;
+            height: 44px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            background: linear-gradient(150deg, var(--gold), #f59e0b);
+            color: var(--ink-on-gold);
         }
 
-        /* Glass Backdrop Container */
-        .glass-frame {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 2rem;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2rem;
-        }
-
-        .page-title {
+        .stub-price {
             text-align: center;
-            margin-bottom: -1rem;
         }
 
-        .page-title h1 {
-            font-size: 1.5rem;
+        .stub-price .v {
+            font-size: 1.75rem;
+            font-weight: 800;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stub-price .u {
+            font-size: .625rem;
             font-weight: 700;
-            background: linear-gradient(to right, #fff, #bfdbfe);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem;
+            letter-spacing: .14em;
+            color: #64748b;
         }
 
-        .page-title p {
-            color: #94a3b8;
-            font-size: 0.9rem;
-        }
-
-        /* The Ticket */
-        .ticket-wrapper {
-            width: 100%;
-            transition: transform 0.3s ease;
-            filter: drop-shadow(0 25px 25px rgba(0,0,0,0.25));
-        }
-
-        .ticket-wrapper:hover {
-            transform: translateY(-5px) scale(1.02);
-        }
-
-        .real-ticket {
-            background-color: white;
-            background-image: 
-                radial-gradient(circle at 100% 0%, rgba(200,160,255,0.1) 0%, transparent 20%),
-                radial-gradient(circle at 0% 100%, rgba(200,160,255,0.1) 0%, transparent 20%),
-                repeating-linear-gradient(-45deg, transparent, transparent 5px, rgba(0,0,0,0.02) 5px, rgba(0,0,0,0.02) 10px);
-            border-radius: 16px;
+        .stub-main {
+            flex: 1;
+            min-width: 0;
+            padding: 1.25rem;
             display: flex;
-            position: relative;
-            overflow: hidden;
+            flex-direction: column;
+            gap: .875rem;
+        }
+
+        .stub-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: .5rem;
+            font-size: .625rem;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: #94a3b8;
+        }
+
+        .stub-owner {
+            text-align: center;
+            font-size: .8125rem;
+            color: #64748b;
+        }
+
+        .stub-owner b {
             color: #1e293b;
         }
 
-        /* Wavy Cut effect CSS (Optional or simplified) */
-        .real-ticket::before, .real-ticket::after {
-            content: '';
-            position: absolute;
-            height: 20px;
-            width: 20px;
-            background: #0f172a; /* Match body bg */
-            border-radius: 50%;
-            z-index: 5;
-        }
-        .real-ticket::before { top: 50%; left: -10px; transform: translateY(-50%); }
-        .real-ticket::after { top: 50%; right: -10px; transform: translateY(-50%); }
-
-        /* Left Section */
-        .ticket-left {
-            width: 30%;
-            background: #f1f5f9;
-            border-right: 2px dashed #cbd5e1;
-            padding: 1.5rem 1rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            position: relative;
-        }
-
-        .logo-box {
-            width: 56px;
-            height: 56px;
-            background: white;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-            color: #3b82f6;
-        }
-
-        .price-display {
+        .stub-number {
             text-align: center;
-            margin-top: 0.5rem;
-        }
-
-        .price-val {
-            font-size: 2.25rem;
+            font-size: clamp(2.25rem, 11vw, 3.25rem);
             font-weight: 800;
-            color: #db2777;
-            line-height: 1;
-            text-shadow: 1px 1px 0px rgba(0,0,0,0.05);
-        }
-
-        .price-unit {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: #64748b;
-            letter-spacing: 1px;
-        }
-
-        /* Right Section */
-        .ticket-right {
-            width: 70%;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            background: white;
-        }
-
-        .ticket-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: #94a3b8;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-
-        .ticket-body {
-            text-align: center;
-            margin: 1rem 0;
-        }
-        
-        .main-digits {
-            font-family: 'Courier Prime', monospace;
-            font-size: 3.5rem;
-            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: .1em;
             color: #0f172a;
-            letter-spacing: -1px;
-            line-height: 1;
-            background: linear-gradient(180deg, #1e293b 0%, #334155 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            line-height: 1.05;
         }
 
-        .draw-date {
-            color: #3b82f6;
-            font-weight: 700;
-            font-size: 1rem;
-            margin-top: 0.5rem;
-            text-transform: uppercase;
-        }
-
-        .ticket-footer {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .info-pill {
-            background: #fdf2f8;
-            border: 1px solid #fce7f3;
-            padding: 0.4rem 0.8rem;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #be185d;
-            flex: 1;
+        .stub-date {
             text-align: center;
+            font-size: .8125rem;
+            color: #64748b;
         }
 
-        /* Stamps */
-        .stamp-status {
+        .stub-foot {
+            margin-top: auto;
+            padding-top: .75rem;
+            border-top: 1px dashed #cbd5e1;
+            text-align: center;
+            font-size: .75rem;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .stamp {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%) rotate(-15deg);
-            z-index: 20;
-            font-size: 2.5rem;
-            font-weight: 900;
-            padding: 0.5rem 1.5rem;
-            border: 5px solid;
-            border-radius: 12px;
+            z-index: 3;
+            transform: translate(-50%, -50%) rotate(-14deg);
+            padding: .375rem 1.25rem;
+            border: 4px solid currentColor;
+            border-radius: 8px;
+            font-size: clamp(1.5rem, 6vw, 2.125rem);
+            font-weight: 800;
+            letter-spacing: .08em;
             text-transform: uppercase;
-            mix-blend-mode: multiply;
-            opacity: 0;
-            animation: stampBounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.5s;
+            opacity: .82;
+            pointer-events: none;
         }
 
-        .won { color: #16a34a; border-color: #16a34a; }
-        .lost { color: #dc2626; border-color: #dc2626; }
-        .pending { color: #d97706; border-color: #d97706; }
-
-        @keyframes stampBounce {
-            0% { transform: translate(-50%, -50%) scale(3) rotate(-15deg); opacity: 0; }
-            100% { transform: translate(-50%, -50%) scale(1) rotate(-15deg); opacity: 0.85; }
+        .stamp.won {
+            color: #15803d;
         }
 
-        /* Beautiful Button */
-        .check-again-btn {
-            background: linear-gradient(135deg, #FFD700 0%, #F59E0B 100%);
-            color: #78350f;
-            border: none;
-            padding: 1rem 3rem;
-            border-radius: 99px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
-            transition: all 0.3s ease;
+        .stamp.lost {
+            color: #b91c1c;
+        }
+
+        .stamp.pending {
+            color: #b45309;
+        }
+
+        .verdict {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 1rem;
+            gap: .75rem;
+            margin-top: 1.25rem;
+            padding: 1rem var(--pad);
+            border-radius: var(--r-md);
+            border: 1px solid var(--line);
+            background: var(--surface);
         }
 
-        .check-again-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.6);
-            filter: brightness(110%);
+        .verdict.is-win {
+            border-color: var(--gold-line);
+            background: var(--gold-soft);
         }
 
-        .check-again-btn:active {
-            transform: translateY(0);
+        .verdict .t {
+            font-weight: 700;
         }
 
-        /* Animations */
-        @keyframes slideUpFade {
-            from { transform: translateY(40px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        .verdict .s {
+            font-size: .8125rem;
+            color: var(--text-muted);
         }
 
-        /* Mobile Improvements */
-        @media (max-width: 640px) {
-            body {
-                padding: 0.5rem;
-                justify-content: flex-start; /* prevent centering cutoff on small screens */
+        @media (max-width: 560px) {
+            .stub {
+                flex-direction: column;
             }
-            .container {
-                max-width: 100%;
-                margin-top: 1rem;
-            }
-            .glass-frame {
-                padding: 1.25rem;
-                border-radius: 16px;
-                gap: 1.5rem;
-            }
-            .real-ticket { 
-                flex-direction: column; 
-            }
-            .ticket-left { 
-                width: 100%; 
-                flex-direction: row; 
-                justify-content: space-between; 
-                padding: 1rem;
-                border-right: none;
-                border-bottom: 2px dashed #cbd5e1;
-                background: #f8fafc;
-            }
-            .ticket-right { 
-                width: 100%; 
-                padding: 1.25rem 1rem; 
-                gap: 1rem;
-            }
-            .price-display { margin-top: 0; text-align: right; }
-            .price-val { font-size: 2rem; }
-            .logo-box { width: 48px; height: 48px; }
-            
-            .ticket-header {
-                font-size: 0.65rem;
-            }
-            .main-digits { 
-                font-size: 2.8rem; /* Prevent overflow */
-                letter-spacing: -1px;
-            }
-            .real-ticket::before { top: auto; bottom: -10px; left: 20%; transform: none; }
-            .real-ticket::after { top: auto; bottom: -10px; right: 20%; transform: none; }
-            
-            .stamp-status {
-                font-size: 2rem;
-                border-width: 4px;
-                padding: 0.5rem 1rem;
-            }
-            .check-again-btn {
+
+            .stub-side {
                 width: 100%;
-                justify-content: center;
-                padding: 0.8rem;
+                flex-direction: row;
+                justify-content: space-between;
+                border-right: 0;
+                border-bottom: 2px dashed #cbd5e1;
+            }
+
+            .stub::before {
+                top: auto;
+                bottom: auto;
+                left: -11px;
+                top: 96px;
+            }
+
+            .stub::after {
+                bottom: auto;
+                left: auto;
+                right: -11px;
+                top: 96px;
+            }
+        }
+
+        #confetti {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 60;
+            overflow: hidden;
+        }
+
+        .confetti-bit {
+            position: absolute;
+            top: -5vh;
+            width: 9px;
+            height: 9px;
+            border-radius: 2px;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(105vh) rotate(720deg);
+                opacity: 0;
             }
         }
     </style>
-</head>
-<body>
+@endpush
 
-    <!-- Background Elements -->
-    @for($i = 0; $i < 10; $i++)
-        <div class="bg-particle" style="
-            left: {{ rand(0, 100) }}%; 
-            bottom: -50px;
-            width: {{ rand(5, 20) }}px; 
-            height: {{ rand(5, 20) }}px; 
-            animation-duration: {{ rand(15, 30) }}s; 
-            animation-delay: {{ rand(0, 10) }}s;">
-        </div>
-    @endfor
+@section('content')
+    @php
+        $status = $transaction->status;
+        $stamp = ['won' => 'Winner', 'not_won' => 'No win', 'pending' => 'Pending'][$status] ?? 'Pending';
+        $stampClass = ['won' => 'won', 'not_won' => 'lost'][$status] ?? 'pending';
+    @endphp
 
-    @if($transaction->status === 'won')
-        <canvas id="confetti-canvas"></canvas>
-    @endif
+    <div class="page-head" style="text-align:center">
+        <span class="eyebrow" style="justify-content:center"><x-icon name="shield-check" :size="13" /> Verified result</span>
+        <h1 class="page-title">Your ticket</h1>
+        <p class="page-sub">Checked against the official Government Lottery Office draw.</p>
+    </div>
 
-    <div class="container">
-        
-        <div class="page-title">
-            <h1>Lottery Result</h1>
-            <p>Official Digital Verification</p>
-        </div>
+    <div class="ticket-stage">
+        <div class="stub">
+            <div class="stamp {{ $stampClass }}">{{ $stamp }}</div>
 
-        <div class="glass-frame">
-            
-            <div class="ticket-wrapper">
-                <div class="real-ticket">
-                    <!-- Status Stamp -->
-                    @if($transaction->status === 'won')
-                        <div class="stamp-status won">WINNER</div>
-                    @elseif($transaction->status === 'not_won')
-                         <div class="stamp-status lost">NOT WON</div>
-                    @else
-                         <div class="stamp-status pending">PENDING</div>
-                    @endif
-
-                    <div class="ticket-left">
-                        <div class="logo-box">
-                            <i data-lucide="crown" size="28"></i>
-                        </div>
-                        <div class="price-display">
-                            <div class="price-val">100</div>
-                            <div class="price-unit">BAHT</div>
-                        </div>
-                    </div>
-
-                    <div class="ticket-right">
-                        <div class="ticket-header">
-                            <span>Thai Gov Lottery</span>
-                            <span>#{{ substr($transaction->public_token, 0, 8) }}</span>
-                        </div>
-
-                        <!-- Customer Name Section -->
-                        @if($transaction->customer)
-                        <div style="text-align:center; margin-top: 0.5rem; font-size: 0.85rem; font-weight: 600; color: #64748b;">
-                            Owner: <span style="color: #334155;">{{ $transaction->customer->customer_name }}</span>
-                        </div>
-                        @endif
-
-                        <div class="ticket-body">
-                            <div class="main-digits">
-                                {{ $ticket?->ticket_number ?? '000000' }}
-                            </div>
-                            <div class="draw-date">
-                                {{ $ticket?->withdraw_date ? $ticket->withdraw_date->format('d F Y') : 'Waiting Date' }}
-                            </div>
-                        </div>
-
-                        <div class="ticket-footer">
-                            <div class="info-pill" style="width: 100%; text-align: center;">
-                                Period: {{ $ticket?->batch_number ?? '01' }}
-                            </div>
-                        </div>
-                    </div>
+            <div class="stub-side">
+                <span class="stub-logo"><x-icon name="crown" :size="24" /></span>
+                <div class="stub-price">
+                    <div class="v">100</div>
+                    <div class="u">Baht</div>
                 </div>
             </div>
 
-            <button onclick="window.location.reload()" class="check-again-btn">
-                <i data-lucide="rotate-cw" size="20"></i>
-                Check Another Ticket
-            </button>
+            <div class="stub-main">
+                <div class="stub-meta">
+                    <span>Thai Gov Lottery</span>
+                    <span>#{{ substr($transaction->public_token, 0, 8) }}</span>
+                </div>
 
+                @if ($transaction->customer)
+                    <p class="stub-owner">Owner <b>{{ $transaction->customer->customer_name }}</b></p>
+                @endif
+
+                <div>
+                    <div class="stub-number">{{ $ticket?->ticket_number ?? '——————' }}</div>
+                    <p class="stub-date">
+                        {{ $ticket?->withdraw_date?->format('d F Y') ?? 'Draw date to be announced' }}
+                    </p>
+                </div>
+
+                <p class="stub-foot">Period {{ $ticket?->batch_number ?? '—' }}</p>
+            </div>
         </div>
+
+        <div class="verdict {{ $status === 'won' ? 'is-win' : '' }}">
+            <x-icon name="{{ $status === 'won' ? 'party-popper' : ($status === 'not_won' ? 'circle-slash' : 'clock') }}"
+                :size="22" style="color:{{ $status === 'won' ? 'var(--gold)' : 'var(--text-dim)' }};flex:none" />
+            <div>
+                @if ($status === 'won')
+                    <div class="t" style="color:var(--gold)">{{ $transaction->prize_won ?: 'This ticket won a prize' }}</div>
+                    <div class="s">Contact us to arrange your payout.</div>
+                @elseif ($status === 'not_won')
+                    <div class="t">No prize this draw</div>
+                    <div class="s">
+                        {{ $drawResult?->date_en ? 'Checked against the ' . $drawResult->date_en . ' draw.' : 'Better luck next time.' }}
+                    </div>
+                @else
+                    <div class="t">Awaiting the draw</div>
+                    <div class="s">We'll check this ticket as soon as results are published.</div>
+                @endif
+            </div>
+        </div>
+
+        <p style="margin-top:1.25rem;text-align:center">
+            <a href="{{ route('public.lottery-check') }}" class="btn btn-ghost">
+                <x-icon name="scan-line" :size="16" /> Check another ticket
+            </a>
+        </p>
     </div>
+@endsection
 
-    <script>
-        lucide.createIcons();
+@push('scripts')
+    @if ($transaction->status === 'won')
+        <div id="confetti" aria-hidden="true"></div>
+        <script>
+            (function () {
+                // One short burst rather than the previous endless canvas loop.
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-        @if($transaction->status === 'won')
-        (function() {
-            const canvas = document.getElementById('confetti-canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+                const host = document.getElementById('confetti');
+                const colors = ['#fbbf24', '#fcd34d', '#34d399', '#60a5fa', '#f8fafc'];
 
-            const pieces = [];
-            const numberOfPieces = 200;
-            const colors = ['#FCD34D', '#F472B6', '#34D399', '#60A5FA'];
-
-            function newPiece() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height - canvas.height;
-                this.rotation = Math.random() * 360;
-                this.color = colors[Math.floor(Math.random() * colors.length)];
-                this.size = Math.random() * 8 + 4;
-                this.speed = Math.random() * 4 + 2;
-                this.oscillationSpeed = Math.random() * 0.05 + 0.01;
-                
-                this.update = function() {
-                    this.y += this.speed;
-                    this.rotation += this.speed;
-                    this.x += Math.sin(this.y * this.oscillationSpeed);
-                    
-                    if (this.y > canvas.height) {
-                        this.y = -20;
-                        this.x = Math.random() * canvas.width;
-                    }
+                for (let i = 0; i < 40; i++) {
+                    const bit = document.createElement('div');
+                    bit.className = 'confetti-bit';
+                    bit.style.left = Math.random() * 100 + '%';
+                    bit.style.background = colors[i % colors.length];
+                    bit.style.animationDuration = (2.4 + Math.random() * 1.6) + 's';
+                    bit.style.animationDelay = (Math.random() * 0.8) + 's';
+                    host.appendChild(bit);
                 }
-                
-                this.draw = function() {
-                    ctx.fillStyle = this.color;
-                    ctx.save();
-                    ctx.translate(this.x, this.y);
-                    ctx.rotate(this.rotation * Math.PI / 180);
-                    ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
-                    ctx.restore();
-                }
-            }
 
-            for (let i = 0; i < numberOfPieces; i++) { pieces.push(new newPiece()); }
-
-            function animate() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                pieces.forEach(p => { p.update(); p.draw(); });
-                requestAnimationFrame(animate);
-            }
-            animate();
-            window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
-        })();
-        @endif
-    </script>
-</body>
-</html>
+                setTimeout(() => host.remove(), 5500);
+            })();
+        </script>
+    @endif
+@endpush

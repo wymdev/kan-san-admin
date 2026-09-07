@@ -21,8 +21,8 @@
                     </div>
                     <div class="mt-4">
                         <div class="relative">
-                            <input class="ps-9 form-input form-input-sm w-full" id="hs-leading-icon"
-                                   name="hs-leading-icon" placeholder="Search for..." type="text"/>
+                            <x-ui.input class="ps-9 form-input form-input-sm w-full" id="hs-leading-icon"
+                                   name="hs-leading-icon" placeholder="Search for..." type="text" />
                             <div class="absolute inset-y-0 start-0 flex items-center z-20 ps-3">
                                 <i class="size-3.5 text-default-600" data-lucide="search"></i>
                             </div>
@@ -43,39 +43,39 @@
                                      class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300"
                                      id="hs-basic-with-title-and-arrow-stretched-collapse-one" role="region">
                                     <div class="mt-4 flex gap-2">
-                                        <input
+                                        <x-ui.input
                                             class="size-5 cursor-pointer rounded-sm border border-primary bg-primary checked:bg-primary checked:border-primary focus:ring-0"
-                                            id="color1" type="checkbox" value="">
-                                        <input
+                                            id="color1" type="checkbox" value="" />
+                                        <x-ui.input
                                             class="size-5 cursor-pointer rounded-sm border border-red-300 bg-red-300 checked:bg-red-300 checked:border-red-300 focus:ring-0"
-                                            id="color2" type="checkbox" value=""/>
-                                        <input
+                                            id="color2" type="checkbox" value="" />
+                                        <x-ui.input
                                             class="size-5 cursor-pointer rounded-sm border border-green-300 bg-green-300 checked:bg-green-300 checked:border-green-300 focus:ring-0"
-                                            id="color3" type="checkbox" value=""/>
-                                        <input
+                                            id="color3" type="checkbox" value="" />
+                                        <x-ui.input
                                             class="size-5 cursor-pointer rounded-sm border border-default-500 bg-default-500 checked:bg-default-500 checked:border-default-500 focus:ring-0"
-                                            id="color4" type="checkbox" value=""/>
-                                        <input
+                                            id="color4" type="checkbox" value="" />
+                                        <x-ui.input
                                             class="size-5 cursor-pointer rounded-sm border border-purple-500 bg-purple-500 checked:bg-purple-500 checked:border-purple-500 focus:ring-0"
-                                            id="color5" type="checkbox" value=""/>
-                                        <input
+                                            id="color5" type="checkbox" value="" />
+                                        <x-ui.input
                                             class="size-5 cursor-pointer rounded-sm border border-sky-500 bg-sky-500 checked:bg-sky-500 checked:border-sky-500 focus:ring-0"
-                                            id="color6" type="checkbox" value=""/>
-                                        <input
+                                            id="color6" type="checkbox" value="" />
+                                        <x-ui.input
                                             class="size-5 cursor-pointer rounded-sm border border-yellow-500 bg-yellow-500 checked:bg-yellow-500 checked:border-yellow-500 focus:ring-0"
-                                            id="color7" type="checkbox" value=""/>
-                                        <input
+                                            id="color7" type="checkbox" value="" />
+                                        <x-ui.input
                                             class="size-5 cursor-pointer rounded-sm border border-green-500 bg-green-500 checked:bg-green-500 checked:border-green-500 focus:ring-0"
-                                            id="color8" type="checkbox" value=""/>
-                                        <input
+                                            id="color8" type="checkbox" value="" />
+                                        <x-ui.input
                                             class="size-5 cursor-pointer rounded-sm border border-default-800 bg-default-800 checked:bg-default-800 checked:border-default-800 focus:ring-0"
-                                            id="color9" type="checkbox" value=""/>
-                                        <input
+                                            id="color9" type="checkbox" value="" />
+                                        <x-ui.input
                                             class="size-5 cursor-pointer rounded-sm border border-default-200 bg-default-200 checked:bg-default-200 checked:border-default-200 focus:ring-0"
-                                            id="color10" type="checkbox" value=""/>
-                                        <input
+                                            id="color10" type="checkbox" value="" />
+                                        <x-ui.input
                                             class="size-5 cursor-pointer rounded-sm border border-emerald-300 bg-emerald-300 checked:bg-emerald-300 checked:border-emerald-300 focus:ring-0"
-                                            id="color11" type="checkbox" value=""/>
+                                            id="color11" type="checkbox" value="" />
                                         </input></div>
                                 </div>
                             </div>
@@ -93,40 +93,40 @@
                                      id="hs-basic-with-title-and-arrow-stretched-collapse-two" role="region">
                                     <div class="mt-4 flex gap-2 flex-col">
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="priceAll"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="priceAll"
+                                                   type="checkbox" />
                                             <label class="text-sm text-default-800 align-middle cursor-pointer"
                                                    for="priceAll">
                                                 All
                                             </label>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="price1"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="price1"
+                                                   type="checkbox" />
                                             <label class="text-sm text-default-800 align-middle cursor-pointer"
                                                    for="price1">
                                                 $0.00 – $110.00
                                             </label>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="price2"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="price2"
+                                                   type="checkbox" />
                                             <label class="text-sm text-default-800 align-middle cursor-pointer"
                                                    for="price2">
                                                 $110.00 – $220.00
                                             </label>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="price3"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="price3"
+                                                   type="checkbox" />
                                             <label class="text-sm text-default-800 align-middle cursor-pointer"
                                                    for="price3">
                                                 $220 - $330
                                             </label>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="price4"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="price4"
+                                                   type="checkbox" />
                                             <label class="text-sm text-default-800 align-middle cursor-pointer"
                                                    for="price4">
                                                 $330 -
@@ -134,24 +134,24 @@
                                             </label>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="price5"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="price5"
+                                                   type="checkbox" />
                                             <label class="text-sm text-default-800 align-middle cursor-pointer"
                                                    for="price5">
                                                 $550+
                                             </label>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="price6"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="price6"
+                                                   type="checkbox" />
                                             <label class="text-sm text-default-800 align-middle cursor-pointer"
                                                    for="price6">
                                                 Low to High
                                             </label>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="price7"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="price7"
+                                                   type="checkbox" />
                                             <label class="text-sm text-default-800 align-middle cursor-pointer"
                                                    for="price7">
                                                 High to Low
@@ -174,64 +174,64 @@
                                      id="hs-basic-with-title-and-arrow-stretched-collapse-three" role="region">
                                     <div class="mt-4 flex gap-2 flex-col">
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="categoryAll"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="categoryAll"
+                                                   type="checkbox" />
                                             <label class="text-sm text-default-800 align-middle cursor-pointer"
                                                    for="categoryAll">
                                                 All
                                             </label>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="category1"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="category1"
+                                                   type="checkbox" />
                                             <label class="text-sm text-default-800 align-middle cursor-pointer"
                                                    for="category1">
                                                 Mobiles, Computers
                                             </label>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="category2"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="category2"
+                                                   type="checkbox" />
                                             <label class="text-sm text-default-800 align-middle cursor-pointer"
                                                    for="category2">
                                                 TV, Appliances, Electronics
                                             </label>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="category3"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="category3"
+                                                   type="checkbox" />
                                             <label class="text-sm text-default-800 align-middle cursor-pointer"
                                                    for="category3">
                                                 Men's Fashion
                                             </label>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="category4"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="category4"
+                                                   type="checkbox" />
                                             <label class="text-sm text-default-800 align-middle cursor-pointer"
                                                    for="category4">
                                                 Women's Fashion
                                             </label>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="category5"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="category5"
+                                                   type="checkbox" />
                                             <label class="text-sm text-default-800 align-middle cursor-pointer"
                                                    for="category5">
                                                 Home, Kitchen, Pets
                                             </label>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="category6"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="category6"
+                                                   type="checkbox" />
                                             <label class="text-sm text-default-800 align-middle cursor-pointer"
                                                    for="category6">
                                                 Beauty, Health, Grocery
                                             </label>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="category7"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="category7"
+                                                   type="checkbox" />
                                             <label class="text-sm text-default-800 align-middle cursor-pointer"
                                                    for="category7">
                                                 Books
@@ -254,16 +254,16 @@
                                      id="hs-basic-with-title-and-arrow-stretched-collapse-four" role="region">
                                     <div class="mt-4 flex gap-2 flex-col">
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="ratingAll"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="ratingAll"
+                                                   type="checkbox" />
                                             <label class="text-sm text-default-800 align-middle cursor-pointer"
                                                    for="ratingAll">
                                                 All
                                             </label>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="rating5"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="rating5"
+                                                   type="checkbox" />
                                             <label
                                                 class="text-sm flex items-center gap-1 text-default-800 align-middle cursor-pointer"
                                                 for="rating5">
@@ -272,8 +272,8 @@
                                             </label>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="rating4"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="rating4"
+                                                   type="checkbox" />
                                             <label
                                                 class="text-sm flex items-center gap-1 text-default-800 align-middle cursor-pointer"
                                                 for="rating4">
@@ -282,8 +282,8 @@
                                             </label>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="rating3"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="rating3"
+                                                   type="checkbox" />
                                             <label
                                                 class="text-sm flex items-center gap-1 text-default-800 align-middle cursor-pointer"
                                                 for="rating3">
@@ -292,8 +292,8 @@
                                             </label>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="rating2"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="rating2"
+                                                   type="checkbox" />
                                             <label
                                                 class="text-sm flex items-center gap-1 text-default-800 align-middle cursor-pointer"
                                                 for="rating2">
@@ -302,8 +302,8 @@
                                             </label>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="rating1"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="rating1"
+                                                   type="checkbox" />
                                             <label
                                                 class="text-sm flex items-center gap-1 text-default-800 align-middle cursor-pointer"
                                                 for="rating1">
@@ -312,8 +312,8 @@
                                             </label>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="rating0"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="rating0"
+                                                   type="checkbox" />
                                             <label
                                                 class="text-sm flex items-center gap-1 text-default-800 align-middle cursor-pointer"
                                                 for="rating0">
@@ -337,32 +337,32 @@
                                      id="hs-basic-with-title-and-arrow-stretched-collapse-five" role="region">
                                     <div class="mt-4 flex gap-2 flex-col">
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="genderAll"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="genderAll"
+                                                   type="checkbox" />
                                             <label class="text-sm text-default-800 align-middle cursor-pointer"
                                                    for="genderAll">
                                                 All
                                             </label>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="gendermal"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="gendermal"
+                                                   type="checkbox" />
                                             <label class="text-sm text-default-800 align-middle cursor-pointer"
                                                    for="gendermal">
                                                 Male
                                             </label>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="genderFemal"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="genderFemal"
+                                                   type="checkbox" />
                                             <label class="text-sm text-default-800 align-middle cursor-pointer"
                                                    for="genderFemal">
                                                 Female
                                             </label>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <input class="form-checkbox checked:bg-primary" id="genderOthers"
-                                                   type="checkbox"/>
+                                            <x-ui.input class="form-checkbox checked:bg-primary" id="genderOthers"
+                                                   type="checkbox" />
                                             <label class="text-sm text-default-800 align-middle cursor-pointer"
                                                    for="genderOthers">
                                                 Other

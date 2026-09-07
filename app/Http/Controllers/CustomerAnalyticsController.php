@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\DatabaseSql;
+
 use App\Models\Customer;
 use App\Models\TicketPurchase;
 use App\Models\DevicePushToken;
@@ -95,7 +97,7 @@ class CustomerAnalyticsController extends Controller
         ];
         
         // Calculate previous period with same duration
-        $durationInDays = $dateRange['end']->diffInDays($dateRange['start']);
+        $durationInDays = $dateRange['start']->diffInDays($dateRange['end'], true);
         $previousPeriod = [
             'start' => $dateRange['start']->copy()->subDays($durationInDays)->startOfDay(),
             'end' => $dateRange['start']->copy()->subSeconds(1)
@@ -149,7 +151,7 @@ class CustomerAnalyticsController extends Controller
         // Total Prize Won (sum of prize_won column)
         $totalPrizeWon = TicketPurchase::whereBetween('created_at', [$currentPeriod['start'], $currentPeriod['end']])
             ->where('status', 'won')
-            ->sum('prize_won');
+            ->sum(\Illuminate\Support\Facades\DB::raw(DatabaseSql::numericText('prize_won')));
 
         return [
             'totalCustomers' => $totalCustomers,
@@ -170,9 +172,10 @@ class CustomerAnalyticsController extends Controller
     private function getSalesTrendData($dateRange)
     {
         $groupBy = $this->getGroupByFormat($dateRange);
+        $periodSql = DatabaseSql::period('created_at', $groupBy);
         
         $data = TicketPurchase::selectRaw("
-                DATE_FORMAT(created_at, '{$groupBy}') as period,
+                {$periodSql} as period,
                 SUM(total_price) as total_sales,
                 COUNT(*) as total_orders
             ")
@@ -208,9 +211,10 @@ class CustomerAnalyticsController extends Controller
     private function getCustomerGrowthData($dateRange)
     {
         $groupBy = $this->getGroupByFormat($dateRange);
+        $periodSql = DatabaseSql::period('created_at', $groupBy);
         
         $data = Customer::selectRaw("
-                DATE_FORMAT(created_at, '{$groupBy}') as period,
+                {$periodSql} as period,
                 COUNT(*) as new_customers
             ")
             ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
@@ -238,8 +242,8 @@ class CustomerAnalyticsController extends Controller
         $topCustomers = Customer::select('customers.id', 'customers.full_name', 'customers.email', 'customers.phone_number')
             ->selectRaw('COUNT(ticket_purchases.id) as total_purchases')
             ->selectRaw('SUM(ticket_purchases.total_price) as total_spent')
-            ->selectRaw('SUM(CASE WHEN ticket_purchases.status = "won" THEN 1 ELSE 0 END) as total_wins')
-            ->selectRaw('SUM(CASE WHEN ticket_purchases.status IN ("won", "not_won") THEN 1 ELSE 0 END) as checked_purchases')
+            ->selectRaw("SUM(CASE WHEN ticket_purchases.status = 'won' THEN 1 ELSE 0 END) as total_wins")
+            ->selectRaw("SUM(CASE WHEN ticket_purchases.status IN ('won', 'not_won') THEN 1 ELSE 0 END) as checked_purchases")
             ->join('ticket_purchases', 'customers.id', '=', 'ticket_purchases.customer_id')
             ->whereBetween('ticket_purchases.created_at', [$dateRange['start'], $dateRange['end']])
             ->whereIn('ticket_purchases.status', ['approved', 'won', 'not_won'])
@@ -273,7 +277,7 @@ class CustomerAnalyticsController extends Controller
             ")
             ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
             ->groupBy('status')
-            ->orderByRaw("FIELD(status, 'pending', 'approved', 'won', 'not_won', 'rejected')")
+            ->orderByRaw("CASE status WHEN 'pending' THEN 1 WHEN 'approved' THEN 2 WHEN 'won' THEN 3 WHEN 'not_won' THEN 4 WHEN 'rejected' THEN 5 ELSE 6 END")
             ->get();
 
         $statusLabels = [
@@ -348,6 +352,7 @@ class CustomerAnalyticsController extends Controller
 
     private function getAgeDistribution($dateRange)
     {
+        $ageSql = DatabaseSql::age('dob');
         // Get customers who have made purchases in the period
         $customerIds = TicketPurchase::whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
             ->whereIn('status', ['approved', 'won', 'not_won'])
@@ -359,7 +364,7 @@ class CustomerAnalyticsController extends Controller
         }
 
         $customers = Customer::selectRaw("
-                TIMESTAMPDIFF(YEAR, dob, CURDATE()) as age
+                {$ageSql} as age
             ")
             ->whereIn('id', $customerIds)
             ->whereNotNull('dob')
@@ -398,7 +403,7 @@ class CustomerAnalyticsController extends Controller
             ->whereBetween('ticket_purchases.created_at', [$dateRange['start'], $dateRange['end']])
             ->whereIn('ticket_purchases.status', ['approved', 'won', 'not_won'])
             ->groupBy('customers.id')
-            ->having('purchase_count', '>', 0)
+            ->havingRaw('COUNT(ticket_purchases.id) > 0')
             ->get();
 
         $frequency = [
@@ -441,7 +446,7 @@ class CustomerAnalyticsController extends Controller
 
         $totalPrizes = TicketPurchase::whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
             ->where('status', 'won')
-            ->sum('prize_won');
+            ->sum(\Illuminate\Support\Facades\DB::raw(DatabaseSql::numericText('prize_won')));
 
         $avgPrize = $totalWon > 0 ? $totalPrizes / $totalWon : 0;
 
@@ -470,14 +475,14 @@ class CustomerAnalyticsController extends Controller
 
     private function getGroupByFormat($dateRange)
     {
-        $days = $dateRange['end']->diffInDays($dateRange['start']);
+        $days = $dateRange['start']->diffInDays($dateRange['end'], true);
         
         if ($days <= 1) {
             return '%Y-%m-%d %H:00'; // Hourly for today
         } elseif ($days <= 31) {
             return '%Y-%m-%d'; // Daily
         } elseif ($days <= 90) {
-            return '%Y Week %u'; // Weekly
+            return '%x Week %v'; // Weekly
         } else {
             return '%Y-%m'; // Monthly
         }

@@ -22,46 +22,46 @@
             </div>
             <div class="card-header">
                 <div class="md:flex items-center md:space-y-0 space-y-4 gap-3">
-                    <form method="GET" action="{{ route('tickets.index') }}" class="flex gap-2 flex-wrap items-center">
+                    <x-ui.filter action="{{ route('tickets.index') }}" class="flex gap-2 flex-wrap items-center">
                         <div class="relative" style="width: 10rem;">
-                            <input 
+                            <x-ui.input
                                 name="search"
                                 value="{{ request('search') }}"
                                 class="ps-10 form-input form-input-sm w-full"
                                 placeholder="Search tickets..."
                                 type="text"
-                            />
+                             />
                             <div class="absolute inset-y-0 left-0 flex items-center ps-3">
                                 <i class="size-4 text-default-500" data-lucide="search"></i>
                             </div>
                         </div>
                         <div style="width: 8.5rem;">
-                            <input 
+                            <x-ui.input
                                 class="form-input form-input-sm w-full"
                                 name="withdraw_date"
                                 value="{{ request('withdraw_date') }}"
                                 data-date-format="d M, Y" data-provider="flatpickr"
                                 placeholder="Withdraw Date"
                                 autocomplete="off"
-                            />
+                             />
                         </div>
                         <div style="width: 7rem;">
-                            <select name="ticket_type" class="form-input form-input-sm w-full">
+                            <x-ui.select name="ticket_type" class="form-input form-input-sm w-full">
                                 <option value="">All Types</option>
                                 <option value="normal" {{ request('ticket_type') == 'normal' ? 'selected' : '' }}>Normal</option>
                                 <option value="special" {{ request('ticket_type') == 'special' ? 'selected' : '' }}>Special</option>
                                 <option value="lucky" {{ request('ticket_type') == 'lucky' ? 'selected' : '' }}>Lucky</option>
-                            </select>
+                            </x-ui.select>
                         </div>
-                        <input type="date" name="date_from" value="{{ request('date_from') }}" class="form-input form-input-sm" style="width: 8.5rem;" placeholder="From Date">
-                        <input type="date" name="date_to" value="{{ request('date_to') }}" class="form-input form-input-sm" style="width: 8.5rem;" placeholder="To Date">
+                        <x-ui.input type="date" name="date_from" value="{{ request('date_from') }}" class="form-input form-input-sm" style="width: 8.5rem;" placeholder="From Date" />
+                        <x-ui.input type="date" name="date_to" value="{{ request('date_to') }}" class="form-input form-input-sm" style="width: 8.5rem;" placeholder="To Date" />
                         <button type="submit" class="btn btn-xs bg-primary text-white">
                             <i class="size-4 me-1" data-lucide="search"></i>Filter
                         </button>
                         @if(request()->hasAny(['search', 'withdraw_date', 'ticket_type', 'date_from', 'date_to']))
                             <a href="{{ route('tickets.index') }}" class="btn btn-xs bg-default-200 text-default-600 hover:bg-default-300">Clear</a>
                         @endif
-                    </form>
+                    </x-ui.filter>
                 </div>
             </div>
 
@@ -69,7 +69,7 @@
                 <div class="overflow-x-auto">
                     <div class="min-w-full inline-block align-middle">
                         <div class="overflow-hidden">
-                            <table class="min-w-full divide-y divide-default-200">
+                            <x-ui.table class="min-w-full divide-y divide-default-200">
                                 <thead class="bg-default-150">
                                 <tr class="text-sm font-normal text-default-700">
                                     <th class="px-3.5 py-3 text-start">Barcode</th>
@@ -115,7 +115,7 @@
                                     </tr>
                                 @endforelse
                                 </tbody>
-                            </table>
+                            </x-ui.table>
                         </div>
                     </div>
                 </div>

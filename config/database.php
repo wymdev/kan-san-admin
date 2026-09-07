@@ -31,6 +31,22 @@ return [
 
     'connections' => [
 
+        // Separate target lets the existing app stay on MySQL during rehearsal.
+        'pgsql_migration' => [
+            'driver' => 'pgsql',
+            'url' => env('PG_MIGRATION_URL'),
+            'host' => env('PG_MIGRATION_HOST', '127.0.0.1'),
+            'port' => env('PG_MIGRATION_PORT', '5432'),
+            'database' => env('PG_MIGRATION_DATABASE', 'kan_san'),
+            'username' => env('PG_MIGRATION_USERNAME', 'postgres'),
+            'password' => env('PG_MIGRATION_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => env('PG_MIGRATION_SCHEMA', 'public'),
+            'sslmode' => env('PG_MIGRATION_SSLMODE', 'prefer'),
+        ],
+
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),
@@ -94,8 +110,8 @@ return [
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
-            'search_path' => 'public',
-            'sslmode' => 'prefer',
+            'search_path' => env('DB_SCHEMA', 'public'),
+            'sslmode' => env('DB_SSLMODE', 'prefer'),
         ],
 
         'sqlsrv' => [

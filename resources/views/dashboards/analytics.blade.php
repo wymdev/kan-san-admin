@@ -73,27 +73,27 @@
     {{-- Advanced Filter Section --}}
     <div class="card mb-5">
         <div class="card-body">
-            <form method="GET" action="{{ route('analytics.index') }}">
+            <x-ui.filter action="{{ route('analytics.index') }}">
                 <div class="grid lg:grid-cols-6 md:grid-cols-3 grid-cols-1 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-default-900 mb-2">
                             <i class="size-3.5 me-1" data-lucide="calendar"></i> Time Period
                         </label>
-                        <select name="period" class="form-select border-default-300" onchange="this.form.submit()">
+                        <x-ui.select name="period" class="form-select border-default-300" onchange="this.form.submit()">
                             <option value="today" {{ $period == 'today' ? 'selected' : '' }}>Today</option>
                             <option value="week" {{ $period == 'week' ? 'selected' : '' }}>Last 7 Days</option>
                             <option value="month" {{ $period == 'month' ? 'selected' : '' }}>Last Month</option>
                             <option value="3months" {{ $period == '3months' ? 'selected' : '' }}>Last 3 Months</option>
                             <option value="6months" {{ $period == '6months' ? 'selected' : '' }}>Last 6 Months</option>
                             <option value="year" {{ $period == 'year' ? 'selected' : '' }}>Last Year</option>
-                        </select>
+                        </x-ui.select>
                     </div>
                     
                     <div class="lg:col-span-2">
                         <label class="block text-sm font-medium text-default-900 mb-2">
                             <i class="size-3.5 me-1" data-lucide="search"></i> Quick Search
                         </label>
-                        <input type="text" class="form-input border-default-300" placeholder="Search tickets, customers..." />
+                        <x-ui.input type="text" class="form-input border-default-300" placeholder="Search tickets, customers..."  />
                     </div>
 
                     <div class="lg:col-span-3 flex items-end gap-2">
@@ -108,7 +108,7 @@
                         </button>
                     </div>
                 </div>
-            </form>
+            </x-ui.filter>
         </div>
     </div>
 
@@ -567,7 +567,7 @@
             <span class="text-sm text-default-600">All lottery tickets sold in the selected period</span>
         </div>
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-default-200">
+            <x-ui.table class="min-w-full divide-y divide-default-200">
                 <thead class="bg-default-50">
                     <tr>
                         <th class="px-4 py-3 text-start text-xs font-semibold text-default-700">Ticket</th>
@@ -611,7 +611,7 @@
                     </tr>
                     @endforelse
                 </tbody>
-            </table>
+            </x-ui.table>
         </div>
     </div>
 

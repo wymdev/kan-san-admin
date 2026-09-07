@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\DatabaseSql;
+
 use App\Models\SecondarySalesTransaction;
 use App\Models\SecondaryLotteryTicket;
 use App\Models\Customer;
@@ -42,14 +44,14 @@ class SecondarySalesController extends Controller
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 // Transaction Number
-                $q->where('secondary_sales_transactions.transaction_number', 'like', "%$search%")
+                $q->whereLike('secondary_sales_transactions.transaction_number', "%$search%")
                     // Customer
                     ->orWhereHas('customer', function ($cq) use ($search) {
-                        $cq->where('full_name', 'like', "%$search%")
-                            ->orWhere('phone_number', 'like', "%$search%");
+                        $cq->whereLike('full_name', "%$search%")
+                            ->orWhereLike('phone_number', "%$search%");
                     })
                     // Ticket Number (JSON fix)
-                    ->orWhereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(secondary_lottery_tickets.numbers, '\"', ''), '[', ''), ']', ''), ',', ''), ' ', '') LIKE ?", ["%$search%"]);
+                    ->orWhereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(".DatabaseSql::jsonText('secondary_lottery_tickets.numbers').", '\"', ''), '[', ''), ']', ''), ',', ''), ' ', '') LIKE ?", ["%$search%"]);
             });
         }
 
@@ -68,10 +70,10 @@ class SecondarySalesController extends Controller
         }
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
-                $q->where('secondary_sales_transactions.transaction_number', 'like', "%{$search}%")
-                    ->orWhere('secondary_lottery_tickets.signature', 'like', "%{$search}%")
-                    ->orWhere('secondary_sales_transactions.customer_name', 'like', "%{$search}%")
-                    ->orWhere('secondary_sales_transactions.customer_phone', 'like', "%{$search}%");
+                $q->whereLike('secondary_sales_transactions.transaction_number', "%{$search}%")
+                    ->orWhereLike('secondary_lottery_tickets.signature', "%{$search}%")
+                    ->orWhereLike('secondary_sales_transactions.customer_name', "%{$search}%")
+                    ->orWhereLike('secondary_sales_transactions.customer_phone', "%{$search}%");
             });
         }
 
@@ -409,11 +411,11 @@ class SecondarySalesController extends Controller
             // Apply search
             if ($search = $request->get('search')) {
                 $previouslyCheckedQuery->where(function ($q) use ($search) {
-                    $q->where('transaction_number', 'like', "%{$search}%")
-                        ->orWhere('customer_name', 'like', "%{$search}%")
-                        ->orWhere('customer_phone', 'like', "%{$search}%")
+                    $q->whereLike('transaction_number', "%{$search}%")
+                        ->orWhereLike('customer_name', "%{$search}%")
+                        ->orWhereLike('customer_phone', "%{$search}%")
                         ->orWhereHas('secondaryTicket', function ($sq) use ($search) {
-                            $sq->where('signature', 'like', "%{$search}%");
+                            $sq->whereLike('signature', "%{$search}%");
                         });
                 });
             }
@@ -542,8 +544,8 @@ class SecondarySalesController extends Controller
             return response()->json([]);
         }
 
-        $customers = Customer::where('full_name', 'like', "%{$search}%")
-            ->orWhere('phone_number', 'like', "%{$search}%")
+        $customers = Customer::whereLike('full_name', "%{$search}%")
+            ->orWhereLike('phone_number', "%{$search}%")
             ->take(10)
             ->get(['id', 'full_name', 'phone_number']);
 

@@ -14,7 +14,7 @@
                     <h6 class="mb-4 card-title">Invoice List</h6>
                     <div class="flex items-center gap-2">
                         <div class="relative w-full">
-                            <input class="ps-11 form-input form-input-sm" placeholder="Search for..." type="email"/>
+                            <x-ui.input class="ps-11 form-input form-input-sm" placeholder="Search for..." type="email" />
                             <div class="absolute inset-y-0 start-0 flex items-center ps-3">
                                 <i class="size-4 flex items-center fill-default-100 text-default-500"
                                    data-lucide="search"></i>
@@ -276,7 +276,7 @@
                             </div>
                         </div>
                         <div class="mt-8 overflow-x-auto">
-                            <table class="w-full whitespace-nowrap">
+                            <x-ui.table class="w-full whitespace-nowrap">
                                 <thead>
                                 <tr class="font-semibold border-b border-default-200 text-default-500 text-sm">
                                     <th class="px-3.5 py-2.5 text-start">#</th>
@@ -368,7 +368,7 @@
                                     </td>
                                 </tr>
                                 </tbody>
-                            </table>
+                            </x-ui.table>
                         </div>
                         <div class="my-5 text-default-500 text-sm">
                             <p class="mb-2 text-sm uppercase">Payments Details</p>

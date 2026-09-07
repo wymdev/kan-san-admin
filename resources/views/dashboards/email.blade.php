@@ -172,14 +172,14 @@
                 <div class="card-header">
                     <h6 class="card-title">Email Data</h6>
                     <div>
-                        <select class="form-input form-input-sm">
+                        <x-ui.select class="form-input form-input-sm">
                             <option selected="">This Yearly</option>
                             <option>1 Weekly</option>
                             <option>1 Monthly</option>
                             <option>3 Monthly</option>
                             <option>6 Monthly</option>
                             <option>This Yearly</option>
-                        </select>
+                        </x-ui.select>
                     </div>
                 </div>
                 <div class="card-body">
@@ -237,7 +237,7 @@
             <h6 class="card-title">Email Performance</h6>
             <div class="flex gap-3 items-center">
                 <div class="relative">
-                    <input class="form-input form-input-sm ps-9" placeholder="Search for...." type="email" />
+                    <x-ui.input class="form-input form-input-sm ps-9" placeholder="Search for...." type="email"  />
                     <div class="absolute inset-y-0 start-0 flex items-center ps-3">
                         <i class="size-3.5 text-default-500" data-lucide="search"></i>
                     </div>
@@ -251,11 +251,11 @@
             <div class="overflow-x-auto">
                 <div class="min-w-full inline-block align-middle">
                     <div class="overflow-hidden">
-                        <table class="min-w-full divide-y divide-default-200">
+                        <x-ui.table class="min-w-full divide-y divide-default-200">
                             <thead class="bg-default-150">
                                 <tr class="text-sm font-normal text-default-500 whitespace-nowrap">
                                     <th class="py-3 px-4 pe-0 text-start" scope="col">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
+                                        <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox"  />
                                     </th>
                                     <th class="px-3.5 py-3 text-start" scope="col">Email</th>
                                     <th class="px-3.5 py-3 text-start" scope="col">Create Date</th>
@@ -270,7 +270,7 @@
                             <tbody class="divide-y divide-default-200">
                                 <tr class="text-default-800 font-normal">
                                     <td class="py-2.5 ps-4">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
+                                        <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox"  />
                                     </td>
                                     <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">Adverting &amp; Marketing Agencies
                                     </td>
@@ -284,7 +284,7 @@
                                 </tr>
                                 <tr class="text-default-800 font-normal">
                                     <td class="py-2.5 ps-4">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
+                                        <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox"  />
                                     </td>
                                     <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">Automotive &amp; Aerospace</td>
                                     <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">20 Sep, 2023</td>
@@ -297,7 +297,7 @@
                                 </tr>
                                 <tr class="text-default-800 font-normal">
                                     <td class="py-2.5 ps-4">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
+                                        <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox"  />
                                     </td>
                                     <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">Education</td>
                                     <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">04 Jun, 2023</td>
@@ -310,7 +310,7 @@
                                 </tr>
                                 <tr class="text-default-800 font-normal">
                                     <td class="py-2.5 ps-4">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
+                                        <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox"  />
                                     </td>
                                     <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">Financial Services</td>
                                     <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">11 Feb, 2023</td>
@@ -323,7 +323,7 @@
                                 </tr>
                                 <tr class="text-default-800 font-normal">
                                     <td class="py-2.5 ps-4">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
+                                        <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox"  />
                                     </td>
                                     <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">Food &amp; Beverage</td>
                                     <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">26 Nov, 2023</td>
@@ -336,7 +336,7 @@
                                 </tr>
                                 <tr class="text-default-800 font-normal">
                                     <td class="py-2.5 ps-4">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
+                                        <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox"  />
                                     </td>
                                     <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">Healthcare Services</td>
                                     <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">19 Jul, 2023</td>
@@ -349,7 +349,7 @@
                                 </tr>
                                 <tr class="text-default-800 font-normal">
                                     <td class="py-2.5 ps-4">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
+                                        <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox"  />
                                     </td>
                                     <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">Professional Services</td>
                                     <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">14 Jun, 2023</td>
@@ -362,7 +362,7 @@
                                 </tr>
                                 <tr class="text-default-800 font-normal">
                                     <td class="py-2.5 ps-4">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
+                                        <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox"  />
                                     </td>
                                     <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">Logistics &amp; Wholesale</td>
                                     <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">03 Dec, 2023</td>
@@ -375,7 +375,7 @@
                                 </tr>
                                 <tr class="text-default-800 font-normal">
                                     <td class="py-2.5 ps-4">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
+                                        <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox"  />
                                     </td>
                                     <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">Real Estate Agents &amp; Brokers
                                     </td>
@@ -389,7 +389,7 @@
                                 </tr>
                                 <tr class="text-default-800 font-normal">
                                     <td class="py-2.5 ps-4">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
+                                        <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox"  />
                                     </td>
                                     <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">Nonprofit</td>
                                     <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">03 Dec, 2023</td>
@@ -402,7 +402,7 @@
                                 </tr>
                                 <tr class="text-default-800 font-normal">
                                     <td class="py-2.5 ps-4">
-                                        <input class="form-checkbox" id="checkbox-all" type="checkbox" />
+                                        <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox"  />
                                     </td>
                                     <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">Retail</td>
                                     <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">03 Dec, 2023</td>
@@ -414,7 +414,7 @@
                                     <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">0.01%</td>
                                 </tr>
                             </tbody>
-                        </table>
+                        </x-ui.table>
                     </div>
                 </div>
             </div>

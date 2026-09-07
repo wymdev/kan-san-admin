@@ -15,7 +15,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label for="version" class="form-label">Version <span class="text-red-500">*</span></label>
-                            <input type="text" name="version" id="version" class="form-input @error('version') border-red-500 @enderror" value="{{ old('version') }}" placeholder="e.g., 1.0.0" required>
+                            <x-ui.input type="text" name="version" id="version" class="form-input " value="{{ old('version') }}" placeholder="e.g., 1.0.0" required />
                             @error('version')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -23,7 +23,7 @@
 
                         <div>
                             <label for="version_code" class="form-label">Version Code <span class="text-red-500">*</span></label>
-                            <input type="number" name="version_code" id="version_code" class="form-input @error('version_code') border-red-500 @enderror" value="{{ old('version_code') }}" placeholder="e.g., 1" required>
+                            <x-ui.input type="number" name="version_code" id="version_code" class="form-input " value="{{ old('version_code') }}" placeholder="e.g., 1" required />
                             @error('version_code')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -34,12 +34,12 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label for="platform" class="form-label">Platform <span class="text-red-500">*</span></label>
-                            <select name="platform" id="platform" class="form-select @error('platform') border-red-500 @enderror" required>
+                            <x-ui.select name="platform" id="platform" class="form-select " required>
                                 <option value="">Select Platform</option>
                                 <option value="android" {{ old('platform') == 'android' ? 'selected' : '' }}>Android</option>
                                 <option value="ios" {{ old('platform') == 'ios' ? 'selected' : '' }}>iOS</option>
                                 <option value="both" {{ old('platform') == 'both' ? 'selected' : '' }}>Both</option>
-                            </select>
+                            </x-ui.select>
                             @error('platform')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -47,7 +47,7 @@
 
                         <div>
                             <label for="release_date" class="form-label">Release Date</label>
-                            <input type="datetime-local" name="release_date" id="release_date" class="form-input @error('release_date') border-red-500 @enderror" value="{{ old('release_date') }}">
+                            <x-ui.input type="datetime-local" name="release_date" id="release_date" class="form-input " value="{{ old('release_date') }}" />
                             @error('release_date')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -57,7 +57,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label for="minimum_version" class="form-label">Minimum Supported Version</label>
-                            <input type="text" name="minimum_version" id="minimum_version" class="form-input @error('minimum_version') border-red-500 @enderror" value="{{ old('minimum_version') }}" placeholder="e.g., 0.9.0">
+                            <x-ui.input type="text" name="minimum_version" id="minimum_version" class="form-input " value="{{ old('minimum_version') }}" placeholder="e.g., 0.9.0" />
                             @error('minimum_version')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -65,7 +65,7 @@
 
                         <div>
                             <label for="minimum_version_code" class="form-label">Minimum Version Code</label>
-                            <input type="number" name="minimum_version_code" id="minimum_version_code" class="form-input @error('minimum_version_code') border-red-500 @enderror" value="{{ old('minimum_version_code') }}" placeholder="e.g., 9">
+                            <x-ui.input type="number" name="minimum_version_code" id="minimum_version_code" class="form-input " value="{{ old('minimum_version_code') }}" placeholder="e.g., 9" />
                             @error('minimum_version_code')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -75,7 +75,7 @@
 
                     <div class="mb-4">
                         <label for="download_url" class="form-label">Download URL</label>
-                        <input type="url" name="download_url" id="download_url" class="form-input @error('download_url') border-red-500 @enderror" value="{{ old('download_url') }}" placeholder="https://play.google.com/store/apps/...">
+                        <x-ui.input type="url" name="download_url" id="download_url" class="form-input " value="{{ old('download_url') }}" placeholder="https://play.google.com/store/apps/..." />
                         @error('download_url')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
@@ -83,7 +83,7 @@
 
                     <div class="mb-4">
                         <label for="release_notes" class="form-label">Release Notes</label>
-                        <textarea name="release_notes" id="release_notes" rows="4" class="form-input @error('release_notes') border-red-500 @enderror" placeholder="What's new in this version...">{{ old('release_notes') }}</textarea>
+                        <x-ui.textarea name="release_notes" id="release_notes" rows="4" class="form-input " placeholder="What's new in this version...">{{ old('release_notes') }}</x-ui.textarea>
                         @error('release_notes')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror>
@@ -93,7 +93,7 @@
                         <label class="form-label">New Features</label>
                         <div id="features-container">
                             <div class="flex gap-2 mb-2">
-                                <input type="text" name="features[]" class="form-input" placeholder="Add a new feature...">
+                                <x-ui.input type="text" name="features[]" class="form-input" placeholder="Add a new feature..." />
                                 <button type="button" class="btn btn-sm bg-green-500 text-white" onclick="addField('features')">
                                     <i class="size-4" data-lucide="plus"></i>
                                 </button>
@@ -105,7 +105,7 @@
                         <label class="form-label">Bug Fixes</label>
                         <div id="bugfixes-container">
                             <div class="flex gap-2 mb-2">
-                                <input type="text" name="bug_fixes[]" class="form-input" placeholder="Add a bug fix...">
+                                <x-ui.input type="text" name="bug_fixes[]" class="form-input" placeholder="Add a bug fix..." />
                                 <button type="button" class="btn btn-sm bg-green-500 text-white" onclick="addField('bug_fixes')">
                                     <i class="size-4" data-lucide="plus"></i>
                                 </button>
@@ -132,7 +132,7 @@
 
                     <div class="mb-4">
                         <label for="display_order" class="form-label">Display Order</label>
-                        <input type="number" name="display_order" id="display_order" class="form-input @error('display_order') border-red-500 @enderror" value="{{ old('display_order', 0) }}">
+                        <x-ui.input type="number" name="display_order" id="display_order" class="form-input " value="{{ old('display_order', 0) }}" />
                         @error('display_order')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
@@ -155,7 +155,7 @@
             const newField = document.createElement('div');
             newField.className = 'flex gap-2 mb-2';
             newField.innerHTML = `
-                <input type="text" name="${type}[]" class="form-input" placeholder="Add ${type === 'features' ? 'a new feature' : 'a bug fix'}...">
+                <input type="text" name="${type}[]" class="form-input" placeholder="Add ${type === 'features' ? 'a new feature' : 'a bug fix'}..." />
                 <button type="button" class="btn btn-sm bg-red-500 text-white" onclick="this.parentElement.remove()">
                     <i class="size-4" data-lucide="minus"></i>
                 </button>

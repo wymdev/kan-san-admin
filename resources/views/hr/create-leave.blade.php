@@ -17,7 +17,7 @@
                     <div class="grid md:grid-cols-2 grid-cols-1 gap-5 mb-5">
                         <div>
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="employeeName">Employee</label>
-                            <select class="form-input">
+                            <x-ui.select class="form-input">
                                 <option value="">Select Employee</option>
                                 <option value="Willie Torres">Willie Torres</option>
                                 <option value="Patricia Garcia">Patricia Garcia</option>
@@ -28,54 +28,54 @@
                                 <option value="Nancy Reynolds">Nancy Reynolds</option>
                                 <option value="Holly Kavanaugh">Holly Kavanaugh</option>
                                 <option value="Jonas Frederiksen">Jonas Frederiksen</option>
-                            </select>
+                            </x-ui.select>
                         </div>
                         <div>
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="employeeId">Employee
                                 ID</label>
-                            <input class="form-input" disabled="" id="employeeId" type="text" value="#TWE1001501"/>
+                            <x-ui.input class="form-input" disabled="" id="employeeId" type="text" value="#TWE1001501" />
                         </div>
                         <div>
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="employeeName">Leave
                                 Type</label>
-                            <select class="form-input">
+                            <x-ui.select class="form-input">
                                 <option value="">Select Leave Type</option>
                                 <option value="Medical Leave">Medical Leave</option>
                                 <option value="Casual Leave">Casual Leave</option>
                                 <option value="Sick Leave">Sick Leave</option>
                                 <option value="Annual Leave">Annual Leave</option>
-                            </select>
+                            </x-ui.select>
                         </div>
                         <div>
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="remainingLeaves">Remaining
                                 Leaves</label>
-                            <input class="form-input" disabled="" id="remainingLeaves" type="text" value="18"/>
+                            <x-ui.input class="form-input" disabled="" id="remainingLeaves" type="text" value="18" />
                         </div>
                         <div>
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium"
                                    for="fromInput">Form</label>
-                            <input class="form-input" data-date-format="d M, Y" data-provider="flatpickr" id="fromInput"
-                                   placeholder="Select date" type="text"/>
+                            <x-ui.input class="form-input" data-date-format="d M, Y" data-provider="flatpickr" id="fromInput"
+                                   placeholder="Select date" type="text" />
                         </div>
                         <div>
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium"
                                    for="toInput">To</label>
-                            <input class="form-input" data-date-format="d M, Y" data-provider="flatpickr" id="toInput"
-                                   placeholder="Select date" type="text"/>
+                            <x-ui.input class="form-input" data-date-format="d M, Y" data-provider="flatpickr" id="toInput"
+                                   placeholder="Select date" type="text" />
                         </div>
                         <div>
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium"
                                    for="numberOfDayLeaves">Number of Days</label>
-                            <input class="form-input" disabled="" id="numberOfDayLeaves" type="text" value="01"/>
+                            <x-ui.input class="form-input" disabled="" id="numberOfDayLeaves" type="text" value="01" />
                         </div>
                         <div>
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="">Leave
                                 Day</label>
-                            <select class="form-input">
+                            <x-ui.select class="form-input">
                                 <option value="">Select Leave Day</option>
                                 <option value="Full Day">Full Day</option>
                                 <option value="Half Day">Half Day</option>
-                            </select>
+                            </x-ui.select>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 gap-5">
@@ -97,7 +97,7 @@
                     <h6 class="card-title">Leave Information (2023)</h6>
                 </div>
                 <div class="card-body">
-                    <table class="w-full mb-0 text-sm">
+                    <x-ui.table class="w-full mb-0 text-sm">
                         <tbody>
                         <tr>
                             <td class="py-2.5 text-default-800">Medical Leave</td>
@@ -124,7 +124,7 @@
                             <th class="py-2.5 text-default-800 font-semibold">18</th>
                         </tr>
                         </tbody>
-                    </table>
+                    </x-ui.table>
                 </div>
             </div>
         </div>

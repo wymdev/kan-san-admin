@@ -264,8 +264,8 @@
                                     @endif
                                 </p>
                                 <div class="flex items-center gap-2">
-                                    <input type="text" readonly value="{{ route('public.customer-batch', ['token' => $displayToken]) }}" 
-                                           class="form-input form-input-sm flex-1 font-mono text-xs rounded-lg" id="publicLink">
+                                    <x-ui.input type="text" readonly value="{{ route('public.customer-batch', ['token' => $displayToken]) }}"
+                                           class="form-input form-input-sm flex-1 font-mono text-xs rounded-lg" id="publicLink" />
                                     <button onclick="copyLink()" class="btn btn-sm bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 rounded-lg flex items-center gap-1">
                                         <i class="size-4" data-lucide="copy"></i>
                                         <span class="hidden sm:inline">Copy</span>
@@ -304,7 +304,7 @@
                     @if(!$secondaryTransaction->is_paid)
                         <form action="{{ route('secondary-transactions.mark-paid', $secondaryTransaction) }}" method="POST">
                             @csrf
-                            <input type="hidden" name="payment_method" value="Cash">
+                            <x-ui.input type="hidden" name="payment_method" value="Cash" />
                             <button type="submit" class="action-btn-lg bg-emerald-600 hover:bg-emerald-700 text-white" onclick="return confirm('Mark this transaction as paid?')">
                                 <i class="size-5" data-lucide="wallet"></i> Mark as Paid
                             </button>

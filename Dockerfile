@@ -1,8 +1,8 @@
 # Stage 1: Build front-end assets
-FROM node:20-alpine AS assets-builder
+FROM node:22-alpine AS assets-builder
 WORKDIR /app
-COPY package.json package-lock.json* bun.lock* yarn.lock* ./
-RUN npm install
+COPY package.json package-lock.json ./
+RUN npm ci
 COPY . .
 RUN npm run build
 
@@ -26,13 +26,14 @@ RUN apt-get update && apt-get install -y \
     tesseract-ocr \
     tesseract-ocr-tha \
     libzip-dev \
+    libpq-dev \
     libjpeg-dev \
     libfreetype6-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip opcache
+    && docker-php-ext-install pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd zip opcache
 
 # Copy Composer from official image
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

@@ -260,7 +260,7 @@
                 <div class="mb-6">
                     <h6 class="text-base font-semibold mb-3 flex items-center gap-2"><i class="size-4"
                             data-lucide="tag"></i> Sale Type</h6>
-                    <input type="hidden" name="sale_type" id="saleTypeInput" value="own">
+                    <x-ui.input type="hidden" name="sale_type" id="saleTypeInput" value="own" />
 
                     <div class="grid md:grid-cols-2 gap-4">
                         <div class="sale-type-card selected p-4 rounded-xl bg-white border" data-type="own"
@@ -297,7 +297,7 @@
                             data-lucide="ticket"></i> Select Ticket(s) <span class="text-xs text-info">(Multiple selection allowed)</span></h6>
 
                     @if(isset($selectedTicket))
-                        <input type="hidden" name="secondary_ticket_ids[]" value="{{ $selectedTicket->id }}">
+                        <x-ui.input type="hidden" name="secondary_ticket_ids[]" value="{{ $selectedTicket->id }}" />
                         <div class="p-4 bg-primary/5 rounded-lg border border-primary/20">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -313,8 +313,8 @@
                             </div>
                         </div>
                     @else
-                        <select name="secondary_ticket_ids[]" id="ticketSelect" multiple
-                            class="form-select @error('secondary_ticket_ids') border-danger @enderror" required>
+                        <x-ui.select name="secondary_ticket_ids[]" id="ticketSelect" multiple
+                            class="form-select " required>
                             @foreach($tickets as $ticket)
                                 <option value="{{ $ticket->id }}" {{ in_array($ticket->id, old('secondary_ticket_ids', [])) ? 'selected' : '' }}>
                                     {{ $ticket->ticket_number }}
@@ -323,7 +323,7 @@
                                     @if($ticket->price) - ฿{{ number_format($ticket->price, 0) }} @endif
                                 </option>
                             @endforeach
-                        </select>
+                        </x-ui.select>
                         <p class="text-xs text-default-400 mt-2">💡 Hold Ctrl (Cmd on Mac) to select multiple tickets for the same customer</p>
                         @error('secondary_ticket_ids')
                             <span class="text-danger text-sm">{{ $message }}</span>
@@ -341,14 +341,14 @@
 
                     <div class="mb-4">
                         <label class="form-label">Search Existing Customer</label>
-                        <select name="customer_id" id="customerSelect" class="form-select">
+                        <x-ui.select name="customer_id" id="customerSelect" class="form-select">
                             <option value="">Type to search customers...</option>
                             @foreach($customers ?? [] as $customer)
                                 <option value="{{ $customer->id }}">
                                     {{ $customer->full_name ?? 'No Name' }} - {{ $customer->phone_number }}
                                 </option>
                             @endforeach
-                        </select>
+                        </x-ui.select>
                         <p class="text-xs text-default-400 mt-1">Search by name or phone number</p>
                     </div>
 
@@ -358,19 +358,19 @@
                             <div>
                                 <label class="form-label">Phone Number <span class="text-xs text-warning">(or name
                                         below)</span></label>
-                                <input type="text" name="customer_phone" id="customerPhone"
-                                    value="{{ old('customer_phone') }}" class="form-input" placeholder="e.g., 0923471220">
+                                <x-ui.input type="text" name="customer_phone" id="customerPhone"
+                                    value="{{ old('customer_phone') }}" class="form-input" placeholder="e.g., 0923471220" />
                             </div>
                             <div>
                                 <label class="form-label">Customer Name <span class="text-xs text-warning">(or phone
                                         above)</span></label>
-                                <input type="text" name="customer_name" id="customerName" value="{{ old('customer_name') }}"
-                                    class="form-input" placeholder="Enter customer name">
+                                <x-ui.input type="text" name="customer_name" id="customerName" value="{{ old('customer_name') }}"
+                                    class="form-input" placeholder="Enter customer name" />
                             </div>
                         </div>
                         <div class="mt-3">
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" name="create_customer" value="yes" class="form-checkbox" checked>
+                                <x-ui.input type="checkbox" name="create_customer" value="yes" class="form-checkbox" checked />
                                 <span class="text-sm text-default-600">Create customer account if not exists (default
                                     password: password123)</span>
                             </label>
@@ -393,8 +393,8 @@
                     <div class="grid md:grid-cols-2 gap-4">
                         <div>
                             <label class="form-label">Amount (THB)</label>
-                            <input type="number" name="amount_thb" value="{{ old('amount_thb') }}" step="0.01" min="0"
-                                class="form-input @error('amount_thb') border-danger @enderror" placeholder="0.00">
+                            <x-ui.input type="number" name="amount_thb" value="{{ old('amount_thb') }}" step="0.01" min="0"
+                                class="form-input " placeholder="0.00" />
                             @error('amount_thb')
                                 <span class="text-danger text-sm">{{ $message }}</span>
                             @enderror
@@ -402,8 +402,8 @@
                         <div>
                             <label class="form-label">Amount (MMK) <span
                                     class="text-xs text-default-400">optional</span></label>
-                            <input type="number" name="amount_mmk" value="{{ old('amount_mmk') }}" step="0.01" min="0"
-                                class="form-input @error('amount_mmk') border-danger @enderror" placeholder="0.00">
+                            <x-ui.input type="number" name="amount_mmk" value="{{ old('amount_mmk') }}" step="0.01" min="0"
+                                class="form-input " placeholder="0.00" />
                             @error('amount_mmk')
                                 <span class="text-danger text-sm">{{ $message }}</span>
                             @enderror
@@ -413,16 +413,16 @@
                     <div class="grid md:grid-cols-2 gap-4 mt-4">
                         <div>
                             <label class="form-label">Purchase Date <span class="text-danger">*</span></label>
-                            <input type="datetime-local" name="purchased_at"
+                            <x-ui.input type="datetime-local" name="purchased_at"
                                 value="{{ old('purchased_at', now()->format('Y-m-d\TH:i')) }}"
-                                class="form-input @error('purchased_at') border-danger @enderror" required>
+                                class="form-input " required />
                             @error('purchased_at')
                                 <span class="text-danger text-sm">{{ $message }}</span>
                             @enderror
                         </div>
                         <div>
                             <label class="form-label">Payment Method</label>
-                            <select name="payment_method" id="paymentMethod" class="form-select">
+                            <x-ui.select name="payment_method" id="paymentMethod" class="form-select">
                                 <option value="">Not paid yet</option>
                                 <option value="Cash">Cash</option>
                                 <option value="Bank Transfer">Bank Transfer</option>
@@ -430,13 +430,13 @@
                                 <option value="KBZPay">KBZPay</option>
                                 <option value="WavePay">WavePay</option>
                                 <option value="Other">Other</option>
-                            </select>
+                            </x-ui.select>
                         </div>
                     </div>
 
                     <div class="mt-3">
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" name="is_paid" id="isPaid" value="1" class="form-checkbox">
+                            <x-ui.input type="checkbox" name="is_paid" id="isPaid" value="1" class="form-checkbox" />
                             <span class="text-sm text-default-600">Mark as paid</span>
                         </label>
                     </div>
@@ -445,8 +445,8 @@
                 {{-- Notes --}}
                 <div class="mb-6">
                     <label class="form-label">Notes (optional)</label>
-                    <textarea name="notes" rows="2" class="form-input"
-                        placeholder="Any additional notes...">{{ old('notes') }}</textarea>
+                    <x-ui.textarea name="notes" rows="2" class="form-input"
+                        placeholder="Any additional notes...">{{ old('notes') }}</x-ui.textarea>
                 </div>
 
                 <div class="flex gap-3">

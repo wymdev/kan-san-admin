@@ -31,25 +31,25 @@
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="First Name">Invoice
                         No.
                     </label>
-                    <input class="form-input" id="First Name" placeholder="Enter invoice no.." readonly="" type="text"
-                           value="#TW15090251"/>
+                    <x-ui.input class="form-input" id="First Name" placeholder="Enter invoice no.." readonly="" type="text"
+                           value="#TW15090251" />
                 </div>
                 <div class="col-span-1">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="invoiceNo">Invoice
                         Date</label>
-                    <input class="form-input" data-date-format="d M, Y" data-provider="flatpickr" id="invoiceNo"
-                           placeholder="Invoice Date" required="" type="date"/>
+                    <x-ui.input class="form-input" data-date-format="d M, Y" data-provider="flatpickr" id="invoiceNo"
+                           placeholder="Invoice Date" required="" type="date" />
                 </div>
                 <div class="col-span-1">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="InvoiceDue">Invoice
                         Due</label>
-                    <input class="form-input" id="InvoiceDue" placeholder="Invoice Due" required="" type="date"/>
+                    <x-ui.input class="form-input" id="InvoiceDue" placeholder="Invoice Due" required="" type="date" />
                 </div>
                 <div class="col-span-1">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="legalRegistrationNo">Legal
                         Registration No.</label>
-                    <input class="form-input" id="legalRegistrationNo" placeholder="Legal Registration No" required=""
-                           type="number"/>
+                    <x-ui.input class="form-input" id="legalRegistrationNo" placeholder="Legal Registration No" required=""
+                           type="number" />
                 </div>
                 <div class="col-span-1">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="emailInvoiceInput">Email
@@ -60,24 +60,24 @@
                 <div class="col-span-1">
                     <label class="inline-block mb-2 text-default-800 text-sm font-medium"
                            for="websiteInput">Website</label>
-                    <input class="form-input" id="websiteInput" placeholder="www.themesdesign.in" required=""
-                           type="text"/>
+                    <x-ui.input class="form-input" id="websiteInput" placeholder="www.themesdesign.in" required=""
+                           type="text" />
                 </div>
                 <div class="col-span-1">
                     <label class="inline-block mb-2 text-default-800 text-sm font-medium" for="contactInput">Contact
                         US</label>
-                    <input class="form-input" id="contactInput" placeholder="(241) 1234 567 8900" required=""
-                           type="number"/>
+                    <x-ui.input class="form-input" id="contactInput" placeholder="(241) 1234 567 8900" required=""
+                           type="number" />
                 </div>
                 <div class="col-span-1">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="paymentStatus">Payment
                         Status</label>
-                    <select class="form-input" placeholder="Select a country...">
+                    <x-ui.select class="form-input" placeholder="Select a country...">
                         <option value="Paid">Paid</option>
                         <option value="Unpaid">Unpaid</option>
                         <option value="Cancel">Cancel</option>
                         <option value="Refund">Refund</option>
-                    </select>
+                    </x-ui.select>
                 </div>
             </div>
             <h6 class="mb-4 text-default-800 text-base underline font-semibold">Shipping Info:</h6>
@@ -85,26 +85,26 @@
                 <div class="col-span-1">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="fullNameShippingInput">Full
                         Name</label>
-                    <input class="form-input" id="fullNameShippingInput" placeholder="Full Name" required=""
-                           type="text"/>
+                    <x-ui.input class="form-input" id="fullNameShippingInput" placeholder="Full Name" required=""
+                           type="text" />
                 </div>
                 <div class="col-span-1">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="phoneNoShippingInput">Phone
                         No.</label>
-                    <input class="form-input" id="phoneNoShippingInput" placeholder="(00) 1234 567 8956" required=""
-                           type="number"/>
+                    <x-ui.input class="form-input" id="phoneNoShippingInput" placeholder="(00) 1234 567 8956" required=""
+                           type="number" />
                 </div>
                 <div class="col-span-1">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium"
                            for="alternativeNoShippingInput">Alternative No.</label>
-                    <input class="form-input" id="alternativeNoShippingInput" placeholder="(00) 1234 567 8956"
-                           required="" type="number"/>
+                    <x-ui.input class="form-input" id="alternativeNoShippingInput" placeholder="(00) 1234 567 8956"
+                           required="" type="number" />
                 </div>
                 <div class="col-span-1">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="taxShippingInput">TAX
                         No.</label>
-                    <input class="form-input" id="taxShippingInput" placeholder="12-34567974" required=""
-                           type="number"/>
+                    <x-ui.input class="form-input" id="taxShippingInput" placeholder="12-34567974" required=""
+                           type="number" />
                 </div>
                 <div class="lg:col-span-4 col-span-1">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="addressShippingInput">Address</label>
@@ -113,7 +113,7 @@
             </div>
             <div class="mt-5">
                 <div class="flex items-center gap-2">
-                    <input class="form-switch" id="switchAddress" type="checkbox"/>
+                    <x-ui.input class="form-switch" id="switchAddress" type="checkbox" />
                     <label class="text-sm text-default-600" for="switchAddress">Will your Shipping &amp; Billing address
                         same?</label>
                 </div>
@@ -123,25 +123,25 @@
                 <div class="col-span-1">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="fullNameBillingInput">Full
                         Name</label>
-                    <input class="form-input" id="fullNameBillingInput" placeholder="Full Name" required=""
-                           type="text"/>
+                    <x-ui.input class="form-input" id="fullNameBillingInput" placeholder="Full Name" required=""
+                           type="text" />
                 </div>
                 <div class="col-span-1">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="phoneNoBillingInput">Phone
                         No.</label>
-                    <input class="form-input" id="phoneNoBillingInput" placeholder="(00) 1234 567 8956" required=""
-                           type="number"/>
+                    <x-ui.input class="form-input" id="phoneNoBillingInput" placeholder="(00) 1234 567 8956" required=""
+                           type="number" />
                 </div>
                 <div class="col-span-1">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium"
                            for="alternativeNoBillingInput">Alternative No.</label>
-                    <input class="form-input" id="alternativeNoBillingInput" placeholder="(00) 1234 567 8956"
-                           required="" type="number"/>
+                    <x-ui.input class="form-input" id="alternativeNoBillingInput" placeholder="(00) 1234 567 8956"
+                           required="" type="number" />
                 </div>
                 <div class="col-span-1">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="taxBillingInput">TAX
                         No.</label>
-                    <input class="form-input" id="taxBillingInput" placeholder="12-34567974" required="" type="number"/>
+                    <x-ui.input class="form-input" id="taxBillingInput" placeholder="12-34567974" required="" type="number" />
                 </div>
                 <div class="lg:col-span-4 grid-cols-1">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="addressBillingInput">Address</label>
@@ -150,7 +150,7 @@
             </div>
             <h6 class="my-4 text-default-800 text-base underline font-semibold">Products Info:</h6>
             <div class="overflow-x-auto">
-                <table class="w-full whitespace-nowrap">
+                <x-ui.table class="w-full whitespace-nowrap">
                     <thead>
                     <tr class="border border-default-200 text-default-500 text-center font-medium uppercase">
                         <th class="px-3.5 py-2.5">Item Name</th>
@@ -164,9 +164,9 @@
                     <tbody class="item-list">
                     <tr class="border border-default-200">
                         <td class="">
-                            <input
+                            <x-ui.input
                                 class="bg-transparent block w-full border-0 rounded-md text-sm text-default-500 placeholder:text-default-400 ring-0"
-                                id="itemName1" placeholder="Item Name" required="" type="text"/>
+                                id="itemName1" placeholder="Item Name" required="" type="text" />
                         </td>
                         <td class="w-40 border rounded-xl border-default-200">
                             <div class="flex p-2 justify-center">
@@ -175,9 +175,9 @@
                                     type="button">
                                     <i class="size-4 text-default-500" data-lucide="minus"></i>
                                 </button>
-                                <input
+                                <x-ui.input
                                     class="text-center ps-2 w-12 h-9 border-t border-b border-e-0 bg-transparent border-l-0 border-default-200 ring-0 product-quantity focus:shadow-none"
-                                    max="100" min="0" readonly="" type="number" value="2"/>
+                                    max="100" min="0" readonly="" type="number" value="2" />
                                 <button
                                     class="size-9 plusBtn rounded-tl-0 rounded-bl-0 border border-default-200 flex justify-center items-center"
                                     type="button">
@@ -186,37 +186,37 @@
                             </div>
                         </td>
                         <td class="w-40 border border-default-200">
-                            <input
+                            <x-ui.input
                                 class="bg-transparent block w-full border-0 rounded-md text-sm text-default-500 placeholder:text-default-400 ring-0"
-                                id="itemName1" placeholder="$00.00" required="" type="text"/>
+                                id="itemName1" placeholder="$00.00" required="" type="text" />
                         </td>
                         <td class="w-40 border border-default-200">
-                            <input
+                            <x-ui.input
                                 class="bg-transparent block w-full border-0 rounded-md text-sm text-default-500 placeholder:text-default-400 ring-0"
-                                id="itemName1" placeholder="0%" required="" type="text"/>
+                                id="itemName1" placeholder="0%" required="" type="text" />
                         </td>
                         <td class="w-40 border border-default-200">
-                            <input
+                            <x-ui.input
                                 class="bg-transparent block w-full border-0 rounded-md text-sm text-default-500 placeholder:text-default-400 ring-0"
-                                id="itemName1" placeholder="0%" required="" type="text"/>
+                                id="itemName1" placeholder="0%" required="" type="text" />
                         </td>
                         <td class="border border-default-200" rowspan="2">
                             <div class="mb-1">
-                                <input
+                                <x-ui.input
                                     class="bg-transparent block w-full border-0 rounded-md text-sm text-default-500 placeholder:text-default-400 ring-0"
-                                    id="ItemTotal" placeholder="$00.00" readonly="" required="" type="text"/>
+                                    id="ItemTotal" placeholder="$00.00" readonly="" required="" type="text" />
                             </div>
-                            <input
+                            <x-ui.input
                                 class="bg-transparent block w-full border-0 rounded-md text-sm text-default-500 placeholder:text-default-400 ring-0"
-                                id="itemDiscountsInput" placeholder="-$00.00" readonly="" required="" type="text"/>
+                                id="itemDiscountsInput" placeholder="-$00.00" readonly="" required="" type="text" />
                         </td>
                     </tr>
                     <tr>
                         <td class="border border-default-200">
-                            <input
+                            <x-ui.input
                                 class="bg-transparent block w-full border-0 rounded-md text-sm text-default-500 placeholder:text-default-400 ring-0"
                                 id="itemdescription1" placeholder="Enter Description (Optional)" required=""
-                                type="text"/>
+                                type="text" />
                         </td>
                         <td class="border border-default-200" colspan="3"></td>
                     </tr>
@@ -224,9 +224,9 @@
                     <tbody class="before:block before:h-3 item-list">
                     <tr class="item">
                         <td class="border border-default-200">
-                            <input
+                            <x-ui.input
                                 class="bg-transparent block w-full border-0 rounded-md text-sm text-default-500 placeholder:text-default-400 ring-0"
-                                id="itemName1" placeholder="Item Name" required="" type="text"/>
+                                id="itemName1" placeholder="Item Name" required="" type="text" />
                         </td>
                         <td class="w-40 border rounded-xl border-default-200">
                             <div class="flex p-2 justify-center">
@@ -235,9 +235,9 @@
                                     type="button">
                                     <i class="size-4 text-default-500" data-lucide="minus"></i>
                                 </button>
-                                <input
+                                <x-ui.input
                                     class="text-center ps-2 w-12 h-9 border-t bg-transparent border-b border-e-0 border-l-0 border-default-200 ring-0 product-quantity focus:shadow-none"
-                                    max="100" min="0" readonly="" type="number" value="2"/>
+                                    max="100" min="0" readonly="" type="number" value="2" />
                                 <button
                                     class="size-9 plusBtn rounded-tl-0 rounded-bl-0 border border-default-200 flex justify-center items-center"
                                     type="button">
@@ -246,37 +246,37 @@
                             </div>
                         </td>
                         <td class="w-40 border border-default-200">
-                            <input
+                            <x-ui.input
                                 class="bg-transparent block w-full border-0 rounded-md text-sm text-default-500 placeholder:text-default-400 ring-0"
-                                id="itemName1" placeholder="$00.00" required="" type="number"/>
+                                id="itemName1" placeholder="$00.00" required="" type="number" />
                         </td>
                         <td class="w-40 border border-default-200">
-                            <input
+                            <x-ui.input
                                 class="bg-transparent block w-full border-0 rounded-md text-sm text-default-500 placeholder:text-default-400 ring-0"
-                                id="itemName1" placeholder="0%" required="" type="text"/>
+                                id="itemName1" placeholder="0%" required="" type="text" />
                         </td>
                         <td class="w-40 border border-default-200">
-                            <input
+                            <x-ui.input
                                 class="bg-transparent block w-full border-0 rounded-md text-sm text-default-500 placeholder:text-default-400 ring-0"
-                                id="itemName1" placeholder="0%" required="" type="text"/>
+                                id="itemName1" placeholder="0%" required="" type="text" />
                         </td>
                         <td class="border border-default-200" rowspan="2">
                             <div class="mb-1">
-                                <input
+                                <x-ui.input
                                     class="bg-transparent block w-full border-0 rounded-md text-sm text-default-500 placeholder:text-default-400 ring-0"
-                                    id="ItemTotal" placeholder="$00.00" readonly="" type="text"/>
+                                    id="ItemTotal" placeholder="$00.00" readonly="" type="text" />
                             </div>
-                            <input
+                            <x-ui.input
                                 class="bg-transparent block w-full border-0 rounded-md text-sm text-default-500 placeholder:text-default-400 ring-0"
-                                id="itemDiscountsInput" placeholder="-$00.00" readonly="" type="text"/>
+                                id="itemDiscountsInput" placeholder="-$00.00" readonly="" type="text" />
                         </td>
                     </tr>
                     <tr>
                         <td class="border border-default-200">
-                            <input
+                            <x-ui.input
                                 class="bg-transparent block w-full border-0 rounded-md text-sm text-default-500 placeholder:text-default-400 ring-0"
                                 id="itemdescription1" placeholder="Enter Description (Optional)" required=""
-                                type="text"/>
+                                type="text" />
                         </td>
                         <td class="border border-default-200" colspan="3"></td>
                     </tr>
@@ -301,9 +301,9 @@
                             Sub Total
                         </td>
                         <td class="font-medium border-b border-default-200">
-                            <input
+                            <x-ui.input
                                 class="bg-transparent block w-full border-0 rounded-md text-sm text-default-800 placeholder:text-default-800 ring-0"
-                                id="subTotale" placeholder="$00.00" readonly="" type="text"/>
+                                id="subTotale" placeholder="$00.00" readonly="" type="text" />
                         </td>
                     </tr>
                     <tr class="text-default-800">
@@ -312,9 +312,9 @@
                             Estimated Tax (18%)
                         </td>
                         <td class="font-medium border-b border-default-200 text-default-600 text-sm">
-                            <input
+                            <x-ui.input
                                 class="bg-transparent block w-full border-0 rounded-md text-sm text-default-800 placeholder:text-default-800 ring-0"
-                                id="subTotale" placeholder="$00.00" readonly="" type="text"/>
+                                id="subTotale" placeholder="$00.00" readonly="" type="text" />
                         </td>
                     </tr>
                     <tr class="text-default-800">
@@ -323,9 +323,9 @@
                             Item Discounts
                         </td>
                         <td class="font-medium border-b border-default-200">
-                            <input
+                            <x-ui.input
                                 class="bg-transparent block w-full border-0 rounded-md text-sm text-default-800 placeholder:text-default-800 ring-0"
-                                id="subTotale" placeholder="$00.00" readonly="" type="text"/>
+                                id="subTotale" placeholder="$00.00" readonly="" type="text" />
                         </td>
                     </tr>
                     <tr class="text-default-800">
@@ -334,9 +334,9 @@
                             Shipping Charge
                         </td>
                         <td class="font-medium border-b border-default-200">
-                            <input
+                            <x-ui.input
                                 class="bg-transparent block w-full border-0 rounded-md text-sm text-default-800 placeholder:text-default-800 ring-0"
-                                id="subTotale" placeholder="$00.00" readonly="" type="text"/>
+                                id="subTotale" placeholder="$00.00" readonly="" type="text" />
                         </td>
                     </tr>
                     <tr class="text-default-800">
@@ -345,43 +345,43 @@
                             Total Amount
                         </td>
                         <td class="font-medium border-b border-default-200">
-                            <input
+                            <x-ui.input
                                 class="bg-transparent block w-full border-0 rounded-md text-sm text-default-800 placeholder:text-default-800 ring-0"
-                                id="subTotale" placeholder="$00.00" readonly="" type="text"/>
+                                id="subTotale" placeholder="$00.00" readonly="" type="text" />
                         </td>
                     </tr>
                     </tbody>
-                </table>
+                </x-ui.table>
             </div>
             <h6 class="mb-4 text-text-default-800 underline text-sm font-semibold">Payments Details:</h6>
             <div class="grid lg:grid-cols-4 grid-cols-1 gap-5">
                 <div class="col-span-1">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="paymentMethod">Full
                         Name</label>
-                    <select class="form-input" data-kt-select="" id="paymentMethod" name="paymentMethod">
+                    <x-ui.select class="form-input" data-kt-select="" id="paymentMethod" name="paymentMethod">
                         <option value="">Select Method</option>
                         <option value="Credit Card">Credit Card</option>
                         <option value="Paypal">Paypal</option>
                         <option value="Paypal">Paypal</option>
                         <option value="American Express">American Express</option>
-                    </select>
+                    </x-ui.select>
                 </div>
                 <div class="col-span-1">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="cardHolderName">Card
                         Holder Name</label>
-                    <input autocomplete="cc-number" class="form-input" id="cardHolderName" inputmode="numeric"
-                           maxlength="19" pattern="[0-9\s]{13,19}" placeholder="Full Name" required="" type="number"/>
+                    <x-ui.input autocomplete="cc-number" class="form-input" id="cardHolderName" inputmode="numeric"
+                           maxlength="19" pattern="[0-9\s]{13,19}" placeholder="Full Name" required="" type="number" />
                 </div>
                 <div class="col-span-1">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="cardNumber">Card
                         Number</label>
-                    <input class="form-input" id="cardNumber" placeholder="xxxx xxxx xxxx xxxx" required=""
-                           type="text"/>
+                    <x-ui.input class="form-input" id="cardNumber" placeholder="xxxx xxxx xxxx xxxx" required=""
+                           type="text" />
                 </div>
                 <div class="col-span-1">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="totalPayment">Total
                         Payment</label>
-                    <input class="form-input" id="totalPayment" placeholder="$00.00" required="" type="text"/>
+                    <x-ui.input class="form-input" id="totalPayment" placeholder="$00.00" required="" type="text" />
                 </div>
                 <div class="lg:col-span-4 col-span-1">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium"

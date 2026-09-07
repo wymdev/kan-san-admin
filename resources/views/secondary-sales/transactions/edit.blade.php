@@ -128,7 +128,7 @@
                     @if($secondaryTransaction->secondaryTicket?->withdraw_date)
                         <p class="text-sm text-default-500 mt-1">Draw: {{ $secondaryTransaction->secondaryTicket->withdraw_date->format('M d, Y') }}</p>
                     @endif
-                    <input type="hidden" name="secondary_ticket_id" value="{{ $secondaryTransaction->secondary_ticket_id }}">
+                    <x-ui.input type="hidden" name="secondary_ticket_id" value="{{ $secondaryTransaction->secondary_ticket_id }}" />
                 </div>
 
                 {{-- Customer Section --}}
@@ -138,13 +138,13 @@
                     <div class="grid md:grid-cols-2 gap-4">
                         <div class="form-group">
                             <label class="form-label">Customer Name</label>
-                            <input type="text" name="customer_name" value="{{ $secondaryTransaction->customer_name ?? $secondaryTransaction->customer?->full_name }}" 
-                                   class="form-input bg-default-100 text-default-500" readonly>
+                            <x-ui.input type="text" name="customer_name" value="{{ $secondaryTransaction->customer_name ?? $secondaryTransaction->customer?->full_name }}"
+                                   class="form-input bg-default-100 text-default-500" readonly />
                         </div>
                         <div class="form-group">
                             <label class="form-label">Phone Number</label>
-                            <input type="text" name="customer_phone" value="{{ $secondaryTransaction->customer_phone ?? $secondaryTransaction->customer?->phone_number }}" 
-                                   class="form-input bg-default-100 text-default-500" readonly>
+                            <x-ui.input type="text" name="customer_phone" value="{{ $secondaryTransaction->customer_phone ?? $secondaryTransaction->customer?->phone_number }}"
+                                   class="form-input bg-default-100 text-default-500" readonly />
                         </div>
                     </div>
                 </div>
@@ -156,20 +156,20 @@
                     <div class="grid md:grid-cols-2 gap-4">
                         <div class="form-group">
                             <label class="form-label">Amount (THB)</label>
-                            <input type="number" name="amount_thb" 
+                            <x-ui.input type="number" name="amount_thb"
                                    value="{{ old('amount_thb', $secondaryTransaction->amount_thb) }}" 
-                                   step="0.01" min="0" class="form-input @error('amount_thb') border-danger @enderror" 
-                                   placeholder="0.00">
+                                   step="0.01" min="0" class="form-input "
+                                   placeholder="0.00" />
                             @error('amount_thb')
                                 <span class="text-danger text-sm">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="form-group">
                             <label class="form-label">Amount (MMK) <span class="text-xs text-default-400">optional</span></label>
-                            <input type="number" name="amount_mmk" 
+                            <x-ui.input type="number" name="amount_mmk"
                                    value="{{ old('amount_mmk', $secondaryTransaction->amount_mmk) }}" 
-                                   step="0.01" min="0" class="form-input @error('amount_mmk') border-danger @enderror" 
-                                   placeholder="0.00">
+                                   step="0.01" min="0" class="form-input "
+                                   placeholder="0.00" />
                             @error('amount_mmk')
                                 <span class="text-danger text-sm">{{ $message }}</span>
                             @enderror
@@ -179,13 +179,13 @@
                     <div class="grid md:grid-cols-2 gap-4 mt-4">
                         <div class="form-group">
                             <label class="form-label">Purchase Date <span class="text-danger">*</span></label>
-                            <input type="datetime-local" name="purchased_at" 
+                            <x-ui.input type="datetime-local" name="purchased_at"
                                    value="{{ old('purchased_at', $secondaryTransaction->purchased_at->format('Y-m-d\TH:i')) }}" 
-                                   class="form-input" required>
+                                   class="form-input" required />
                         </div>
                         <div class="form-group">
                             <label class="form-label">Payment Method</label>
-                            <select name="payment_method" id="paymentMethod" class="form-select searchable-select">
+                            <x-ui.select name="payment_method" id="paymentMethod" class="form-select searchable-select">
                                 <option value="">Not paid</option>
                                 <option value="Cash" {{ $secondaryTransaction->payment_method == 'Cash' ? 'selected' : '' }}>Cash</option>
                                 <option value="Bank Transfer" {{ $secondaryTransaction->payment_method == 'Bank Transfer' ? 'selected' : '' }}>Bank Transfer</option>
@@ -193,7 +193,7 @@
                                 <option value="KBZPay" {{ $secondaryTransaction->payment_method == 'KBZPay' ? 'selected' : '' }}>KBZPay</option>
                                 <option value="WavePay" {{ $secondaryTransaction->payment_method == 'WavePay' ? 'selected' : '' }}>WavePay</option>
                                 <option value="Other" {{ $secondaryTransaction->payment_method == 'Other' ? 'selected' : '' }}>Other</option>
-                            </select>
+                            </x-ui.select>
                         </div>
                     </div>
 
@@ -226,7 +226,7 @@
                 {{-- Notes --}}
                 <div>
                     <label class="form-label">Notes (optional)</label>
-                    <textarea name="notes" rows="2" class="form-input" placeholder="Optional notes...">{{ old('notes', $secondaryTransaction->notes) }}</textarea>
+                    <x-ui.textarea name="notes" rows="2" class="form-input" placeholder="Optional notes...">{{ old('notes', $secondaryTransaction->notes) }}</x-ui.textarea>
                 </div>
 
                 <div class="flex justify-between items-center pt-4">

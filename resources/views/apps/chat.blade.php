@@ -69,8 +69,8 @@
                                     </button>
                                 </div>
                                 <div class="mt-5 relative">
-                                    <input class="ps-11 block w-full form-input form-input-sm"
-                                           placeholder="Search for...." type="email"/>
+                                    <x-ui.input class="ps-11 block w-full form-input form-input-sm"
+                                           placeholder="Search for...." type="email" />
                                     <div class="absolute inset-y-0 start-0 flex items-center ps-4">
                                         <i class="size-3.5 flex items-center text-default-500" data-lucide="search"></i>
                                     </div>
@@ -361,7 +361,7 @@
                 </div>
                 <div class="card-body">
                     <div class="flex gap-2 items-center">
-                        <input class="form-input w-full" placeholder="Type your message here..." type="text"/>
+                        <x-ui.input class="form-input w-full" placeholder="Type your message here..." type="text" />
                         <div class="flex items-center gap-2">
                             <button class="btn size-9 bg-danger/10 text-danger hover:bg-danger hover:text-white">
                                 <i class="size-4" data-lucide="mic"></i>

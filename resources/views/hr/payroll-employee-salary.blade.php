@@ -36,7 +36,7 @@
                 </div>
                 <div class="col-span-1">
                     <div class="overflow-x-auto">
-                        <table class="w-full text-sm">
+                        <x-ui.table class="w-full text-sm">
                             <tbody>
                             <tr>
                                 <td class="px-3.5 py-2 text-default-800">Base Salary</td>
@@ -55,7 +55,7 @@
                                 <td class="px-3.5 py-2 text-default-800 font-semibold">$78,564.00</td>
                             </tr>
                             </tbody>
-                        </table>
+                        </x-ui.table>
                     </div>
                 </div>
             </div>
@@ -65,14 +65,14 @@
         <div class="card-header">
             <div class="flex gap-3">
                 <div class="relative">
-                    <input class="form-input form-input-sm ps-9" placeholder="Search for...." type="email"/>
+                    <x-ui.input class="form-input form-input-sm ps-9" placeholder="Search for...." type="email" />
                     <div class="absolute inset-y-0 start-0 flex items-center ps-3">
                         <i class="size-4 flex items-center text-default-500" data-lucide="search"></i>
                     </div>
                 </div>
-                <input class="form-input form-input-sm lg:w-52 w-full" data-date-format="d M, Y"
+                <x-ui.input class="form-input form-input-sm lg:w-52 w-full" data-date-format="d M, Y"
                        data-provider="flatpickr" data-range-date="true" id="dateRangeFilterInput"
-                       placeholder="Select date" readonly="readonly" type="text"/>
+                       placeholder="Select date" readonly="readonly" type="text" />
             </div>
             <a class="btn btn-sm bg-primary text-white" href="{{ route('second', ['hr', 'payroll-create-payslip'])}}">
                 <i class="size-4 me-1" data-lucide="plus"></i>
@@ -83,7 +83,7 @@
             <div class="overflow-x-auto">
                 <div class="min-w-full inline-block align-middle">
                     <div class="overflow-hidden">
-                        <table class="min-w-full divide-y divide-default-200">
+                        <x-ui.table class="min-w-full divide-y divide-default-200">
                             <thead class="bg-default-150">
                             <tr class="text-sm font-normal text-default-500">
                                 <th class="px-3.5 py-3 text-start" scope="col">Employee ID</th>
@@ -589,7 +589,7 @@
                                 </td>
                             </tr>
                             </tbody>
-                        </table>
+                        </x-ui.table>
                     </div>
                 </div>
             </div>

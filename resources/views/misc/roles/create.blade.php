@@ -13,8 +13,8 @@
 
                 <div class="mb-4">
                     <label class="inline-block mb-2 text-sm text-default-800 font-medium">Role Name <span class="text-red-500">*</span></label>
-                    <input type="text" name="name" class="form-input @error('name') border-red-500 @enderror"
-                        placeholder="Enter role name (e.g., Admin, Editor, Subscriber)" value="{{ old('name') }}" required>
+                    <x-ui.input type="text" name="name" class="form-input "
+                        placeholder="Enter role name (e.g., Admin, Editor, Subscriber)" value="{{ old('name') }}" required />
                     @error('name')
                         <span class="text-red-500 text-sm">{{ $message }}</span>
                     @enderror

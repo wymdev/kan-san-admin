@@ -89,16 +89,16 @@
                             <label for="scheduled_for" class="block text-sm font-medium text-default-900 mb-2">
                                 Schedule For (Optional)
                             </label>
-                            <input 
+                            <x-ui.input
                                 type="text" 
                                 id="scheduled_for" 
                                 name="scheduled_for" 
                                 value="{{ old('scheduled_for', $quote->scheduled_for ? $quote->scheduled_for->format('Y-m-d') : '') }}"
-                                class="form-input @error('scheduled_for') border-red-500 @enderror"
+                                class="form-input "
                                 data-provider="flatpickr" 
                                 data-date-format="Y-m-d"
                                 placeholder="Select date"
-                            />
+                             />
                             @error('scheduled_for')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror

@@ -182,18 +182,6 @@
     @include('layouts.partials.page-title', ['subtitle' => 'Secondary Sales', 'title' => 'Ticket Management'])
 
     {{-- Alert Messages --}}
-    @if ($message = Session::get('success'))
-        <div class="bg-success/10 border border-success/20 text-success px-4 py-3 rounded-xl mb-4 flex items-center gap-2">
-            <i class="size-5" data-lucide="check-circle"></i>
-            <span>{{ $message }}</span>
-        </div>
-    @endif
-    @if ($message = Session::get('error'))
-        <div class="bg-danger/10 border border-danger/20 text-danger px-4 py-3 rounded-xl mb-4 flex items-center gap-2">
-            <i class="size-5" data-lucide="alert-circle"></i>
-            <span>{{ $message }}</span>
-        </div>
-    @endif
 
     {{-- Statistics Cards --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -270,34 +258,34 @@
 
         {{-- Filters --}}
         <div class="px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
-            <form method="GET" action="{{ route('secondary-tickets.index') }}">
+            <x-ui.filter action="{{ route('secondary-tickets.index') }}">
                 <div class="filter-section">
                     <div class="full-width">
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">Search</label>
                         <div class="relative">
-                            <input type="text" name="search" value="{{ request('search') }}" 
-                                class="form-input form-input-sm w-full pl-9 rounded-lg" placeholder="Search ticket number...">
+                            <x-ui.input type="text" name="search" value="{{ request('search') }}"
+                                class="form-input form-input-sm w-full pl-9 rounded-lg" placeholder="Search ticket number..." />
                             <i class="size-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" data-lucide="search"></i>
                         </div>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">Draw Date</label>
-                        <select name="withdraw_date" class="form-select form-select-sm w-full rounded-lg">
+                        <x-ui.select name="withdraw_date" class="form-select form-select-sm w-full rounded-lg">
                             <option value="">All Dates</option>
                             @foreach($drawDates as $date)
                                 <option value="{{ $date->format('Y-m-d') }}" {{ request('withdraw_date') == $date->format('Y-m-d') ? 'selected' : '' }}>
                                     {{ $date->format('M d, Y') }}
                                 </option>
                             @endforeach
-                        </select>
+                        </x-ui.select>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">Status</label>
-                        <select name="has_transactions" class="form-select form-select-sm w-full rounded-lg">
+                        <x-ui.select name="has_transactions" class="form-select form-select-sm w-full rounded-lg">
                             <option value="">All</option>
                             <option value="yes" {{ request('has_transactions') == 'yes' ? 'selected' : '' }}>Sold</option>
                             <option value="no" {{ request('has_transactions') == 'no' ? 'selected' : '' }}>Unsold</option>
-                        </select>
+                        </x-ui.select>
                     </div>
                     <div class="flex items-end gap-2">
                         <button type="submit" class="btn btn-sm bg-primary text-white rounded-lg flex-1">
@@ -310,12 +298,12 @@
                         @endif
                     </div>
                 </div>
-            </form>
+            </x-ui.filter>
         </div>
 
         {{-- Table --}}
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <x-ui.table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead class="bg-gray-50 dark:bg-gray-800">
                     <tr class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         <th class="px-4 py-3 text-left">#</th>
@@ -408,7 +396,7 @@
                         </tr>
                     @endforelse
                 </tbody>
-            </table>
+            </x-ui.table>
         </div>
 
         {{-- Pagination --}}

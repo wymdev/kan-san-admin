@@ -6,11 +6,6 @@
 @section('content')
     @include('layouts.partials/page-title', ['subtitle' => 'Admin', 'title' => 'Users Management'])
 
-    @if ($message = Session::get('success'))
-        <div class="bg-success/10 border border-success/20 text-success px-4 py-3 rounded relative mb-4" role="alert">
-            <span class="block sm:inline">{{ $message }}</span>
-        </div>
-    @endif
 
     <div class="card">
         <div class="card-header">
@@ -23,15 +18,15 @@
         </div>
         <div class="card-header">
             <div class="md:flex items-center md:space-y-0 space-y-4 gap-3">
-                <form method="GET" action="{{ route('users.index') }}" class="w-full flex gap-3">
+                <x-ui.filter action="{{ route('users.index') }}" class="w-full flex gap-3">
                     <div class="relative flex-1">
-                        <input 
+                        <x-ui.input
                             class="form-input form-input-sm ps-9 w-full" 
                             placeholder="Search for name, email" 
                             type="text"
                             name="search"
                             value="{{ $search }}"
-                        />
+                         />
                         <div class="absolute inset-y-0 start-0 flex items-center ps-3">
                             <i class="size-3.5 flex items-center text-default-500 fill-default-100"
                             data-lucide="search"></i>
@@ -51,14 +46,14 @@
                             Clear
                         </a>
                     @endif
-                </form>
+                </x-ui.filter>
             </div>
         </div>
         <div class="flex flex-col">
             <div class="overflow-x-auto">
                 <div class="min-w-full inline-block align-middle">
                     <div class="overflow-hidden">
-                        <table class="min-w-full divide-y divide-default-200">
+                        <x-ui.table class="min-w-full divide-y divide-default-200">
                             <thead class="bg-default-150">
                             <tr class="text-sm font-normal text-default-700 whitespace-nowrap">
                                 <th class="px-3.5 py-3 text-start" scope="col">No</th>
@@ -131,7 +126,7 @@
                                 </tr>
                             @endforeach
                             </tbody>
-                        </table>
+                        </x-ui.table>
                     </div>
                 </div>
             </div>

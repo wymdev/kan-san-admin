@@ -203,7 +203,7 @@
                 </div>
                 @if($secondaryTicket->transactions->count() > 0)
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <x-ui.table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead class="bg-gray-50 dark:bg-gray-800">
                                 <tr class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
                                     <th class="px-4 py-3 text-left">Transaction #</th>
@@ -250,7 +250,7 @@
                                     </tr>
                                 @endforeach
                             </tbody>
-                        </table>
+                        </x-ui.table>
                     </div>
                 @else
                     <div class="detail-body text-center py-8">

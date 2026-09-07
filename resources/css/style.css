@@ -41,6 +41,7 @@ Contact: themesdesign.in@gmail.com
 
 /* Calendar */
 @import "./custom/_calendar.css";
+@import "./custom/_admin.css";
 
 /* ========= ALL OTHER RULES COME AFTER IMPORTS ========= */
 

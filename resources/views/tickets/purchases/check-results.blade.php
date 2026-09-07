@@ -3,29 +3,9 @@
 @section('content')
     @include('layouts.partials.page-title', ['subtitle' => 'Admin', 'title' => 'Check Lottery Results'])
 
-    @if ($message = Session::get('success'))
-        <div class="bg-success/10 border border-success/20 text-success px-4 py-3 rounded relative mb-4" role="alert">
-            <span class="block sm:inline">{!! $message !!}</span>
-        </div>
-    @endif
 
-    @if ($message = Session::get('error'))
-        <div class="bg-danger/10 border border-danger/20 text-danger px-4 py-3 rounded relative mb-4" role="alert">
-            <span class="block sm:inline">{!! $message !!}</span>
-        </div>
-    @endif
 
-    @if ($message = Session::get('warning'))
-        <div class="bg-warning/10 border border-warning/20 text-warning px-4 py-3 rounded relative mb-4" role="alert">
-            <span class="block sm:inline">{!! $message !!}</span>
-        </div>
-    @endif
 
-    @if ($message = Session::get('info'))
-        <div class="bg-info/10 border border-info/20 text-info px-4 py-3 rounded relative mb-4" role="alert">
-            <span class="block sm:inline">{!! $message !!}</span>
-        </div>
-    @endif
 
     {{-- Latest Draw Info --}}
     <div class="card mb-6 bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">

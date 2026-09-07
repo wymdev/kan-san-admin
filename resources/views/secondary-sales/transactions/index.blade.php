@@ -256,24 +256,6 @@
     @include('layouts.partials.page-title', ['subtitle' => 'Secondary Sales', 'title' => 'Transaction Management'])
 
     {{-- Alert Messages --}}
-    @if ($message = Session::get('success'))
-        <div class="bg-success/10 border border-success/20 text-success px-4 py-3 rounded-xl mb-4 flex items-center gap-2">
-            <i class="size-5" data-lucide="check-circle"></i>
-            <span>{!! $message !!}</span>
-        </div>
-    @endif
-    @if ($message = Session::get('error'))
-        <div class="bg-danger/10 border border-danger/20 text-danger px-4 py-3 rounded-xl mb-4 flex items-center gap-2">
-            <i class="size-5" data-lucide="alert-circle"></i>
-            <span>{{ $message }}</span>
-        </div>
-    @endif
-    @if ($message = Session::get('warning'))
-        <div class="bg-warning/10 border border-warning/20 text-warning px-4 py-3 rounded-xl mb-4 flex items-center gap-2">
-            <i class="size-5" data-lucide="alert-triangle"></i>
-            <span>{!! $message !!}</span>
-        </div>
-    @endif
 
     {{-- Filter Card for Stats --}}
     @if(isset($stats))
@@ -283,16 +265,16 @@
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white">Overview Statistics</h3>
                 <p class="text-sm text-gray-500 dark:text-gray-400">Transaction summary and analytics</p>
             </div>
-            <form method="GET" action="{{ route('secondary-transactions.index') }}" class="flex flex-wrap items-center gap-2">
-                <input type="hidden" name="search" value="{{ request('search') }}">
-                <input type="hidden" name="status" value="{{ request('status') }}">
-                <input type="hidden" name="is_paid" value="{{ request('is_paid') }}">
-                <input type="hidden" name="payment_method" value="{{ request('payment_method') }}">
+            <x-ui.filter action="{{ route('secondary-transactions.index') }}" class="flex flex-wrap items-center gap-2">
+                <x-ui.input type="hidden" name="search" value="{{ request('search') }}" />
+                <x-ui.input type="hidden" name="status" value="{{ request('status') }}" />
+                <x-ui.input type="hidden" name="is_paid" value="{{ request('is_paid') }}" />
+                <x-ui.input type="hidden" name="payment_method" value="{{ request('payment_method') }}" />
                 <div class="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg px-3 py-2 border border-gray-200 dark:border-gray-700">
                     <i class="size-4 text-gray-400" data-lucide="calendar"></i>
-                    <input type="date" name="date_from" value="{{ request('date_from') }}" class="bg-transparent border-none text-sm focus:outline-none w-32" placeholder="From">
+                    <x-ui.input type="date" name="date_from" value="{{ request('date_from') }}" class="bg-transparent border-none text-sm focus:outline-none w-32" placeholder="From" />
                     <span class="text-gray-400">-</span>
-                    <input type="date" name="date_to" value="{{ request('date_to') }}" class="bg-transparent border-none text-sm focus:outline-none w-32" placeholder="To">
+                    <x-ui.input type="date" name="date_to" value="{{ request('date_to') }}" class="bg-transparent border-none text-sm focus:outline-none w-32" placeholder="To" />
                 </div>
                 <button type="submit" class="btn btn-sm bg-primary text-white rounded-lg">
                     <i class="size-4" data-lucide="filter"></i>
@@ -302,7 +284,7 @@
                         <i class="size-4" data-lucide="x"></i>
                     </a>
                 @endif
-            </form>
+            </x-ui.filter>
         </div>
 
         {{-- Statistics Cards --}}
@@ -399,45 +381,45 @@
 
         {{-- Filters --}}
         <div class="px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
-            <form method="GET" action="{{ route('secondary-transactions.index') }}">
-                <input type="hidden" name="date_from" value="{{ request('date_from') }}">
-                <input type="hidden" name="date_to" value="{{ request('date_to') }}">
+            <x-ui.filter action="{{ route('secondary-transactions.index') }}">
+                <x-ui.input type="hidden" name="date_from" value="{{ request('date_from') }}" />
+                <x-ui.input type="hidden" name="date_to" value="{{ request('date_to') }}" />
                 <div class="filter-section">
                     <div class="full-width">
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">Search</label>
                         <div class="relative">
-                            <input type="text" name="search" value="{{ request('search') }}" 
-                                class="form-input form-input-sm w-full pl-9 rounded-lg" placeholder="Search transactions...">
+                            <x-ui.input type="text" name="search" value="{{ request('search') }}"
+                                class="form-input form-input-sm w-full pl-9 rounded-lg" placeholder="Search transactions..." />
                             <i class="size-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" data-lucide="search"></i>
                         </div>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">Status</label>
-                        <select name="status" class="form-select form-select-sm w-full rounded-lg">
+                        <x-ui.select name="status" class="form-select form-select-sm w-full rounded-lg">
                             <option value="">All</option>
                             <option value="pending" {{ request('status')=='pending' ? 'selected' : '' }}>Pending</option>
                             <option value="won" {{ request('status')=='won' ? 'selected' : '' }}>Won</option>
                             <option value="not_won" {{ request('status')=='not_won' ? 'selected' : '' }}>Not Won</option>
-                        </select>
+                        </x-ui.select>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">Payment</label>
-                        <select name="is_paid" class="form-select form-select-sm w-full rounded-lg">
+                        <x-ui.select name="is_paid" class="form-select form-select-sm w-full rounded-lg">
                             <option value="">All</option>
                             <option value="yes" {{ request('is_paid')=='yes' ? 'selected' : '' }}>Paid</option>
                             <option value="no" {{ request('is_paid')=='no' ? 'selected' : '' }}>Unpaid</option>
-                        </select>
+                        </x-ui.select>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">Method</label>
-                        <select name="payment_method" class="form-select form-select-sm w-full rounded-lg">
+                        <x-ui.select name="payment_method" class="form-select form-select-sm w-full rounded-lg">
                             <option value="">All</option>
                             <option value="Cash" {{ request('payment_method')=='Cash' ? 'selected' : '' }}>Cash</option>
                             <option value="Bank Transfer" {{ request('payment_method')=='Bank Transfer' ? 'selected' : '' }}>Bank</option>
                             <option value="PromptPay" {{ request('payment_method')=='PromptPay' ? 'selected' : '' }}>PromptPay</option>
                             <option value="KBZPay" {{ request('payment_method')=='KBZPay' ? 'selected' : '' }}>KBZPay</option>
                             <option value="WavePay" {{ request('payment_method')=='WavePay' ? 'selected' : '' }}>WavePay</option>
-                        </select>
+                        </x-ui.select>
                     </div>
                     <div class="flex items-end gap-2">
                         <button type="submit" class="btn btn-sm bg-primary text-white rounded-lg flex-1">
@@ -450,12 +432,12 @@
                         @endif
                     </div>
                 </div>
-            </form>
+            </x-ui.filter>
         </div>
 
         {{-- Table --}}
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <x-ui.table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead class="bg-gray-50 dark:bg-gray-800">
                     <tr class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         <th class="px-4 py-3 text-left">#</th>
@@ -557,7 +539,7 @@
                         </tr>
                     @endforelse
                 </tbody>
-            </table>
+            </x-ui.table>
         </div>
 
         {{-- Pagination --}}
@@ -591,14 +573,14 @@
                     @csrf
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Payment Method</label>
-                        <select name="payment_method" class="form-select w-full rounded-xl" required>
+                        <x-ui.select name="payment_method" class="form-select w-full rounded-xl" required>
                             <option value="Cash">💵 Cash</option>
                             <option value="Bank Transfer">🏦 Bank Transfer</option>
                             <option value="PromptPay">📱 PromptPay</option>
                             <option value="KBZPay">📱 KBZPay</option>
                             <option value="WavePay">📱 WavePay</option>
                             <option value="Other">📋 Other</option>
-                        </select>
+                        </x-ui.select>
                     </div>
                     <div class="flex gap-3">
                         <button type="submit" class="flex-1 btn bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-2.5">

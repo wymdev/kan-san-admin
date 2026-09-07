@@ -21,8 +21,8 @@ class AppConfigController extends Controller
         $query = AppConfig::query();
         
         if (!empty($search)) {
-            $query->where('config_key', 'like', '%' . $search . '%')
-                  ->orWhere('description', 'like', '%' . $search . '%');
+            $query->whereLike('config_key', '%' . $search . '%')
+                  ->orWhereLike('description', '%' . $search . '%');
         }
         
         $configs = $query->orderBy('config_key')->paginate(10);

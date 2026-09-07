@@ -14,14 +14,14 @@
 
                     <div class="mb-4">
                         <label for="quote" class="block text-sm font-medium text-default-900 mb-2">Quote <span class="text-red-500">*</span></label>
-                        <textarea 
+                        <x-ui.textarea
                             id="quote" 
                             name="quote" 
                             rows="4"
-                            class="form-input @error('quote') border-red-500 @enderror" 
+                            class="form-input "
                             placeholder="Enter inspirational quote"
                             required
-                        >{{ old('quote') }}</textarea>
+                        >{{ old('quote') }}</x-ui.textarea>
                         @error('quote')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
@@ -31,14 +31,14 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label for="author" class="block text-sm font-medium text-default-900 mb-2">Author (Optional)</label>
-                            <input 
+                            <x-ui.input
                                 type="text" 
                                 id="author" 
                                 name="author" 
                                 value="{{ old('author') }}"
-                                class="form-input @error('author') border-red-500 @enderror" 
+                                class="form-input "
                                 placeholder="Quote author"
-                            />
+                             />
                             @error('author')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -46,12 +46,12 @@
 
                         <div>
                             <label for="category" class="block text-sm font-medium text-default-900 mb-2">Category <span class="text-red-500">*</span></label>
-                            <select id="category" name="category" class="form-select @error('category') border-red-500 @enderror" required>
+                            <x-ui.select id="category" name="category" class="form-select " required>
                                 <option value="motivation" {{ old('category') == 'motivation' ? 'selected' : '' }}>Motivation</option>
                                 <option value="inspiration" {{ old('category') == 'inspiration' ? 'selected' : '' }}>Inspiration</option>
                                 <option value="success" {{ old('category') == 'success' ? 'selected' : '' }}>Success</option>
                                 <option value="luck" {{ old('category') == 'luck' ? 'selected' : '' }}>Luck</option>
-                            </select>
+                            </x-ui.select>
                             @error('category')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -60,16 +60,16 @@
 
                     <div class="mb-4">
                         <label for="scheduled_for" class="block text-sm font-medium text-default-900 mb-2">Schedule For (Optional)</label>
-                        <input 
+                        <x-ui.input
                             type="text" 
                             id="scheduled_for" 
                             name="scheduled_for" 
                             value="{{ old('scheduled_for') }}"
-                            class="form-input @error('scheduled_for') border-red-500 @enderror"
+                            class="form-input "
                             data-provider="flatpickr" 
                             data-date-format="Y-m-d"
                             placeholder="Select date"
-                        />
+                         />
                         @error('scheduled_for')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror

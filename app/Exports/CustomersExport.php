@@ -23,9 +23,9 @@ class CustomersExport implements FromCollection, WithHeadings, WithMapping, With
         $query = Customer::query();
         
         if (!empty($this->search)) {
-            $query->where('phone_number', 'like', '%' . $this->search . '%')
-                  ->orWhere('full_name', 'like', '%' . $this->search . '%')
-                  ->orWhere('email', 'like', '%' . $this->search . '%');
+            $query->whereLike('phone_number', '%' . $this->search . '%')
+                  ->orWhereLike('full_name', '%' . $this->search . '%')
+                  ->orWhereLike('email', '%' . $this->search . '%');
         }
         
         return $query->orderBy('id', 'DESC')->get();

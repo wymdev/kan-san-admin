@@ -17,19 +17,19 @@
         <div class="card-header">
             <div class="md:flex items-center md:space-y-0 space-y-4 gap-3">
                 <div class="relative">
-                    <input class="form-input form-input-sm ps-9" placeholder="Search for name,email" type="email"/>
+                    <x-ui.input class="form-input form-input-sm ps-9" placeholder="Search for name,email" type="email" />
                     <div class="absolute inset-y-0 start-0 flex items-center ps-3">
                         <i class="size-3.5 flex items-center text-default-500 fill-default-100"
                            data-lucide="search"></i>
                     </div>
                 </div>
-                <select class="form-input form-input-sm">
+                <x-ui.select class="form-input form-input-sm">
                     <option selected="">select status</option>
                     <option>Hidden</option>
                     <option>Rejected</option>
                     <option>Verified</option>
                     <option>Waiting</option>
-                </select>
+                </x-ui.select>
             </div>
             <div class="flex gap-2 items-center flex-wrap">
                 <button
@@ -49,11 +49,11 @@
             <div class="overflow-x-auto">
                 <div class="min-w-full inline-block align-middle">
                     <div class="overflow-hidden">
-                        <table class="min-w-full divide-y divide-default-200">
+                        <x-ui.table class="min-w-full divide-y divide-default-200">
                             <thead class="bg-default-150">
                             <tr class="text-sm font-normal text-default-700 whitespace-nowrap">
                                 <th class="ps-4 text-start">
-                                    <input class="form-checkbox" id="checkbox-all" type="checkbox"/>
+                                    <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox" />
                                 </th>
                                 <th class="px-3.5 py-3 text-start" scope="col">User ID</th>
                                 <th class="px-3.5 py-3 text-start" scope="col">Name</th>
@@ -68,7 +68,7 @@
                             <tbody>
                             <tr class="text-default-800 font-normal text-sm whitespace-nowrap">
                                 <td class="py-3 ps-4">
-                                    <input class="form-checkbox" id="checkbox-all" type="checkbox"/>
+                                    <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox" />
                                 </td>
                                 <td class="px-3.5 py-3 text-sm text-primary"> #TW1500001</td>
                                 <td class="flex py-3 px-3.5 items-center gap-3">
@@ -121,7 +121,7 @@
                             </tr>
                             <tr class="text-default-800 font-normal text-sm whitespace-nowrap">
                                 <td class="py-3 ps-4">
-                                    <input class="form-checkbox" id="checkbox-all" type="checkbox"/>
+                                    <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox" />
                                 </td>
                                 <td class="px-3.5 py-3 whitespace-nowrap text-sm text-primary">#TW1500002</td>
                                 <td class="flex py-3 px-3.5 items-center gap-3">
@@ -173,7 +173,7 @@
                             </tr>
                             <tr class="text-default-800 font-normal text-sm whitespace-nowrap">
                                 <td class="py-3 ps-4">
-                                    <input class="form-checkbox" id="checkbox-all" type="checkbox"/>
+                                    <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox" />
                                 </td>
                                 <td class="px-3.5 py-3 whitespace-nowrap text-sm text-primary">#TW1500003</td>
                                 <td class="flex py-3 px-3.5 items-center gap-3">
@@ -226,7 +226,7 @@
                             </tr>
                             <tr class="text-default-800 font-normal text-sm whitespace-nowrap">
                                 <td class="py-3 ps-4">
-                                    <input class="form-checkbox" id="checkbox-all" type="checkbox"/>
+                                    <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox" />
                                 </td>
                                 <td class="px-3.5 py-3 whitespace-nowrap text-sm text-primary">#TW1500004</td>
                                 <td class="flex py-3 px-3.5 items-center gap-3">
@@ -276,7 +276,7 @@
                             </tr>
                             <tr class="text-default-800 font-normal text-sm whitespace-nowrap">
                                 <td class="px-4 py-3">
-                                    <input class="form-checkbox" id="checkbox-all" type="checkbox"/>
+                                    <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox" />
                                 </td>
                                 <td class="px-4 py-3 text-primary">#TW1500005</td>
                                 <td class="px-4 py-3 flex items-center gap-3">
@@ -324,7 +324,7 @@
                             </tr>
                             <tr class="text-default-800 font-normal text-sm whitespace-nowrap">
                                 <td class="px-4 py-3">
-                                    <input class="form-checkbox" id="checkbox-all" type="checkbox"/>
+                                    <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox" />
                                 </td>
                                 <td class="px-4 py-3 text-primary">#TW1500006</td>
                                 <td class="px-4 py-3 flex items-center gap-3">
@@ -376,7 +376,7 @@
                             </tr>
                             <tr class="text-default-800 font-normal text-sm whitespace-nowrap">
                                 <td class="px-4 py-3">
-                                    <input class="form-checkbox" id="checkbox-all" type="checkbox"/>
+                                    <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox" />
                                 </td>
                                 <td class="px-4 py-3 text-primary">#TW1500007</td>
                                 <td class="px-4 py-3 flex items-center gap-3">
@@ -425,7 +425,7 @@
                             </tr>
                             <tr class="text-default-800 font-normal text-sm whitespace-nowrap">
                                 <td class="px-4 py-3">
-                                    <input class="form-checkbox" id="checkbox-all" type="checkbox"/>
+                                    <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox" />
                                 </td>
                                 <td class="px-4 py-3 text-primary">#TW1500008</td>
                                 <td class="px-4 py-3 flex items-center gap-3">
@@ -474,7 +474,7 @@
                             </tr>
                             <tr class="text-default-800 font-normal text-sm whitespace-nowrap">
                                 <td class="px-4 py-3">
-                                    <input class="form-checkbox" id="checkbox-all" type="checkbox"/>
+                                    <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox" />
                                 </td>
                                 <td class="px-4 py-3 text-primary">#TW1500009</td>
                                 <td class="px-4 py-3 flex items-center gap-3">
@@ -526,7 +526,7 @@
                             </tr>
                             <tr class="text-default-800 font-normal text-sm whitespace-nowrap">
                                 <td class="px-4 py-3">
-                                    <input class="form-checkbox" id="checkbox-all" type="checkbox"/>
+                                    <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox" />
                                 </td>
                                 <td class="px-4 py-3 text-primary">#TW1500010</td>
                                 <td class="px-4 py-3 flex items-center gap-3">
@@ -573,7 +573,7 @@
                                 </td>
                             </tr>
                             </tbody>
-                        </table>
+                        </x-ui.table>
                     </div>
                 </div>
             </div>

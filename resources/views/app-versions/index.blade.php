@@ -3,49 +3,37 @@
 @section('content')
     @include('layouts.partials/page-title', ['subtitle' => 'Mobile App', 'title' => 'App Versions'])
 
-    @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
 
-    @if (session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
 
     <div class="grid grid-cols-1 gap-5 mb-5">
         <div class="card">
             <div class="card-header flex items-center gap-2 flex-wrap">
-                <form method="GET" action="{{ route('app-versions.index') }}" class="flex gap-2 flex-wrap items-center">
+                <x-ui.filter action="{{ route('app-versions.index') }}" class="flex gap-2 flex-wrap items-center">
                     <div class="relative" style="width: 10rem;">
-                        <input 
+                        <x-ui.input
                             name="search"
                             value="{{ request('search') }}"
                             class="ps-10 form-input form-input-sm w-full"
                             placeholder="Search version..."
                             type="text"
-                        />
+                         />
                         <div class="absolute inset-y-0 left-0 flex items-center ps-3">
                             <i class="size-4 text-default-500" data-lucide="search"></i>
                         </div>
                     </div>
                     <div style="width: 8rem;">
-                        <select name="platform" class="form-input form-input-sm w-full">
+                        <x-ui.select name="platform" class="form-input form-input-sm w-full">
                             <option value="">All Platforms</option>
                             <option value="android" {{ request('platform') == 'android' ? 'selected' : '' }}>Android</option>
                             <option value="ios" {{ request('platform') == 'ios' ? 'selected' : '' }}>iOS</option>
                             <option value="both" {{ request('platform') == 'both' ? 'selected' : '' }}>Both</option>
-                        </select>
+                        </x-ui.select>
                     </div>
                     <button type="submit" class="btn btn-xs bg-primary text-white">
                         <i class="size-4 me-1" data-lucide="search"></i>Filter
                     </button>
                     <a href="{{ route('app-versions.index') }}" class="btn btn-xs bg-default-200 text-default-600 hover:bg-default-300">Clear</a>
-                </form>
+                </x-ui.filter>
                 <a href="{{ route('app-versions.create') }}" class="btn btn-xs bg-primary text-white ms-auto flex-shrink-0">
                     <i class="size-4 me-1" data-lucide="plus"></i>New Version
                 </a>
@@ -55,7 +43,7 @@
                 <div class="overflow-x-auto">
                     <div class="min-w-full inline-block align-middle">
                         <div class="overflow-hidden">
-                            <table class="min-w-full divide-y divide-default-200">
+                            <x-ui.table class="min-w-full divide-y divide-default-200">
                                 <thead class="bg-default-150">
                                 <tr class="text-sm font-normal text-default-700">
                                     <th class="px-3.5 py-3 text-start">Version</th>
@@ -141,7 +129,7 @@
                                     </tr>
                                 @endforelse
                                 </tbody>
-                            </table>
+                            </x-ui.table>
                         </div>
                     </div>
                 </div>

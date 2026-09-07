@@ -33,16 +33,16 @@
                             <i class="iconify tabler--circle-filled me-2"></i>Create New theme
                         </div>
                         <div class="flex items-center gap-2">
-                            <input class="form-checkbox" id="drop-remove" type="checkbox" />
+                            <x-ui.input class="form-checkbox" id="drop-remove" type="checkbox"  />
                             <label class="align-middle cursor-pointer" for="drop-remove">Remove after drop</label>
                         </div>
                         <div class="flex items-center gap-2">
-                            <input class="form-checkbox" id="businessCalendar" type="checkbox" />
+                            <x-ui.input class="form-checkbox" id="businessCalendar" type="checkbox"  />
                             <label class="align-middle cursor-pointer" for="businessCalendar">Business Hours &amp;
                                 Week</label>
                         </div>
                         <div class="flex items-center gap-2">
-                            <input class="form-checkbox" id="weekNumberCalendar" type="checkbox" />
+                            <x-ui.input class="form-checkbox" id="weekNumberCalendar" type="checkbox"  />
                             <label class="align-middle cursor-pointer" for="weekNumberCalendar">Week Number</label>
                         </div>
                     </div>
@@ -74,12 +74,12 @@
                         <div class="grid grid-cols-1 gap-4 xl:grid-cols-12">
                             <div class="xl:col-span-12">
                                 <label for="event-title" class="inline-block mb-2 text-base font-medium">Event Name</label>
-                                <input type="text" id="event-title" class="form-input" placeholder="Event name" required>
+                                <x-ui.input type="text" id="event-title" class="form-input" placeholder="Event name" required />
                             </div>
 
                             <div class="xl:col-span-12">
                                 <label for="event-category" class="inline-block mb-2 text-base font-medium">Category</label>
-                                <select class="form-input flex items-center" name="event-category" id="event-category"
+                                <x-ui.select class="form-input flex items-center" name="event-category" id="event-category"
                                     required>
                                     <option>Select Category</option>
                                     <option selected value="!text-primary">Primary</option>
@@ -87,7 +87,7 @@
                                     <option value="!text-info">Info</option>
                                     <option value="!text-warning">Warning</option>
                                     <option value="!text-danger">Danger</option>
-                                </select>
+                                </x-ui.select>
                             </div>
                         </div>
                     </div>

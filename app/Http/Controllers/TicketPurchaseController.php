@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\DatabaseSql;
+
 use App\Models\TicketPurchase;
 use Illuminate\Http\Request;
 use App\Services\PushNotificationService;
@@ -50,13 +52,14 @@ class TicketPurchaseController extends Controller
         // Search
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
-                $q->where('order_number', 'like', "%$search%")
+                $q->whereLike('order_number', "%$search%")
                     ->orWhereHas('customer', function ($cq) use ($search) {
-                        $cq->where('full_name', 'like', "%$search%")
-                            ->orWhere('phone_number', 'like', "%$search%");
+                        $cq->whereLike('full_name', "%$search%")
+                            ->orWhereLike('phone_number', "%$search%");
                     })
                     ->orWhereHas('lotteryTicket', function ($tq) use ($search) {
-                        $tq->whereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(numbers, '\"', ''), '[', ''), ']', ''), ',', ''), ' ', '') LIKE ?", ["%$search%"]);
+                        $numbersSql = DatabaseSql::jsonText('numbers');
+                        $tq->whereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE({$numbersSql}, '\"', ''), '[', ''), ']', ''), ',', ''), ' ', '') LIKE ?", ["%$search%"]);
                     });
             });
         }

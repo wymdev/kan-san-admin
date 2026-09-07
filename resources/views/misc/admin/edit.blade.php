@@ -31,9 +31,9 @@
                 <div class="grid lg:grid-cols-2 gap-6">
                     <div>
                         <label for="name" class="block text-sm font-medium text-default-700 mb-2">Name <span class="text-danger">*</span></label>
-                        <input type="text" name="name" id="name" placeholder="Enter user name" 
-                               class="form-input @error('name') border-danger @enderror" 
-                               value="{{ old('name', $user->name) }}" required>
+                        <x-ui.input type="text" name="name" id="name" placeholder="Enter user name"
+                               class="form-input "
+                               value="{{ old('name', $user->name) }}" required />
                         @error('name')
                             <p class="text-danger text-xs mt-1">{{ $message }}</p>
                         @enderror
@@ -41,9 +41,9 @@
 
                     <div>
                         <label for="email" class="block text-sm font-medium text-default-700 mb-2">Email <span class="text-danger">*</span></label>
-                        <input type="email" name="email" id="email" placeholder="Enter email address" 
-                               class="form-input @error('email') border-danger @enderror" 
-                               value="{{ old('email', $user->email) }}" required>
+                        <x-ui.input type="email" name="email" id="email" placeholder="Enter email address"
+                               class="form-input "
+                               value="{{ old('email', $user->email) }}" required />
                         @error('email')
                             <p class="text-danger text-xs mt-1">{{ $message }}</p>
                         @enderror
@@ -51,8 +51,8 @@
 
                     <div>
                         <label for="password" class="block text-sm font-medium text-default-700 mb-2">Password</label>
-                        <input type="password" name="password" id="password" placeholder="Leave blank to keep current password" 
-                               class="form-input @error('password') border-danger @enderror">
+                        <x-ui.input type="password" name="password" id="password" placeholder="Leave blank to keep current password"
+                               class="form-input " />
                         <p class="text-default-500 text-xs mt-1">Leave blank if you don't want to change password</p>
                         @error('password')
                             <p class="text-danger text-xs mt-1">{{ $message }}</p>
@@ -61,8 +61,8 @@
 
                     <div>
                         <label for="confirm-password" class="block text-sm font-medium text-default-700 mb-2">Confirm Password</label>
-                        <input type="password" name="confirm-password" id="confirm-password" placeholder="Confirm new password" 
-                               class="form-input">
+                        <x-ui.input type="password" name="confirm-password" id="confirm-password" placeholder="Confirm new password"
+                               class="form-input" />
                     </div>
 
                     <div class="lg:col-span-2">

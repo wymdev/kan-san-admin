@@ -19,10 +19,10 @@ class ActivityLogController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('description', 'like', "%{$search}%")
-                  ->orWhere('route', 'like', "%{$search}%")
-                  ->orWhere('ip_address', 'like', "%{$search}%")
-                  ->orWhere('action', 'like', "%{$search}%");
+                $q->whereLike('description', "%{$search}%")
+                  ->orWhereLike('route', "%{$search}%")
+                  ->orWhereLike('ip_address', "%{$search}%")
+                  ->orWhereLike('action', "%{$search}%");
             });
         }
         
@@ -60,12 +60,12 @@ class ActivityLogController extends Controller
         
         // Filter slow requests (> 1 second)
         if ($request->boolean('slow_only')) {
-            $query->whereRaw("CAST(JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.duration_ms')) AS UNSIGNED) > 1000");
+            $query->where('duration_ms', '>', 1000);
         }
         
         // Filter failed requests (4xx and 5xx)
         if ($request->boolean('failed_only')) {
-            $query->whereRaw("CAST(JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.response_status')) AS UNSIGNED) >= 400");
+            $query->where('response_status', '>=', 400);
         }
         
         // Get distinct values for filters

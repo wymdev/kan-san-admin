@@ -23,8 +23,8 @@ class AppBannerController extends Controller
         $query = AppBanner::query();
         
         if (!empty($search)) {
-            $query->where('title', 'like', '%' . $search . '%')
-                  ->orWhere('description', 'like', '%' . $search . '%');
+            $query->whereLike('title', '%' . $search . '%')
+                  ->orWhereLike('description', '%' . $search . '%');
         }
         
         if (!empty($type)) {

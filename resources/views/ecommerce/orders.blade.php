@@ -106,7 +106,7 @@
     <div class="card">
         <div class="card-header">
             <div class="relative">
-                <input class="form-input form-input-sm ps-9" placeholder="Search for...." type="email"/>
+                <x-ui.input class="form-input form-input-sm ps-9" placeholder="Search for...." type="email" />
                 <div class="absolute inset-y-0 start-0 flex items-center ps-3">
                     <i class="size-3.5 flex items-center text-default-500" data-lucide="search"></i>
                 </div>
@@ -143,11 +143,11 @@
             <div class="overflow-x-auto">
                 <div class="min-w-full inline-block align-middle">
                     <div class="overflow-hidden">
-                        <table class="min-w-full divide-y divide-default-200">
+                        <x-ui.table class="min-w-full divide-y divide-default-200">
                             <thead class="bg-default-150">
                             <tr class="text-sm font-normal text-default-500 whitespace-nowrap">
                                 <th class="ps-4 text-start">
-                                    <input class="form-checkbox" id="checkbox-all" type="checkbox"/>
+                                    <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox" />
                                 </th>
                                 <th class="px-3.5 py-3 text-start" scope="col">Order ID</th>
                                 <th class="px-3.5 py-3 text-start" scope="col">Order Date</th>
@@ -162,7 +162,7 @@
                             <tbody class="divide-y divide-default-200">
                             <tr class="text-default-800 font-normal">
                                 <td class="py-2.5 ps-4">
-                                    <input class="form-checkbox" id="checkbox-all" type="checkbox"/>
+                                    <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox" />
                                 </td>
                                 <td class="px-3.5 py-2.5 whitespace-nowrap text-sm text-primary">
                                     #TWT5015100365
@@ -213,7 +213,7 @@
                             </tr>
                             <tr class="text-default-800 font-normal">
                                 <td class="py-2.5 ps-4">
-                                    <input class="form-checkbox" id="checkbox-all" type="checkbox"/>
+                                    <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox" />
                                 </td>
                                 <td class="px-3.5 py-2.5 whitespace-nowrap text-sm text-primary">#TWT5015100366</td>
                                 <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">11 July, 2023</td>
@@ -254,7 +254,7 @@
                             </tr>
                             <tr class="text-default-800 font-normal">
                                 <td class="py-2.5 ps-4">
-                                    <input class="form-checkbox" id="checkbox-all" type="checkbox"/>
+                                    <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox" />
                                 </td>
                                 <td class="px-3.5 py-2.5 whitespace-nowrap text-sm text-primary">#TWT5015100367</td>
                                 <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">21 Aug, 2023</td>
@@ -295,7 +295,7 @@
                             </tr>
                             <tr class="text-default-800 font-normal">
                                 <td class="py-2.5 ps-4">
-                                    <input class="form-checkbox" id="checkbox-all" type="checkbox"/>
+                                    <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox" />
                                 </td>
                                 <td class="px-3.5 py-2.5 whitespace-nowrap text-sm text-primary">#TWT5015100368</td>
                                 <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">28 Nov, 2023</td>
@@ -336,7 +336,7 @@
                             </tr>
                             <tr class="text-default-800 font-normal">
                                 <td class="py-2.5 ps-4">
-                                    <input class="form-checkbox" id="checkbox-all" type="checkbox"/>
+                                    <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox" />
                                 </td>
                                 <td class="px-3.5 py-2.5 whitespace-nowrap text-sm text-primary">#TWT5015100369</td>
                                 <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">11 Oct, 2023</td>
@@ -377,7 +377,7 @@
                             </tr>
                             <tr class="text-default-800 font-normal">
                                 <td class="py-2.5 ps-4">
-                                    <input class="form-checkbox" id="checkbox-all" type="checkbox"/>
+                                    <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox" />
                                 </td>
                                 <td class="px-3.5 py-2.5 whitespace-nowrap text-sm text-primary">#TWT5015100370</td>
                                 <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">16 Feb, 2023</td>
@@ -418,7 +418,7 @@
                             </tr>
                             <tr class="text-default-800 font-normal">
                                 <td class="py-2.5 ps-4">
-                                    <input class="form-checkbox" id="checkbox-all" type="checkbox"/>
+                                    <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox" />
                                 </td>
                                 <td class="px-3.5 py-2.5 whitespace-nowrap text-sm text-primary">#TWT5015100371</td>
                                 <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">18 Apr, 2023</td>
@@ -459,7 +459,7 @@
                             </tr>
                             <tr class="text-default-800 font-normal">
                                 <td class="py-2.5 ps-4">
-                                    <input class="form-checkbox" id="checkbox-all" type="checkbox"/>
+                                    <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox" />
                                 </td>
                                 <td class="px-3.5 py-2.5 whitespace-nowrap text-sm text-primary">#TWT5015100372</td>
                                 <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">21 Jan, 2024</td>
@@ -500,7 +500,7 @@
                             </tr>
                             <tr class="text-default-800 font-normal">
                                 <td class="py-2.5 ps-4">
-                                    <input class="form-checkbox" id="checkbox-all" type="checkbox"/>
+                                    <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox" />
                                 </td>
                                 <td class="px-3.5 py-2.5 whitespace-nowrap text-sm text-primary">#TWT5015100373</td>
                                 <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">05 Oct, 2024</td>
@@ -541,7 +541,7 @@
                             </tr>
                             <tr class="text-default-800 font-normal">
                                 <td class="py-2.5 ps-4">
-                                    <input class="form-checkbox" id="checkbox-all" type="checkbox"/>
+                                    <x-ui.input class="form-checkbox" id="checkbox-all" type="checkbox" />
                                 </td>
                                 <td class="px-3.5 py-2.5 whitespace-nowrap text-sm text-primary">#TWT5015100374</td>
                                 <td class="px-3.5 py-2.5 whitespace-nowrap text-sm">07 Oct, 2024</td>
@@ -581,7 +581,7 @@
                                 </td>
                             </tr>
                             </tbody>
-                        </table>
+                        </x-ui.table>
                     </div>
                 </div>
             </div>

@@ -105,7 +105,7 @@
                                     aria-label="Toggle navigation" class="lg:hidden" data-hs-overlay="#mailBoxSidebar">
                                     <i class="size-6" data-lucide="align-left"></i>
                                 </button>
-                                <input class="form-checkbox checked:bg-primary" id="checkAll" type="checkbox" />
+                                <x-ui.input class="form-checkbox checked:bg-primary" id="checkAll" type="checkbox"  />
                                 <button><i class="size-4 text-default-500 hover:text-primary"
                                         data-lucide="refresh-cw"></i></button>
                                 <div class="w-px h-5 bg-default-200"></div>
@@ -125,8 +125,8 @@
                             </div>
                             <div class="flex items-center gap-2">
                                 <div class="relative flex-1">
-                                    <input class="form-input form-input-sm ps-11" placeholder="Search for...."
-                                        type="email" />
+                                    <x-ui.input class="form-input form-input-sm ps-11" placeholder="Search for...."
+                                        type="email"  />
                                     <div class="absolute inset-y-0 start-0 flex items-center pointer-events-none ps-4">
                                         <i class="size-4 flex items-center text-default-500" data-lucide="search"></i>
                                     </div>
@@ -162,13 +162,13 @@
                             <div class="overflow-x-auto">
                                 <div class="min-w-full inline-block align-middle">
                                     <div class="overflow-hidden">
-                                        <table class="w-full mail-list">
+                                        <x-ui.table class="w-full mail-list">
                                             <tbody class="divide-y divide-default-200">
                                                 <tr class="text-default-500 text-sm" data-hs-overlay="#emailOverview">
                                                     <td class="py-2.5 ps-5">
                                                         <div class="flex items-center gap-3 h-5">
-                                                            <input class="form-checkbox checked:bg-primary"
-                                                                id="checkbox-all" type="checkbox" />
+                                                            <x-ui.input class="form-checkbox checked:bg-primary"
+                                                                id="checkbox-all" type="checkbox"  />
                                                             <i
                                                                 class="iconify lucide--star size-4 text-default-500 hover:text-yellow-500"></i>
                                                             <i
@@ -184,8 +184,8 @@
                                                 <tr class="text-default-500 text-sm" data-hs-overlay="#emailOverview">
                                                     <td class="py-2.5 ps-5">
                                                         <div class="flex items-center gap-3 h-5">
-                                                            <input class="form-checkbox checked:bg-primary"
-                                                                id="checkbox-1" type="checkbox" />
+                                                            <x-ui.input class="form-checkbox checked:bg-primary"
+                                                                id="checkbox-1" type="checkbox"  />
                                                             <i
                                                                 class="iconify lucide--star size-4 text-default-500 hover:text-yellow-500"></i>
                                                             <i
@@ -201,8 +201,8 @@
                                                 <tr class="text-default-800 text-sm" data-hs-overlay="#emailOverview">
                                                     <td class="py-2.5 ps-5">
                                                         <div class="flex items-center gap-3 h-5">
-                                                            <input class="form-checkbox checked:bg-primary"
-                                                                id="checkbox-1" type="checkbox" />
+                                                            <x-ui.input class="form-checkbox checked:bg-primary"
+                                                                id="checkbox-1" type="checkbox"  />
                                                             <i
                                                                 class="iconify lucide--star size-4 text-default-500 hover:text-yellow-500"></i>
                                                             <i
@@ -218,8 +218,8 @@
                                                 <tr class="text-default-800 text-sm" data-hs-overlay="#emailOverview">
                                                     <td class="py-2.5 ps-5">
                                                         <div class="flex items-center gap-3 h-5">
-                                                            <input class="form-checkbox checked:bg-primary"
-                                                                id="checkbox-1" type="checkbox" />
+                                                            <x-ui.input class="form-checkbox checked:bg-primary"
+                                                                id="checkbox-1" type="checkbox"  />
                                                             <i
                                                                 class="iconify lucide--star size-4 text-default-500 hover:text-yellow-500"></i>
                                                             <i
@@ -236,8 +236,8 @@
                                                 <tr class="text-default-800 text-sm" data-hs-overlay="#emailOverview">
                                                     <td class="py-2.5 ps-5">
                                                         <div class="flex items-center gap-3 h-5">
-                                                            <input class="form-checkbox checked:bg-primary"
-                                                                id="checkbox-1" type="checkbox" />
+                                                            <x-ui.input class="form-checkbox checked:bg-primary"
+                                                                id="checkbox-1" type="checkbox"  />
                                                             <i
                                                                 class="iconify lucide--star size-4 text-default-500 hover:text-yellow-500"></i>
                                                             <i
@@ -255,8 +255,8 @@
                                                 <tr class="text-default-500 text-sm" data-hs-overlay="#emailOverview">
                                                     <td class="py-2.5 ps-5">
                                                         <div class="flex items-center gap-3 h-5">
-                                                            <input class="form-checkbox checked:bg-primary"
-                                                                id="checkbox-1" type="checkbox" />
+                                                            <x-ui.input class="form-checkbox checked:bg-primary"
+                                                                id="checkbox-1" type="checkbox"  />
                                                             <i
                                                                 class="iconify lucide--star size-4 text-default-500 hover:text-yellow-500"></i>
                                                             <i
@@ -273,8 +273,8 @@
                                                 <tr class="text-default-800 text-sm" data-hs-overlay="#emailOverview">
                                                     <td class="py-2.5 ps-5">
                                                         <div class="flex items-center gap-3 h-5">
-                                                            <input class="form-checkbox checked:bg-primary"
-                                                                id="checkbox-1" type="checkbox" />
+                                                            <x-ui.input class="form-checkbox checked:bg-primary"
+                                                                id="checkbox-1" type="checkbox"  />
                                                             <i
                                                                 class="iconify lucide--star size-4 text-default-500 hover:text-yellow-500"></i>
                                                             <i
@@ -290,8 +290,8 @@
                                                 <tr class="text-default-500 text-sm" data-hs-overlay="#emailOverview">
                                                     <td class="py-2.5 ps-5">
                                                         <div class="flex items-center gap-3 h-5">
-                                                            <input class="form-checkbox checked:bg-primary"
-                                                                id="checkbox-1" type="checkbox" />
+                                                            <x-ui.input class="form-checkbox checked:bg-primary"
+                                                                id="checkbox-1" type="checkbox"  />
                                                             <i
                                                                 class="iconify lucide--star size-4 text-default-500 hover:text-yellow-500"></i>
                                                             <i
@@ -309,8 +309,8 @@
                                                 <tr class="text-default-800 text-sm" data-hs-overlay="#emailOverview">
                                                     <td class="py-2.5 ps-5">
                                                         <div class="flex items-center gap-3 h-5">
-                                                            <input class="form-checkbox checked:bg-primary"
-                                                                id="checkbox-1" type="checkbox" />
+                                                            <x-ui.input class="form-checkbox checked:bg-primary"
+                                                                id="checkbox-1" type="checkbox"  />
                                                             <i
                                                                 class="iconify lucide--star size-4 text-default-500 hover:text-yellow-500"></i>
                                                             <i
@@ -328,8 +328,8 @@
                                                 <tr class="text-default-500 text-sm" data-hs-overlay="#emailOverview">
                                                     <td class="py-2.5 ps-5">
                                                         <div class="flex items-center gap-3 h-5">
-                                                            <input class="form-checkbox checked:bg-primary"
-                                                                id="checkbox-1" type="checkbox" />
+                                                            <x-ui.input class="form-checkbox checked:bg-primary"
+                                                                id="checkbox-1" type="checkbox"  />
                                                             <i
                                                                 class="iconify lucide--star size-4 text-default-500 hover:text-yellow-500"></i>
                                                             <i
@@ -346,8 +346,8 @@
                                                 <tr class="text-default-800 text-sm" data-hs-overlay="#emailOverview">
                                                     <td class="py-2.5 ps-5">
                                                         <div class="flex items-center gap-3 h-5">
-                                                            <input class="form-checkbox checked:bg-primary"
-                                                                id="checkbox-1" type="checkbox" />
+                                                            <x-ui.input class="form-checkbox checked:bg-primary"
+                                                                id="checkbox-1" type="checkbox"  />
                                                             <i
                                                                 class="iconify lucide--star size-4 text-default-500 hover:text-yellow-500"></i>
                                                             <i
@@ -364,8 +364,8 @@
                                                 <tr class="text-default-800 text-sm" data-hs-overlay="#emailOverview">
                                                     <td class="py-2.5 ps-5">
                                                         <div class="flex items-center gap-3 h-5">
-                                                            <input class="form-checkbox checked:bg-primary"
-                                                                id="checkbox-1" type="checkbox" />
+                                                            <x-ui.input class="form-checkbox checked:bg-primary"
+                                                                id="checkbox-1" type="checkbox"  />
                                                             <i
                                                                 class="iconify lucide--star size-4 text-default-500 hover:text-yellow-500"></i>
                                                             <i
@@ -381,8 +381,8 @@
                                                 <tr class="text-default-800 text-sm" data-hs-overlay="#emailOverview">
                                                     <td class="py-2.5 ps-5">
                                                         <div class="flex items-center gap-3 h-5">
-                                                            <input class="form-checkbox checked:bg-primary"
-                                                                id="checkbox-1" type="checkbox" />
+                                                            <x-ui.input class="form-checkbox checked:bg-primary"
+                                                                id="checkbox-1" type="checkbox"  />
                                                             <i
                                                                 class="iconify lucide--star size-4 text-default-500 hover:text-yellow-500"></i>
                                                             <i
@@ -399,8 +399,8 @@
                                                 <tr class="text-default-500 text-sm" data-hs-overlay="#emailOverview">
                                                     <td class="py-2.5 ps-5">
                                                         <div class="flex items-center gap-3 h-5">
-                                                            <input class="form-checkbox checked:bg-primary"
-                                                                id="checkbox-1" type="checkbox" />
+                                                            <x-ui.input class="form-checkbox checked:bg-primary"
+                                                                id="checkbox-1" type="checkbox"  />
                                                             <i
                                                                 class="iconify lucide--star size-4 text-default-500 hover:text-yellow-500"></i>
                                                             <i
@@ -416,8 +416,8 @@
                                                 <tr class="text-default-800 text-sm" data-hs-overlay="#emailOverview">
                                                     <td class="py-2.5 ps-5">
                                                         <div class="flex items-center gap-3 h-5">
-                                                            <input class="form-checkbox checked:bg-primary"
-                                                                id="checkbox-1" type="checkbox" />
+                                                            <x-ui.input class="form-checkbox checked:bg-primary"
+                                                                id="checkbox-1" type="checkbox"  />
                                                             <i
                                                                 class="iconify lucide--star size-4 text-default-500 hover:text-yellow-500"></i>
                                                             <i
@@ -435,8 +435,8 @@
                                                 <tr class="text-default-500 text-sm" data-hs-overlay="#emailOverview">
                                                     <td class="py-2.5 ps-5">
                                                         <div class="flex items-center gap-3 h-5">
-                                                            <input class="form-checkbox checked:bg-primary"
-                                                                id="checkbox-1" type="checkbox" />
+                                                            <x-ui.input class="form-checkbox checked:bg-primary"
+                                                                id="checkbox-1" type="checkbox"  />
                                                             <i
                                                                 class="iconify lucide--star size-4 text-default-500 hover:text-yellow-500"></i>
                                                             <i
@@ -453,8 +453,8 @@
                                                 <tr class="text-default-500 text-sm" data-hs-overlay="#emailOverview">
                                                     <td class="py-2.5 ps-5">
                                                         <div class="flex items-center gap-3 h-5">
-                                                            <input class="form-checkbox checked:bg-primary"
-                                                                id="checkbox-1" type="checkbox" />
+                                                            <x-ui.input class="form-checkbox checked:bg-primary"
+                                                                id="checkbox-1" type="checkbox"  />
                                                             <i
                                                                 class="iconify lucide--star size-4 text-default-500 hover:text-yellow-500"></i>
                                                             <i
@@ -470,8 +470,8 @@
                                                 <tr class="text-default-500 text-sm" data-hs-overlay="#emailOverview">
                                                     <td class="py-2.5 ps-5">
                                                         <div class="flex items-center gap-3 h-5">
-                                                            <input class="form-checkbox checked:bg-primary"
-                                                                id="checkbox-1" type="checkbox" />
+                                                            <x-ui.input class="form-checkbox checked:bg-primary"
+                                                                id="checkbox-1" type="checkbox"  />
                                                             <i
                                                                 class="iconify lucide--star size-4 text-default-500 hover:text-yellow-500"></i>
                                                             <i
@@ -489,8 +489,8 @@
                                                 <tr class="text-default-800 text-sm" data-hs-overlay="#emailOverview">
                                                     <td class="py-2.5 ps-5">
                                                         <div class="flex items-center gap-3 h-5">
-                                                            <input class="form-checkbox checked:bg-primary"
-                                                                id="checkbox-1" type="checkbox" />
+                                                            <x-ui.input class="form-checkbox checked:bg-primary"
+                                                                id="checkbox-1" type="checkbox"  />
                                                             <i
                                                                 class="iconify lucide--star size-4 text-default-500 hover:text-yellow-500"></i>
                                                             <i
@@ -508,8 +508,8 @@
                                                 <tr class="text-default-800 text-sm" data-hs-overlay="#emailOverview">
                                                     <td class="py-2.5 ps-5">
                                                         <div class="flex items-center gap-3 h-5">
-                                                            <input class="form-checkbox checked:bg-primary"
-                                                                id="checkbox-1" type="checkbox" />
+                                                            <x-ui.input class="form-checkbox checked:bg-primary"
+                                                                id="checkbox-1" type="checkbox"  />
                                                             <i
                                                                 class="iconify lucide--star size-4 text-default-500 hover:text-yellow-500"></i>
                                                             <i
@@ -524,7 +524,7 @@
                                                     <td class="px-3.5 py-2.5 whitespace-nowrap">11:54 PM</td>
                                                 </tr>
                                             </tbody>
-                                        </table>
+                                        </x-ui.table>
                                     </div>
                                 </div>
                             </div>
@@ -669,8 +669,8 @@
                             </div>
                             <div class="card-footer py-4">
                                 <div class="grow">
-                                    <input autocomplete="off" class="form-input" id="inputText"
-                                        placeholder="Enter Message" required="" type="text" />
+                                    <x-ui.input autocomplete="off" class="form-input" id="inputText"
+                                        placeholder="Enter Message" required="" type="text"  />
                                 </div>
                                 <div class="flex gap-2 shrink-0">
                                     <button class="btn hover:bg-default-100" type="button"><i class="size-4"
@@ -717,7 +717,7 @@
 
                     <div class="mb-4">
                         <label for="subject" class="inline-block mb-2 text-base font-medium">Subject</label>
-                        <input type="text" id="subject" class="form-input" placeholder="Subject">
+                        <x-ui.input type="text" id="subject" class="form-input" placeholder="Subject" />
                     </div>
 
                     <div>

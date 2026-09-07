@@ -26,7 +26,7 @@ class DebugLotteryCheck extends Command
         // Find ticket by signature or number
         $ticket = SecondaryLotteryTicket::where('signature', $ticketInput)
             ->orWhere('signature', $cleanNumber)
-            ->orWhereRaw("JSON_CONTAINS(numbers, ?)", [json_encode($cleanNumber)])
+            ->orWhereJsonContains('numbers', $cleanNumber)
             ->first();
 
         if (!$ticket) {

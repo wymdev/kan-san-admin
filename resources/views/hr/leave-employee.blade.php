@@ -73,7 +73,7 @@
         <div class="card">
             <div class="card-header">
                 <div class="relative">
-                    <input class="ps-11 form-input form-input-sm" placeholder="Search for...." type="email"/>
+                    <x-ui.input class="ps-11 form-input form-input-sm" placeholder="Search for...." type="email" />
                     <div class="absolute inset-y-0 start-0 flex items-center ps-3">
                         <i class="size-4 flex items-center text-default-500" data-lucide="search"></i>
                     </div>
@@ -86,7 +86,7 @@
                 <div class="overflow-x-auto">
                     <div class="min-w-full inline-block align-middle">
                         <div class="overflow-hidden">
-                            <table class="min-w-full divide-y divide-default-200">
+                            <x-ui.table class="min-w-full divide-y divide-default-200">
                                 <thead class="bg-default-150">
                                 <tr class="text-sm font-normal whitespace-nowrap text-default-500">
                                     <th class="px-3.5 py-3 text-start" scope="col">
@@ -302,7 +302,7 @@
                                     </td>
                                 </tr>
                                 </tbody>
-                            </table>
+                            </x-ui.table>
                         </div>
                     </div>
                 </div>

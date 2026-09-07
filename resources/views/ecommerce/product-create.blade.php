@@ -15,39 +15,39 @@
                         <div class="col-span-1">
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium"
                                    for="productNameInput">Product Title</label>
-                            <input class="form-input" id="productNameInput" placeholder="Product Title" required=""
-                                   type="text"/>
+                            <x-ui.input class="form-input" id="productNameInput" placeholder="Product Title" required=""
+                                   type="text" />
                             <p class="mt-1 text-default-400">Do not exceed 20 characters when entering the product
                                 name.</p>
                         </div>
                         <div class="col-span-1">
                             <label class="bg-transparent inline-block mb-2 font-medium" for="productCodeInput">Product
                                 Code</label>
-                            <input class="form-input" disabled="" id="productCodeInput" placeholder="Product Code"
-                                   required="" type="text" value="TWT145015"/>
+                            <x-ui.input class="form-input" disabled="" id="productCodeInput" placeholder="Product Code"
+                                   required="" type="text" value="TWT145015" />
                             <p class="mt-1 text-default-400">Code will be generated automatically</p>
                         </div>
                     </div>
                     <div class="grid lg:grid-cols-3 grid-cols-1 gap-5 mb-5">
                         <div class="col-span-1">
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="qualityInput">Quantity</label>
-                            <input class="form-input" id="qualityInput" placeholder="Quantity" required=""
-                                   type="number"/>
+                            <x-ui.input class="form-input" id="qualityInput" placeholder="Quantity" required=""
+                                   type="number" />
                         </div>
                         <div class="col-span-1">
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium"
                                    for="skuInput">SKU</label>
-                            <input class="form-input" id="skuInput" placeholder="TWT-LP-ALU-08" required=""
-                                   type="text"/>
+                            <x-ui.input class="form-input" id="skuInput" placeholder="TWT-LP-ALU-08" required=""
+                                   type="text" />
                         </div>
                         <div class="col-span-1">
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium"
                                    for="brandInput">Brand</label>
-                            <input class="form-input" id="brandInput" placeholder="Brand" required="" type="text"/>
+                            <x-ui.input class="form-input" id="brandInput" placeholder="Brand" required="" type="text" />
                         </div>
                         <div class="col-span-1">
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="brandInput">Category</label>
-                            <select class="form-input" placeholder="Select Category">
+                            <x-ui.select class="form-input" placeholder="Select Category">
                                 <option value="Beauty,Health,Grocery">Beauty,Health,Grocery</option>
                                 <option value="Books">Books</option>
                                 <option value="Home,kichen,Pets">Home,kichen,Pets</option>
@@ -55,24 +55,24 @@
                                 <option value="Mobile,Computers">Mobile,Computers</option>
                                 <option value="TV,Appliances,Electronics">TV,Appliances,Electronics</option>
                                 <option value="Women's Fashion">Women's Fashion</option>
-                            </select>
+                            </x-ui.select>
                         </div>
                         <div class="col-span-1">
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="brandInput">Product
                                 Type</label>
-                            <select class="form-input" placeholder="Select Type">
+                            <x-ui.select class="form-input" placeholder="Select Type">
                                 <option value="Boxed">Boxed</option>
                                 <option value="Single">Single</option>
                                 <option value="Unit">Unit</option>
-                            </select>
+                            </x-ui.select>
                         </div>
                         <div class="col-span-1">
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="brandInput">Gender </label>
-                            <select class="form-input" placeholder="Select Gender">
+                            <x-ui.select class="form-input" placeholder="Select Gender">
                                 <option value="Feamle">Feamle</option>
                                 <option value="Male">Male</option>
                                 <option value="Unisex">Unisex</option>
-                            </select>
+                            </x-ui.select>
                         </div>
                     </div>
                     <div class="grid lg:grid-cols-2 grid-cols-1 gap-5 mb-5">
@@ -80,13 +80,13 @@
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="qualityInput">Colors
                                 Variant</label>
                             <div class="flex gap-2 items-center flex-wrap">
-                                <input class="form-checkbox text-primary" type="checkbox"/>
-                                <input class="form-checkbox text-success" type="checkbox"/>
-                                <input class="form-checkbox text-info" type="checkbox"/>
-                                <input class="form-checkbox text-warning" type="checkbox"/>
-                                <input class="form-checkbox text-danger" type="checkbox"/>
-                                <input class="form-checkbox text-black" type="checkbox"/>
-                                <input class="form-checkbox text-default-500" type="checkbox"/>
+                                <x-ui.input class="form-checkbox text-primary" type="checkbox" />
+                                <x-ui.input class="form-checkbox text-success" type="checkbox" />
+                                <x-ui.input class="form-checkbox text-info" type="checkbox" />
+                                <x-ui.input class="form-checkbox text-warning" type="checkbox" />
+                                <x-ui.input class="form-checkbox text-danger" type="checkbox" />
+                                <x-ui.input class="form-checkbox text-black" type="checkbox" />
+                                <x-ui.input class="form-checkbox text-default-500" type="checkbox" />
                             </div>
                         </div>
                         <div>
@@ -168,52 +168,52 @@
                     <div class="grid lg:grid-cols-3 grid-cols-1 gap-5 mb-5">
                         <div class="col-span-1">
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="productPrice">Price</label>
-                            <input class="form-input" id="productPrice" placeholder="$0.00" required="" type="number"/>
+                            <x-ui.input class="form-input" id="productPrice" placeholder="$0.00" required="" type="number" />
                         </div>
                         <div class="col-span-1">
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium"
                                    for="productDiscounts">Discounts</label>
-                            <input class="form-input" id="productDiscounts" placeholder="0%" required="" type="number"/>
+                            <x-ui.input class="form-input" id="productDiscounts" placeholder="0%" required="" type="number" />
                         </div>
                         <div class="col-span-1">
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="brandInput">TAX
                                 Applicable</label>
-                            <select class="form-input" placeholder="Select TAX Applicable">
+                            <x-ui.select class="form-input" placeholder="Select TAX Applicable">
                                 <option value="Entertainment">Entertainment</option>
                                 <option value="Exclusive">Exclusive</option>
                                 <option value="none">none</option>
                                 <option value="Professional">Professional</option>
-                            </select>
+                            </x-ui.select>
                         </div>
                         <div class="col-span-1">
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="publishDateTime">Publish
                                 Date &amp; Time</label>
-                            <input class="form-input" data-date-format="d M, Y" data-enable-time=""
+                            <x-ui.input class="form-input" data-date-format="d M, Y" data-enable-time=""
                                    data-provider="flatpickr" id="publishDateTime" placeholder="Select date &amp; time"
-                                   readonly="readonly" required="" type="text"/>
+                                   readonly="readonly" required="" type="text" />
                         </div>
                         <div class="col-span-1">
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="brandInput">Status</label>
-                            <select class="form-input">
+                            <x-ui.select class="form-input">
                                 <option value="Draft">Draft</option>
                                 <option value="Entertainment">Entertainment</option>
                                 <option value="Published">Published</option>
                                 <option value="Scheduled"> Scheduled</option>
-                            </select>
+                            </x-ui.select>
                         </div>
                         <div class="col-span-1">
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="brandInput">Visibility</label>
-                            <select class="form-input" placeholder="Public">
+                            <x-ui.select class="form-input" placeholder="Public">
                                 <option value="Hidden">Hidden</option>
                                 <option value="Publice">Publice</option>
-                            </select>
+                            </x-ui.select>
                         </div>
                         <div>
                             <div>
                                 <label class="inline-block mb-2 text-sm text-default-800 font-medium" for="productTag">Product
                                     Tag</label>
-                                <input class="form-input" data-choices="" data-choices-text-unique-true=""
-                                       id="productTag" type="text" value="Fashion, Clothes, Headphones"/>
+                                <x-ui.input class="form-input" data-choices="" data-choices-text-unique-true=""
+                                       id="productTag" type="text" value="Fashion, Clothes, Headphones" />
                             </div>
                         </div>
                     </div>
@@ -241,10 +241,10 @@
                         </div>
                         <h6 class="mt-3 mb-2 card-title">Colors</h6>
                         <div class="flex gap-2 flex-wrap items-center">
-                            <input class="form-checkbox rounded-full text-primary" id="color1" type="checkbox">
-                            <input class="form-checkbox rounded-full text-danger" id="color2" type="checkbox">
-                            <input class="form-checkbox rounded-full text-success" id="color3" type="checkbox">
-                            <input class="form-checkbox rounded-full text-secondary" id="color5" type="checkbox">
+                            <x-ui.input class="form-checkbox rounded-full text-primary" id="color1" type="checkbox" />
+                            <x-ui.input class="form-checkbox rounded-full text-danger" id="color2" type="checkbox" />
+                            <x-ui.input class="form-checkbox rounded-full text-success" id="color3" type="checkbox" />
+                            <x-ui.input class="form-checkbox rounded-full text-secondary" id="color5" type="checkbox" />
                             </input></input></input></input></div>
                         <h6 class="mt-3 mb-2 card-title">Sizes</h6>
                         <div class="flex gap-2 flex-wrap items-center">

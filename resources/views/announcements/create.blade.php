@@ -14,15 +14,15 @@
 
                     <div class="mb-4">
                         <label for="title" class="block text-sm font-medium text-default-900 mb-2">Title <span class="text-red-500">*</span></label>
-                        <input 
+                        <x-ui.input
                             type="text" 
                             id="title" 
                             name="title" 
                             value="{{ old('title') }}"
-                            class="form-input @error('title') border-red-500 @enderror" 
+                            class="form-input "
                             placeholder="Enter announcement title"
                             required
-                        />
+                         />
                         @error('title')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
@@ -30,14 +30,14 @@
 
                     <div class="mb-4">
                         <label for="body" class="block text-sm font-medium text-default-900 mb-2">Message <span class="text-red-500">*</span></label>
-                        <textarea 
+                        <x-ui.textarea
                             id="body" 
                             name="body" 
                             rows="4"
-                            class="form-input @error('body') border-red-500 @enderror" 
+                            class="form-input "
                             placeholder="Enter announcement message (max 1000 characters)"
                             required
-                        >{{ old('body') }}</textarea>
+                        >{{ old('body') }}</x-ui.textarea>
                         @error('body')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
@@ -47,12 +47,12 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label for="type" class="block text-sm font-medium text-default-900 mb-2">Type <span class="text-red-500">*</span></label>
-                            <select id="type" name="type" class="form-select @error('type') border-red-500 @enderror" required>
+                            <x-ui.select id="type" name="type" class="form-select " required>
                                 <option value="general" {{ old('type') == 'general' ? 'selected' : '' }}>General</option>
                                 <option value="promotion" {{ old('type') == 'promotion' ? 'selected' : '' }}>Promotion</option>
                                 <option value="maintenance" {{ old('type') == 'maintenance' ? 'selected' : '' }}>Maintenance</option>
                                 <option value="update" {{ old('type') == 'update' ? 'selected' : '' }}>Update</option>
-                            </select>
+                            </x-ui.select>
                             @error('type')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -60,17 +60,17 @@
 
                         <div>
                             <label for="scheduled_at" class="block text-sm font-medium text-default-900 mb-2">Schedule For (Optional)</label>
-                            <input 
+                            <x-ui.input
                                 type="text" 
                                 id="scheduled_at" 
                                 name="scheduled_at" 
                                 value="{{ old('scheduled_at') }}"
-                                class="form-input @error('scheduled_at') border-red-500 @enderror"
+                                class="form-input "
                                 data-provider="flatpickr" 
                                 data-date-format="Y-m-d H:i"
                                 data-enable-time="true"
                                 placeholder="Select date and time"
-                            />
+                             />
                             @error('scheduled_at')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror

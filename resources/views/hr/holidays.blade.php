@@ -17,7 +17,7 @@
             <div class="overflow-x-auto">
                 <div class="min-w-full inline-block align-middle">
                     <div class="overflow-hidden">
-                        <table class="min-w-full divide-y divide-default-200">
+                        <x-ui.table class="min-w-full divide-y divide-default-200">
                             <thead class="font-normal whitespace-nowrap">
                                 <tr class="text-sm text-default-800 divide-x divide-default-200">
                                     <th class="px-3.5 py-3 font-medium text-start" scope="col">#</th>
@@ -260,7 +260,7 @@
                                     </td>
                                 </tr>
                             </tbody>
-                        </table>
+                        </x-ui.table>
                     </div>
                 </div>
             </div>
@@ -349,30 +349,30 @@
                         <!-- Type Select -->
                         <div class="lg:col-span-12">
                             <label for="typeSelect" class="inline-block mb-2 text-base font-medium">Type</label>
-                            <select id="typeSelect" name="typeSelect" class="form-input" data-choices
+                            <x-ui.select id="typeSelect" name="typeSelect" class="form-input" data-choices
                                 data-choices-search-false>
                                 <option value="Gazetted Holiday">Gazetted Holiday</option>
                                 <option value="Observance">Observance</option>
                                 <option value="Restricted Holiday" selected>Restricted Holiday</option>
                                 <option value="Season">Season</option>
-                            </select>
+                            </x-ui.select>
                         </div>
 
                         <!-- Holiday Name -->
                         <div class="lg:col-span-12">
                             <label for="holidayInput" class="inline-block mb-2 text-base font-medium">Holiday Name</label>
-                            <input type="text" id="holidayInput"
+                            <x-ui.input type="text" id="holidayInput"
                                 class="form-input bg-transparent border-default-200 focus:outline-none focus:border-primary 
                                                                  placeholder:text-default-400"
-                                placeholder="Holiday name">
+                                placeholder="Holiday name" />
                         </div>
 
                         <!-- Date -->
                         <div class="lg:col-span-12">
                             <label for="holidayDateInput" class="inline-block mb-2 text-base font-medium">Date</label>
-                            <input type="text" placeholder="Select Date" data-provider="flatpickr"
+                            <x-ui.input type="text" placeholder="Select Date" data-provider="flatpickr"
                                 data-date-format="d M, Y" data-range-date="true" readonly="readonly"
-                                placeholder="Select Date" class="form-input">
+                                placeholder="Select Date" class="form-input" />
                         </div>
                     </div>
                 </div>

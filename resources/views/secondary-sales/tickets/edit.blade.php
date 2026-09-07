@@ -119,9 +119,9 @@
                                 <i class="size-4 text-indigo-500" data-lucide="package"></i> Batch Number 
                                 <span class="text-xs text-gray-400 font-normal">(groups tickets together)</span>
                             </label>
-                            <input type="text" name="batch_number" value="{{ old('batch_number', $secondaryTicket->batch_number) }}" 
-                                   class="form-input rounded-lg @error('batch_number') border-danger @enderror" 
-                                   placeholder="e.g., 45, 46, BATCH-A">
+                            <x-ui.input type="text" name="batch_number" value="{{ old('batch_number', $secondaryTicket->batch_number) }}"
+                                   class="form-input rounded-lg "
+                                   placeholder="e.g., 45, 46, BATCH-A" />
                             <p class="text-xs text-gray-500 mt-2">Tickets with the same batch will be grouped for customer's public link</p>
                             @error('batch_number')
                                 <span class="text-danger text-sm mt-1 block">{{ $message }}</span>
@@ -132,8 +132,8 @@
                     {{-- Ticket Number --}}
                     <div class="form-section">
                         <label class="form-label">Ticket Number <span class="text-danger">*</span></label>
-                        <input type="text" name="numbers" value="{{ old('numbers', $secondaryTicket->ticket_number) }}" 
-                               class="form-input rounded-lg font-mono text-lg tracking-widest @error('numbers') border-danger @enderror" required>
+                        <x-ui.input type="text" name="numbers" value="{{ old('numbers', $secondaryTicket->ticket_number) }}"
+                               class="form-input rounded-lg font-mono text-lg tracking-widest " required />
                         @error('numbers')
                             <span class="text-danger text-sm mt-1 block">{{ $message }}</span>
                         @enderror
@@ -142,46 +142,46 @@
                     <div class="grid md:grid-cols-3 gap-4 form-section">
                         <div>
                             <label class="form-label">Draw Date</label>
-                            <input type="date" name="withdraw_date" 
+                            <x-ui.input type="date" name="withdraw_date"
                                    value="{{ old('withdraw_date', $secondaryTicket->withdraw_date?->format('Y-m-d')) }}" 
-                                   class="form-input rounded-lg">
+                                   class="form-input rounded-lg" />
                         </div>
 
                         <div>
                             <label class="form-label">Price (฿)</label>
-                            <input type="number" name="price" 
+                            <x-ui.input type="number" name="price"
                                    value="{{ old('price', $secondaryTicket->price) }}" 
-                                   step="0.01" min="0" class="form-input rounded-lg">
+                                   step="0.01" min="0" class="form-input rounded-lg" />
                         </div>
 
                         <div>
                             <label class="form-label">Ticket Type</label>
-                            <select name="ticket_type" id="ticketType" class="form-select rounded-lg">
+                            <x-ui.select name="ticket_type" id="ticketType" class="form-select rounded-lg">
                                 <option value="normal" {{ $secondaryTicket->ticket_type == 'normal' ? 'selected' : '' }}>Normal</option>
                                 <option value="special" {{ $secondaryTicket->ticket_type == 'special' ? 'selected' : '' }}>Special</option>
                                 <option value="lucky" {{ $secondaryTicket->ticket_type == 'lucky' ? 'selected' : '' }}>Lucky</option>
-                            </select>
+                            </x-ui.select>
                         </div>
                     </div>
 
                     <div class="grid md:grid-cols-2 gap-4 form-section">
                         <div>
                             <label class="form-label">Source Seller</label>
-                            <input type="text" name="source_seller" 
+                            <x-ui.input type="text" name="source_seller"
                                    value="{{ old('source_seller', $secondaryTicket->source_seller) }}" 
-                                   class="form-input rounded-lg" placeholder="Where did you buy this ticket?">
+                                   class="form-input rounded-lg" placeholder="Where did you buy this ticket?" />
                         </div>
 
                         <div>
                             <label class="form-label">Period</label>
-                            <input type="number" name="period" value="{{ old('period', $secondaryTicket->period) }}" 
-                                   class="form-input rounded-lg" placeholder="Lottery period number">
+                            <x-ui.input type="number" name="period" value="{{ old('period', $secondaryTicket->period) }}"
+                                   class="form-input rounded-lg" placeholder="Lottery period number" />
                         </div>
                     </div>
 
                     <div class="form-section">
                         <label class="form-label">Notes <span class="text-gray-400 font-normal">(optional)</span></label>
-                        <textarea name="notes" rows="2" class="form-input rounded-lg" placeholder="Optional notes...">{{ old('notes', $secondaryTicket->notes) }}</textarea>
+                        <x-ui.textarea name="notes" rows="2" class="form-input rounded-lg" placeholder="Optional notes...">{{ old('notes', $secondaryTicket->notes) }}</x-ui.textarea>
                     </div>
 
                     @if($secondaryTicket->source_image)
@@ -195,7 +195,7 @@
 
                     <div class="form-section">
                         <label class="form-label">{{ $secondaryTicket->source_image ? 'Replace Image' : 'Attach Image' }} <span class="text-gray-400 font-normal">(optional)</span></label>
-                        <input type="file" name="source_image" accept="image/*" class="form-input rounded-lg">
+                        <x-ui.input type="file" name="source_image" accept="image/*" class="form-input rounded-lg" />
                     </div>
 
                     <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">

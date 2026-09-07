@@ -140,16 +140,16 @@
 
     {{-- Date Range Filter --}}
     <div class="filter-card mb-6">
-        <form method="GET" class="flex flex-col sm:flex-row items-end gap-3">
+        <x-ui.filter class="flex flex-col sm:flex-row items-end gap-3">
             <div class="flex-1 w-full sm:w-auto">
                 <label class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">From Date</label>
-                <input type="date" name="date_from" value="{{ $dateFrom }}" 
-                    class="form-input w-full rounded-lg">
+                <x-ui.input type="date" name="date_from" value="{{ $dateFrom }}"
+                    class="form-input w-full rounded-lg" />
             </div>
             <div class="flex-1 w-full sm:w-auto">
                 <label class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">To Date</label>
-                <input type="date" name="date_to" value="{{ $dateTo }}" 
-                    class="form-input w-full rounded-lg">
+                <x-ui.input type="date" name="date_to" value="{{ $dateTo }}"
+                    class="form-input w-full rounded-lg" />
             </div>
             <button type="submit" class="btn bg-primary text-white rounded-lg w-full sm:w-auto flex items-center justify-center gap-2">
                 <i class="size-4" data-lucide="filter"></i> Apply
@@ -159,7 +159,7 @@
                     <i class="size-4" data-lucide="x"></i>
                 </a>
             @endif
-        </form>
+        </x-ui.filter>
     </div>
 
     {{-- Overview Stats --}}
@@ -422,7 +422,7 @@
                 <a href="{{ route('secondary-transactions.index') }}" class="text-sm text-primary hover:underline">View All</a>
             </div>
             <div class="overflow-x-auto">
-                <table class="min-w-full">
+                <x-ui.table class="min-w-full">
                     <thead class="bg-gray-50 dark:bg-gray-800">
                         <tr class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
                             <th class="px-4 py-3 text-left">Ticket</th>
@@ -466,7 +466,7 @@
                             </tr>
                         @endforelse
                     </tbody>
-                </table>
+                </x-ui.table>
             </div>
         </div>
 

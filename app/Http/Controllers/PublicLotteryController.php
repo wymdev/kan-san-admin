@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\DatabaseSql;
+use App\Support\PrizeLabels;
+
 use App\Models\SecondarySalesTransaction;
 use App\Models\SecondaryLotteryTicket;
 use App\Models\DrawResult;
@@ -14,15 +17,21 @@ class PublicLotteryController extends Controller
      */
     public function index(Request $request)
     {
-        $drawDates = DrawResult::orderBy('draw_date', 'desc')->take(24)->get();
-        
+        // Only the columns the date chips render — the prize JSON on 24 rows is
+        // far more data than this list needs.
+        $drawDates = DrawResult::select(['id', 'draw_date', 'date_en'])
+            ->orderBy('draw_date', 'desc')
+            ->take(24)
+            ->get();
+
         // Check if specific date requested
-        if ($request->has('date')) {
+        if ($request->filled('date')) {
             $selectedDraw = DrawResult::whereDate('draw_date', $request->date)->first();
-        } else {
-            $selectedDraw = DrawResult::latest('draw_date')->first();
         }
-        
+
+        // Fall back to the newest draw when no date is given, or an unknown one is.
+        $selectedDraw ??= DrawResult::latest('draw_date')->first();
+
         return view('public.lottery-check', [
             'latestDraw' => $selectedDraw,
             'drawDates' => $drawDates,
@@ -232,11 +241,11 @@ class PublicLotteryController extends Controller
     {
         $year = $request->input('year', date('Y'));
         
-        $results = DrawResult::whereYear('draw_date', $year)
+        $results = DrawResult::whereRaw(DatabaseSql::part('draw_date', 'year').' = ?', [(int) $year])
             ->orderBy('draw_date', 'desc')
             ->get();
 
-        $years = DrawResult::selectRaw('YEAR(draw_date) as year')
+        $years = DrawResult::selectRaw(DatabaseSql::part('draw_date', 'year').' as year')
             ->distinct()
             ->orderBy('year', 'desc')
             ->pluck('year');
@@ -254,9 +263,11 @@ class PublicLotteryController extends Controller
     public function showResult(string $date)
     {
         $drawResult = DrawResult::whereDate('draw_date', $date)->firstOrFail();
-        
+
         return view('public.lottery-result-detail', [
             'drawResult' => $drawResult,
+            'prizes' => PrizeLabels::normalise($drawResult->prizes),
+            'runningNumbers' => PrizeLabels::normalise($drawResult->running_numbers),
         ]);
     }
 }

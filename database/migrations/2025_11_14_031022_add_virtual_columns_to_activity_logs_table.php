@@ -9,17 +9,21 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('activity_logs', function (Blueprint $table) {
-            // Extract response_status from metadata JSON for faster queries
-            $table->integer('response_status')
-                ->nullable()
-                ->virtualAs("JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.response_status'))")
-                ->after('metadata');
-            
-            // Extract duration_ms from metadata JSON
-            $table->decimal('duration_ms', 10, 2)
-                ->nullable()
-                ->storedAs("JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.duration_ms'))")
-                ->after('response_status');
+            $driver = Schema::getConnection()->getDriverName();
+            $status = match ($driver) {
+                'pgsql' => "NULLIF(metadata->>'response_status', '')::integer",
+                'sqlite' => "json_extract(metadata, '$.response_status')",
+                default => "JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.response_status'))",
+            };
+            $duration = match ($driver) {
+                'pgsql' => "NULLIF(metadata->>'duration_ms', '')::numeric",
+                'sqlite' => "json_extract(metadata, '$.duration_ms')",
+                default => "JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.duration_ms'))",
+            };
+            $statusColumn = $table->integer('response_status')->nullable();
+            $driver === 'pgsql' ? $statusColumn->storedAs($status) : $statusColumn->virtualAs($status);
+            $durationColumn = $table->decimal('duration_ms', 10, 2)->nullable();
+            $driver === 'sqlite' ? $durationColumn->virtualAs($duration) : $durationColumn->storedAs($duration);
             
             // Add indexes for these virtual columns
             $table->index('response_status');

@@ -12,13 +12,13 @@
             <div class="card-header">
                 <div class="md:flex md:space-y-0 space-y-3.5 gap-3 items-center">
                     <div class="relative">
-                        <input class="ps-11 form-input form-input-sm w-full" placeholder="Search for...." type="email"/>
+                        <x-ui.input class="ps-11 form-input form-input-sm w-full" placeholder="Search for...." type="email" />
                         <div class="absolute inset-y-0 start-0 flex items-center ps-3">
                             <i class="size-3.5 flex items-center text-default-500" data-lucide="search"></i>
                         </div>
                     </div>
-                    <input class="form-input form-input-sm w-full" data-date-format="d M, Y" data-provider="flatpickr"
-                           data-range-date="true" placeholder="Select Date" readonly="readonly" type="text"/>
+                    <x-ui.input class="form-input form-input-sm w-full" data-date-format="d M, Y" data-provider="flatpickr"
+                           data-range-date="true" placeholder="Select Date" readonly="readonly" type="text" />
                 </div>
                 <button class="btn btn-sm bg-primary text-white">
                     <i class="size-4 me-1" data-lucide="plus"></i>Add Product
@@ -28,7 +28,7 @@
                 <div class="overflow-x-auto">
                     <div class="min-w-full inline-block align-middle">
                         <div class="overflow-hidden">
-                            <table class="min-w-full divide-y divide-default-200">
+                            <x-ui.table class="min-w-full divide-y divide-default-200">
                                 <thead class="bg-default-150">
                                 <tr class="text-sm font-normal text-default-700">
                                     <th class="px-3.5 py-3 text-start" scope="col">Product Code</th>
@@ -379,7 +379,7 @@
                                     </td>
                                 </tr>
                                 </tbody>
-                            </table>
+                            </x-ui.table>
                         </div>
                     </div>
                 </div>

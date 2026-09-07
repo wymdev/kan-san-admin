@@ -25,8 +25,8 @@ class SecondaryTicketsExport implements FromCollection, WithHeadings, WithMappin
         if (!empty($this->filters['search'])) {
             $search = $this->filters['search'];
             $query->where(function ($q) use ($search) {
-                $q->where('bar_code', 'like', "%{$search}%")
-                  ->orWhere('source_seller', 'like', "%{$search}%");
+                $q->whereLike('bar_code', "%{$search}%")
+                  ->orWhereLike('source_seller', "%{$search}%");
             });
         }
 

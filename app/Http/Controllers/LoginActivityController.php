@@ -18,10 +18,10 @@ class LoginActivityController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('email', 'like', "%{$search}%")
-                  ->orWhere('ip_address', 'like', "%{$search}%")
-                  ->orWhere('browser', 'like', "%{$search}%")
-                  ->orWhere('city', 'like', "%{$search}%");
+                $q->whereLike('email', "%{$search}%")
+                  ->orWhereLike('ip_address', "%{$search}%")
+                  ->orWhereLike('browser', "%{$search}%")
+                  ->orWhereLike('city', "%{$search}%");
             });
         }
 
@@ -52,13 +52,13 @@ class LoginActivityController extends Controller
             'success_logins' => LoginActivity::success()->count(),
             'failed_logins' => LoginActivity::failed()->count(),
             'unique_ips' => LoginActivity::distinct()->count('ip_address'),
-            'unique_users' => LoginActivity::distinct()->count(DB::raw('CONCAT(user_type, "-", user_id)')),
+            'unique_users' => DB::query()->fromSub(LoginActivity::select('user_type', 'user_id')->whereNotNull('user_id')->distinct(), 'actors')->count(),
         ];
 
         $suspiciousIps = LoginActivity::failed()
             ->select('ip_address', DB::raw('COUNT(*) as failed_count'))
             ->groupBy('ip_address')
-            ->having('failed_count', '>=', 5)
+            ->havingRaw('COUNT(*) >= 5')
             ->orderByDesc('failed_count')
             ->limit(10)
             ->get();

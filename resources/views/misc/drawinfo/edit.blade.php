@@ -24,8 +24,8 @@
                     <div class="card-body space-y-4">
                         <div>
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium">Draw Date <span class="text-red-500">*</span></label>
-                            <input type="datetime-local" name="draw_date" class="form-input w-full @error('draw_date') border-red-500 @enderror"
-                                value="{{ old('draw_date', $draw->draw_date->format('Y-m-d\TH:i')) }}" required>
+                            <x-ui.input type="datetime-local" name="draw_date" class="form-input w-full "
+                                value="{{ old('draw_date', $draw->draw_date->format('Y-m-d\TH:i')) }}" required />
                             @error('draw_date')
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                             @enderror
@@ -33,8 +33,8 @@
 
                         <div>
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium">Result Announce Date <span class="text-red-500">*</span></label>
-                            <input type="datetime-local" name="result_announce_date" class="form-input w-full @error('result_announce_date') border-red-500 @enderror"
-                                value="{{ old('result_announce_date', $draw->result_announce_date->format('Y-m-d\TH:i')) }}" required>
+                            <x-ui.input type="datetime-local" name="result_announce_date" class="form-input w-full "
+                                value="{{ old('result_announce_date', $draw->result_announce_date->format('Y-m-d\TH:i')) }}" required />
                             @error('result_announce_date')
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                             @enderror
@@ -42,8 +42,8 @@
 
                         <div>
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium">Period <span class="text-red-500">*</span></label>
-                            <input type="text" name="period" class="form-input w-full @error('period') border-red-500 @enderror"
-                                placeholder="Enter period" value="{{ old('period', $draw->period) }}" required>
+                            <x-ui.input type="text" name="period" class="form-input w-full "
+                                placeholder="Enter period" value="{{ old('period', $draw->period) }}" required />
                             @error('period')
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                             @enderror
@@ -51,8 +51,8 @@
 
                         <div>
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium">Note</label>
-                            <textarea name="note" class="form-input w-full @error('note') border-red-500 @enderror"
-                                placeholder="Enter note" rows="4">{{ old('note', $draw->note) }}</textarea>
+                            <x-ui.textarea name="note" class="form-input w-full "
+                                placeholder="Enter note" rows="4">{{ old('note', $draw->note) }}</x-ui.textarea>
                             @error('note')
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                             @enderror

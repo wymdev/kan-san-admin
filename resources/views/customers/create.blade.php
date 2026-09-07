@@ -3,87 +3,71 @@
 @section('content')
     @include('layouts.partials/page-title', ['subtitle' => 'Admin', 'title' => 'Create Customer'])
 
-    <div class="card max-w-2xl mx-auto">
-        <div class="card-header">
-            <h6 class="card-title">New Customer</h6>
-        </div>
-        <form action="{{ route('customers.store') }}" method="POST" class="card-body space-y-4">
+    <x-ui.card title="New Customer" class="max-w-2xl mx-auto">
+        <form action="{{ route('customers.store') }}" method="POST" class="space-y-4">
             @csrf
 
-            <div class="form-group">
-                <label class="form-label" for="phone_number">Phone Number <span class="text-red-600">*</span></label>
-                <input 
-                    class="form-input @error('phone_number') border-red-500 @enderror" 
+            <x-ui.field name="phone_number" label="Phone Number" required>
+                <x-ui.input required :aria-describedby="$errors->has('phone_number') ? 'phone_number-error' : null"
+                    class="form-input "
                     id="phone_number"
                     name="phone_number"
                     placeholder="+66812345678"
                     type="text"
                     value="{{ old('phone_number') }}"
                 />
-                @error('phone_number')
-                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
 
-            <div class="form-group">
-                <label class="form-label" for="full_name">Full Name</label>
-                <input 
+            </x-ui.field>
+
+            <x-ui.field name="full_name" label="Full Name" required>
+                <x-ui.input required :aria-describedby="$errors->has('full_name') ? 'full_name-error' : null"
                     class="form-input" 
                     id="full_name"
                     name="full_name"
                     type="text"
                     value="{{ old('full_name') }}"
-                />
-                @error('full_name')
-                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+                 />
 
-            <div class="form-group">
-                <label class="form-label" for="email">Email</label>
-                <input 
+            </x-ui.field>
+
+            <x-ui.field name="email" label="Email">
+                <x-ui.input :aria-describedby="$errors->has('email') ? 'email-error' : null"
                     class="form-input" 
                     id="email"
                     name="email"
                     type="email"
                     value="{{ old('email') }}"
-                />
-                @error('email')
-                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+                 />
 
-            <div class="form-group">
-                <label class="form-label" for="password">Password <span class="text-red-600">*</span></label>
-                <input 
-                    class="form-input @error('password') border-red-500 @enderror" 
+            </x-ui.field>
+
+            <x-ui.field name="password" label="Password" required>
+                <x-ui.input required :aria-describedby="$errors->has('password') ? 'password-error' : null"
+                    class="form-input "
                     id="password"
                     name="password"
                     type="password"
                 />
-                @error('password')
-                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
 
-            <div class="form-group">
-                <label class="form-label" for="password_confirmation">Confirm Password <span class="text-red-600">*</span></label>
-                <input 
+            </x-ui.field>
+
+            <x-ui.field name="password_confirmation" label="Confirm Password" required>
+                <x-ui.input required :aria-describedby="$errors->has('password_confirmation') ? 'password_confirmation-error' : null"
                     class="form-input" 
                     id="password_confirmation"
                     name="password_confirmation"
                     type="password"
-                />
-            </div>
+                 />
+            </x-ui.field>
 
             <div class="flex gap-3 pt-4">
-                <button type="submit" class="btn bg-primary text-white">
+                <x-ui.button type="submit">
                     <i class="size-4 me-1" data-lucide="save"></i>Create Customer
-                </button>
-                <a href="{{ route('customers.index') }}" class="btn bg-default-200 text-default-700">
+                </x-ui.button>
+                <x-ui.button href="{{ route('customers.index') }}" variant="secondary">
                     Cancel
-                </a>
+                </x-ui.button>
             </div>
         </form>
-    </div>
+    </x-ui.card>
 @endsection

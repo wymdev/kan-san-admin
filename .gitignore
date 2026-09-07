@@ -18,6 +18,12 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/storage/postgres-local
+/storage/pgsql-rehearsal
+/storage/refactor-*.mjs
+/storage/finish-ui.mjs
+/storage/local-*.php
+/storage/ui-preview.html
 /vendor
 Homestead.json
 Homestead.yaml

@@ -168,11 +168,6 @@
 @section('content')
     @include('layouts.partials.page-title', ['subtitle' => 'Admin', 'title' => 'Activity Logs'])
 
-    @if ($message = Session::get('success'))
-        <div class="bg-success/10 border border-success/20 text-success px-4 py-3 rounded relative mb-4" role="alert">
-            <span class="block sm:inline">{{ $message }}</span>
-        </div>
-    @endif
 
     <div class="card">
         <div class="card-header">
@@ -181,57 +176,57 @@
 
         <!-- Advanced Filters -->
         <div class="filter-section">
-            <form method="GET" action="{{ route('activity-logs.index') }}" id="filterForm">
+            <x-ui.filter action="{{ route('activity-logs.index') }}" id="filterForm">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                     <!-- Search -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
-                        <input
+                        <x-ui.input
                             class="form-input form-input-sm w-full"
                             placeholder="Search description, route, IP..."
                             type="text"
                             name="search"
                             value="{{ request('search') }}"
-                        />
+                         />
                     </div>
 
                     <!-- Action Filter -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Action</label>
-                        <select name="action" class="form-select form-select-sm w-full">
+                        <x-ui.select name="action" class="form-select form-select-sm w-full">
                             <option value="">All Actions</option>
                             @foreach($actions as $action)
                                 <option value="{{ $action }}" {{ request('action') == $action ? 'selected' : '' }}>
                                     {{ ucfirst(str_replace('_', ' ', $action)) }}
                                 </option>
                             @endforeach
-                        </select>
+                        </x-ui.select>
                     </div>
 
                     <!-- User/Customer Filter -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">User Type</label>
-                        <select name="actor_type" class="form-select form-select-sm w-full">
+                        <x-ui.select name="actor_type" class="form-select form-select-sm w-full">
                             <option value="">All Types</option>
                             @foreach($actorTypes as $type)
                                 <option value="{{ $type }}" {{ request('actor_type') == $type ? 'selected' : '' }}>
                                     {{ class_basename($type) }}
                                 </option>
                             @endforeach
-                        </select>
+                        </x-ui.select>
                     </div>
 
                     <!-- Context Filter -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Context</label>
-                        <select name="context" class="form-select form-select-sm w-full">
+                        <x-ui.select name="context" class="form-select form-select-sm w-full">
                             <option value="">All Contexts</option>
                             @foreach($contexts as $context)
                                 <option value="{{ $context }}" {{ request('context') == $context ? 'selected' : '' }}>
                                     {{ ucfirst($context) }}
                                 </option>
                             @endforeach
-                        </select>
+                        </x-ui.select>
                     </div>
                 </div>
 
@@ -239,7 +234,7 @@
                     <!-- Date Range -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
-                        <input
+                        <x-ui.input
                             type="text"
                             name="daterange"
                             id="daterange"
@@ -247,15 +242,15 @@
                             placeholder="Select date range"
                             value="{{ request('start_date') && request('end_date') ? request('start_date') . ' - ' . request('end_date') : '' }}"
                             
-                        />
-                        <input type="hidden" name="start_date" id="start_date" value="{{ request('start_date') }}">
-                        <input type="hidden" name="end_date" id="end_date" value="{{ request('end_date') }}">
+                         />
+                        <x-ui.input type="hidden" name="start_date" id="start_date" value="{{ request('start_date') }}" />
+                        <x-ui.input type="hidden" name="end_date" id="end_date" value="{{ request('end_date') }}" />
                     </div>
 
                     <!-- Status Filter -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                        <select name="status" class="form-select form-select-sm w-full">
+                        <x-ui.select name="status" class="form-select form-select-sm w-full">
                             <option value="">All Status</option>
                             <option value="200" {{ request('status') == '200' ? 'selected' : '' }}>Success (200)</option>
                             <option value="201" {{ request('status') == '201' ? 'selected' : '' }}>Created (201)</option>
@@ -264,18 +259,18 @@
                             <option value="403" {{ request('status') == '403' ? 'selected' : '' }}>Forbidden (403)</option>
                             <option value="404" {{ request('status') == '404' ? 'selected' : '' }}>Not Found (404)</option>
                             <option value="500" {{ request('status') == '500' ? 'selected' : '' }}>Server Error (500)</option>
-                        </select>
+                        </x-ui.select>
                     </div>
 
                     <!-- Per Page -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Records per page</label>
-                        <select name="per_page" class="form-select form-select-sm w-full">
+                        <x-ui.select name="per_page" class="form-select form-select-sm w-full">
                             <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25</option>
                             <option value="50" {{ request('per_page', 50) == '50' ? 'selected' : '' }}>50</option>
                             <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100</option>
                             <option value="200" {{ request('per_page') == '200' ? 'selected' : '' }}>200</option>
-                        </select>
+                        </x-ui.select>
                     </div>
 
                     <!-- Quick Filters -->
@@ -306,14 +301,14 @@
                         <i class="mgc_download_line me-2"></i> Export CSV
                     </button>
                 </div>
-            </form>
+            </x-ui.filter>
         </div>
 
         <div class="flex flex-col">
             <div class="overflow-x-auto">
                 <div class="min-w-full inline-block align-middle">
                     <div class="overflow-hidden">
-                        <table class="min-w-full divide-y divide-default-200">
+                        <x-ui.table class="min-w-full divide-y divide-default-200">
                             <thead class="bg-default-150">
                                 <tr class="text-sm font-normal text-default-700 whitespace-nowrap">
                                     <th class="px-3.5 py-3 text-start">#</th>
@@ -406,7 +401,7 @@
                                     </tr>
                                 @endforelse
                             </tbody>
-                        </table>
+                        </x-ui.table>
                     </div>
                 </div>
             </div>

@@ -7,7 +7,7 @@
     @include('layouts.partials/head-css')
 </head>
 
-<body>
+<body class="admin-theme">
     <div class="wrapper">
 
         @include('layouts.partials/sidenav')
@@ -18,6 +18,7 @@
 
             <main>
 
+                <x-ui.flash-messages />
                 @yield('content')
 
             </main>

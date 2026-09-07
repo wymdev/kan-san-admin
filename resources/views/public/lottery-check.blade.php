@@ -1,884 +1,758 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Check Lottery Results | Thai Lottery</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
+@extends('public.lottery.layout')
+
+@section('title', 'Check Your Numbers')
+@section('description', 'Check Thai Government Lottery numbers against the official draw results.')
+
+@push('styles')
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        :root {
-            --gold: #F59E0B;
-            --gold-light: #FBBF24;
-            --green: #22C55E;
-            --green-light: #4ADE80;
-            --red: #EF4444;
-            --dark: #0F172A;
-            --dark-card: #1E293B;
-            --dark-light: #334155;
-            --gray: #64748B;
-        }
-        
-        body {
-            font-family: 'Outfit', sans-serif;
-            background: var(--dark);
-            color: #F8FAFC;
-            min-height: 100vh;
-        }
-        
-        /* Navbar */
-        .navbar {
-            background: var(--dark-card);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 1rem 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        
-        .brand-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--gold);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .brand-icon svg { color: #78350f; }
-        
-        .brand-text {
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
-        
-        .nav-date { color: var(--gray); font-size: 0.9rem; }
-        
-        /* Container */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1.5rem;
-        }
-        
-        /* Main Grid */
-        .main-grid {
+        .check-layout {
             display: grid;
-            grid-template-columns: 1fr 360px;
-            gap: 1.5rem;
+            grid-template-columns: minmax(0, 1fr) 350px;
+            gap: 1.25rem;
             align-items: start;
         }
-        
-        /* Cards */
-        .card {
-            background: var(--dark-card);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            overflow: hidden;
+
+        @media (max-width: 940px) {
+            .check-layout {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            /* On narrow screens the reason you came here goes first. */
+            .check-panel {
+                order: -1;
+            }
         }
-        
-        .card-header {
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: var(--dark-light);
+
+        .check-panel {
+            position: sticky;
+            top: 76px;
         }
-        
-        .card-header svg { color: var(--gold); width: 20px; height: 20px; }
-        .card-header h2 { font-size: 1rem; font-weight: 600; }
-        
-        .card-body { padding: 1.5rem; }
-        
-        /* History Chips */
-        .history-scroll {
-            display: flex;
-            gap: 0.5rem;
-            overflow-x: auto;
-            padding: 1rem 1.25rem;
-            background: rgba(0, 0, 0, 0.2);
+
+        @media (max-width: 940px) {
+            .check-panel {
+                position: static;
+            }
         }
-        
-        .history-scroll::-webkit-scrollbar { display: none; }
-        
-        .history-chip {
-            flex-shrink: 0;
-            padding: 0.5rem 1rem;
-            background: var(--dark-light);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: var(--gray);
-            text-decoration: none;
-            font-size: 0.8rem;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-        
-        .history-chip:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-        
-        .history-chip.active {
-            background: var(--green);
-            color: #052E16;
-            border-color: var(--green);
-        }
-        
-        /* Draw Header */
-        .draw-header {
+
+        /* ---------- Draw summary ---------- */
+        .draw-meta {
             text-align: center;
-            margin-bottom: 2rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid var(--line);
+            margin-bottom: 1.25rem;
         }
-        
-        .draw-label {
-            color: var(--gold);
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.25rem;
-        }
-        
-        .draw-date {
-            font-size: 1.75rem;
+
+        .draw-meta .date {
+            font-size: clamp(1.25rem, 3.5vw, 1.625rem);
             font-weight: 800;
         }
-        
-        /* First Prize */
+
+        .draw-meta .date-th {
+            margin-top: .125rem;
+            color: var(--text-muted);
+            font-size: .875rem;
+        }
+
         .first-prize {
-            background: var(--dark-light);
-            border: 2px solid var(--gold);
-            border-radius: 16px;
-            padding: 2rem;
             text-align: center;
-            margin-bottom: 1.5rem;
+            padding: clamp(1.25rem, 4vw, 1.75rem) 1rem;
+            border-radius: var(--r-md);
+            background: linear-gradient(180deg, var(--gold-soft), rgba(251, 191, 36, .03));
+            border: 1px solid var(--gold-line);
         }
-        
-        .prize-label {
-            font-size: 0.75rem;
-            color: var(--gray);
+
+        .prize-caption {
+            font-size: .6875rem;
+            font-weight: 700;
+            letter-spacing: .14em;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.5rem;
+            color: var(--text-dim);
         }
-        
-        .prize-number {
-            font-size: 3rem;
-            font-weight: 900;
-            letter-spacing: 0.15em;
-            color: var(--gold);
-        }
-        
+
         .prize-reward {
-            margin-top: 0.75rem;
-            color: var(--green);
+            margin-top: .5rem;
+            font-size: .875rem;
             font-weight: 600;
+            color: var(--green);
         }
-        
-        /* Prize Grid */
-        .prizes-grid {
+
+        .running-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: .75rem;
+            margin-top: .75rem;
         }
-        
-        .prize-box {
-            background: var(--dark-light);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 1.25rem 1rem;
+
+        @media (max-width: 560px) {
+            .running-grid {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+
+        .running-box {
+            padding: 1rem .75rem;
+            border-radius: var(--r-md);
+            background: var(--surface-2);
+            border: 1px solid var(--line);
             text-align: center;
         }
-        
-        .prize-box .prize-number {
-            font-size: 1.5rem;
-            color: white;
-        }
-        
-        .prize-box .prize-reward {
-            font-size: 0.8rem;
-        }
-        
-        .number-group {
+
+        .running-nums {
             display: flex;
-            justify-content: center;
-            gap: 0.75rem;
             flex-wrap: wrap;
+            gap: .5rem;
+            justify-content: center;
+            margin: .5rem 0;
         }
-        
-        /* Prize Lists */
-        .prize-lists {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        
-        .prize-list-item {
-            background: var(--dark);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
+
+        /* ---------- Collapsible prize tiers ---------- */
+        .tier {
+            border: 1px solid var(--line);
+            border-radius: var(--r-md);
+            background: var(--bg-elevated);
             overflow: hidden;
         }
-        
-        .prize-list-header {
-            padding: 0.875rem 1rem;
+
+        .tier+.tier {
+            margin-top: .5rem;
+        }
+
+        .tier-toggle {
+            width: 100%;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            gap: .75rem;
+            padding: .875rem 1rem;
+            background: none;
+            border: 0;
+            color: inherit;
+            font: inherit;
+            text-align: left;
             cursor: pointer;
         }
-        
-        .prize-list-header:hover { background: rgba(255, 255, 255, 0.03); }
-        
-        .prize-list-title span { font-weight: 600; }
-        .prize-list-title .reward { color: var(--green); font-size: 0.85rem; margin-left: 0.5rem; }
-        
-        .prize-list-header svg { color: var(--gray); transition: transform 0.3s; }
-        .prize-list-header.open svg { transform: rotate(180deg); }
-        
-        .prize-list-content { display: none; padding: 0 1rem 1rem; }
-        .prize-list-content.open { display: block; }
-        
-        .prize-list-numbers {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
-            gap: 0.5rem;
+
+        .tier-toggle:hover {
+            background: rgba(255, 255, 255, .03);
         }
-        
-        .small-number {
-            font-size: 0.95rem;
+
+        .tier-name {
             font-weight: 600;
-            color: #CBD5E1;
-            text-align: center;
-            background: var(--dark-card);
-            padding: 0.4rem;
-            border-radius: 6px;
-            letter-spacing: 0.1em;
         }
-        
-        /* Check Form */
-        .check-card { position: sticky; top: 5rem; }
-        
-        .form-label {
-            font-size: 0.85rem;
-            color: var(--gray);
-            margin-bottom: 0.75rem;
+
+        .tier-meta {
+            display: flex;
+            align-items: center;
+            gap: .625rem;
+            color: var(--text-dim);
+            font-size: .8125rem;
+        }
+
+        .tier-toggle .caret {
+            transition: transform .2s;
+            flex: none;
+        }
+
+        .tier-toggle[aria-expanded="true"] .caret {
+            transform: rotate(180deg);
+        }
+
+        .tier-body {
+            padding: 0 1rem 1rem;
+        }
+
+        .tier-nums {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(82px, 1fr));
+            gap: .5rem;
+        }
+
+        /* ---------- Check form ---------- */
+        .field-label {
             display: block;
+            font-size: .8125rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: .625rem;
         }
-        
-        .input-container {
+
+        .num-rows {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
-            margin-bottom: 0.75rem;
+            gap: .5rem;
+            margin-bottom: .625rem;
         }
-        
-        .input-row {
+
+        .num-row {
             display: flex;
-            gap: 0.5rem;
-            width: 100%;
+            gap: .5rem;
         }
-        
-        .lottery-input {
+
+        .num-input {
             flex: 1;
             min-width: 0;
-            background: var(--dark);
-            border: 2px solid var(--dark-light);
-            border-radius: 10px;
-            color: white;
-            padding: 0.75rem 0.5rem;
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.25rem;
+            height: 52px;
+            padding: 0 .75rem;
+            background: var(--bg);
+            border: 1.5px solid var(--line-strong);
+            border-radius: var(--r-sm);
+            color: var(--text);
+            font: inherit;
+            font-size: 1.375rem;
             font-weight: 700;
-            letter-spacing: 0.15em;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: .2em;
             text-align: center;
+            transition: border-color .15s;
         }
-        
-        .lottery-input:focus {
+
+        .num-input::placeholder {
+            color: #334155;
+            letter-spacing: .2em;
+        }
+
+        .num-input:focus {
             outline: none;
             border-color: var(--gold);
         }
-        
-        .lottery-input::placeholder {
-            color: var(--dark-light);
-            font-size: 1rem;
-        }
-        
-        .remove-btn {
-            width: 44px;
-            height: 44px;
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid var(--red);
-            border-radius: 10px;
-            color: var(--red);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        
-        .remove-btn:hover { background: var(--red); color: white; }
-        
-        .add-btn {
-            width: 100%;
+
+        .row-remove {
+            flex: none;
+            width: 52px;
+            height: 52px;
+            display: grid;
+            place-items: center;
             background: transparent;
-            border: 2px dashed var(--dark-light);
-            border-radius: 10px;
-            color: var(--gray);
-            padding: 0.75rem;
+            border: 1.5px solid var(--line-strong);
+            border-radius: var(--r-sm);
+            color: var(--text-dim);
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
+            transition: color .15s, border-color .15s;
         }
-        
-        .add-btn:hover { border-color: var(--gray); color: white; }
-        
-        .check-btn {
+
+        .row-remove:hover {
+            color: var(--red);
+            border-color: var(--red);
+        }
+
+        .add-row {
             width: 100%;
-            background: var(--gold);
-            border: none;
-            border-radius: 10px;
-            color: #78350f;
-            padding: 0.875rem;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
+            min-height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
-            margin-top: 0.75rem;
+            gap: .4rem;
+            background: transparent;
+            border: 1.5px dashed var(--line-strong);
+            border-radius: var(--r-sm);
+            color: var(--text-dim);
+            font: inherit;
+            font-size: .875rem;
+            font-weight: 500;
+            cursor: pointer;
         }
-        
-        .check-btn:hover { background: var(--gold-light); }
-        .check-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        
-        /* Modal */
-        .modal-overlay {
+
+        .add-row:hover {
+            border-color: var(--text-dim);
+            color: var(--text);
+        }
+
+        .form-hint {
+            margin-top: .75rem;
+            font-size: .75rem;
+            color: var(--text-dim);
+            text-align: center;
+        }
+
+        .form-error {
             display: none;
+            margin-top: .625rem;
+            padding: .5rem .75rem;
+            border-radius: var(--r-sm);
+            background: rgba(248, 113, 113, .12);
+            border: 1px solid rgba(248, 113, 113, .3);
+            color: var(--red);
+            font-size: .8125rem;
+        }
+
+        .form-error.is-shown {
+            display: block;
+        }
+
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ---------- Result dialog ---------- */
+        .sheet {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
+            z-index: 100;
+            display: none;
             align-items: center;
             justify-content: center;
             padding: 1rem;
+            background: rgba(2, 6, 16, .75);
+            backdrop-filter: blur(4px);
         }
-        
-        .modal-overlay.open { display: flex; }
-        
-        .modal {
-            background: var(--dark-card);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+
+        .sheet.is-open {
+            display: flex;
+        }
+
+        .sheet-card {
             width: 100%;
-            max-width: 500px;
-            max-height: 80vh;
-            overflow: hidden;
-            animation: modalSlide 0.3s ease-out;
-        }
-        
-        @keyframes modalSlide {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .modal-header {
-            padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--dark-light);
-        }
-        
-        .modal-header h3 { font-size: 1.1rem; font-weight: 700; }
-        
-        .modal-close {
-            width: 36px;
-            height: 36px;
-            background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            color: var(--gray);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal-close:hover { background: rgba(255, 255, 255, 0.1); color: white; }
-        
-        .modal-body {
-            padding: 1.5rem;
-            max-height: calc(80vh - 70px);
-            overflow-y: auto;
-        }
-        
-        .modal-summary {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .summary-box {
-            flex: 1;
-            background: var(--dark);
-            border-radius: 10px;
-            padding: 1rem;
-            text-align: center;
-        }
-        
-        .summary-box .value {
-            font-size: 2rem;
-            font-weight: 800;
-        }
-        
-        .summary-box .label {
-            font-size: 0.75rem;
-            color: var(--gray);
-            text-transform: uppercase;
-        }
-        
-        .summary-box.won .value { color: var(--green); }
-        .summary-box.lost .value { color: var(--gray); }
-        
-        .result-list {
+            max-width: 520px;
+            max-height: min(85vh, 720px);
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
+            background: var(--surface);
+            border: 1px solid var(--line-strong);
+            border-radius: var(--r-lg);
+            box-shadow: var(--shadow);
         }
-        
-        .result-item {
-            background: var(--dark);
-            border-radius: 12px;
+
+        .sheet-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .75rem;
             padding: 1rem 1.25rem;
-            border-left: 4px solid var(--gray);
+            border-bottom: 1px solid var(--line);
         }
-        
-        .result-item.won {
-            border-left-color: var(--green);
-            background: rgba(34, 197, 94, 0.1);
+
+        .sheet-head h2 {
+            font-size: 1.0625rem;
         }
-        
-        .result-number {
-            font-size: 1.5rem;
-            font-weight: 800;
-            letter-spacing: 0.12em;
-            margin-bottom: 0.25rem;
+
+        .sheet-close {
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            background: transparent;
+            border: 1px solid var(--line-strong);
+            border-radius: var(--r-sm);
+            color: var(--text-muted);
+            cursor: pointer;
         }
-        
-        .result-status {
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
+
+        .sheet-close:hover {
+            background: var(--surface-2);
+            color: var(--text);
         }
-        
-        .result-status.won { color: var(--green); }
-        .result-status.lost { color: var(--gray); }
-        
+
+        .sheet-body {
+            padding: 1.25rem;
+            overflow-y: auto;
+        }
+
+        .result-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: .875rem 1rem;
+            border-radius: var(--r-md);
+            background: var(--bg-elevated);
+            border: 1px solid var(--line);
+            border-left: 3px solid var(--text-dim);
+        }
+
+        .result-row+.result-row {
+            margin-top: .5rem;
+        }
+
+        .result-row.is-win {
+            border-left-color: var(--gold);
+            background: linear-gradient(90deg, var(--gold-soft), var(--bg-elevated) 60%);
+        }
+
         .result-prizes {
-            margin-top: 0.5rem;
-            font-size: 0.85rem;
+            margin-top: .5rem;
+            display: flex;
+            flex-direction: column;
+            gap: .25rem;
+            font-size: .8125rem;
+            color: var(--text-muted);
+        }
+
+        .result-prizes b {
             color: var(--green);
         }
-        
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1.5rem;
-            color: var(--gray);
+
+        .result-total {
+            margin-top: .5rem;
+            padding-top: .5rem;
+            border-top: 1px dashed var(--line-strong);
+            font-weight: 700;
+            color: var(--gold);
+            font-size: .875rem;
         }
-        
-        .empty-state svg { margin-bottom: 0.75rem; opacity: 0.5; }
-        
-        /* Responsive */
-        @media (max-width: 900px) {
-            .main-grid { grid-template-columns: 1fr; }
-            .check-card { position: static; order: -1; }
-            .prizes-grid { grid-template-columns: 1fr; }
+
+        .result-verdict {
+            flex: none;
+            text-align: right;
         }
-        
-        @media (max-width: 480px) {
-            .container { padding: 1rem; }
-            .prize-number { font-size: 2.5rem; }
-            .navbar { padding: 0.875rem 1rem; }
-            .modal { max-height: 90vh; }
-        }
-        
-        .animate-spin { animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
-</head>
-<body>
+@endpush
 
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="brand">
-            <div class="brand-icon">
-                <i data-lucide="crown" size="22"></i>
+@section('content')
+    <div class="page-head">
+        <span class="eyebrow"><x-icon name="sparkles" :size="13" /> Official results</span>
+        <h1 class="page-title">Check your lottery numbers</h1>
+        <p class="page-sub">Enter any 6-digit ticket number and we'll match it against every prize tier in the selected
+            draw.</p>
+    </div>
+
+    <div class="check-layout">
+        {{-- ---------- Results ---------- --}}
+        <section class="card">
+            <div class="card-head">
+                <h2><x-icon name="trophy" :size="18" /> Draw results</h2>
+                @if ($latestDraw)
+                    <a href="{{ route('public.lottery-result', $latestDraw->draw_date->format('Y-m-d')) }}" class="btn-link">
+                        Full breakdown <x-icon name="chevron-right" :size="14" />
+                    </a>
+                @endif
             </div>
-            <span class="brand-text">Thai Lottery</span>
-        </div>
-        <div class="nav-date">{{ date('l, d F Y') }}</div>
-    </nav>
 
-    <div class="container">
-        <div class="main-grid">
-            
-            <!-- Results Section -->
-            <div class="card">
-                <div class="card-header">
-                    <i data-lucide="trophy"></i>
-                    <h2>Official Results</h2>
-                </div>
-                
-                @if($latestDraw)
-                    <!-- History -->
-                    <div class="history-scroll">
-                        @foreach($drawDates as $draw)
-                            <a href="{{ route('public.lottery-check', ['date' => $draw->draw_date->format('Y-m-d')]) }}" 
-                               class="history-chip {{ (request('date') == $draw->draw_date->format('Y-m-d') || (!request('date') && $loop->first)) ? 'active' : '' }}">
-                                {{ $draw->date_en ?? $draw->draw_date->format('d M Y') }}
-                            </a>
-                        @endforeach
-                    </div>
-                    
-                    <div class="card-body">
-                        <!-- Draw Header -->
-                        <div class="draw-header">
-                            <div class="draw-label">Draw Date</div>
-                            <div class="draw-date">{{ $latestDraw->date_en ?? $latestDraw->draw_date->format('d F Y') }}</div>
-                        </div>
-                        
-                        <!-- First Prize -->
-                        @php
-                            $p = $latestDraw->normalized_prizes ?? [];
-                            $firstPrizeNumbers = $p['first_prize'] ?? $p['prizeFirst'] ?? $p['prize_1'] ?? null;
-                            if (is_string($firstPrizeNumbers)) $firstPrizeNumbers = [$firstPrizeNumbers];
-                        @endphp
-                        <div class="first-prize">
-                            <div class="prize-label">🏆 First Prize</div>
-                            <div class="prize-number">{{ $firstPrizeNumbers[0] ?? 'XXXXXX' }}</div>
-                            <div class="prize-reward">Reward: ฿6,000,000</div>
-                        </div>
-                        
-                        <!-- Minor Prizes -->
-                        <div class="prizes-grid">
-                            @php 
-                                $front3 = collect($latestDraw->running_numbers)->first(fn($i) => isset($i['id']) && (stripos($i['id'], 'Front') !== false));
-                                $front3Nums = $front3['number'] ?? ['XXX', 'XXX'];
-                                if(is_string($front3Nums)) $front3Nums = [$front3Nums];
-                            @endphp
-                            <div class="prize-box">
-                                <div class="prize-label">Front 3 Digits</div>
-                                <div class="number-group">
-                                    @foreach($front3Nums as $num)
-                                        <div class="prize-number">{{ $num }}</div>
-                                    @endforeach
-                                </div>
-                                <div class="prize-reward">฿4,000</div>
-                            </div>
-                            
-                            @php 
-                                $rear3 = collect($latestDraw->running_numbers)->first(fn($i) => isset($i['id']) && (stripos($i['id'], 'BackThree') !== false));
-                                $rear3Nums = $rear3['number'] ?? ['XXX', 'XXX'];
-                                if(is_string($rear3Nums)) $rear3Nums = [$rear3Nums];
-                            @endphp
-                            <div class="prize-box">
-                                <div class="prize-label">Back 3 Digits</div>
-                                <div class="number-group">
-                                    @foreach($rear3Nums as $num)
-                                        <div class="prize-number">{{ $num }}</div>
-                                    @endforeach
-                                </div>
-                                <div class="prize-reward">฿4,000</div>
-                            </div>
-                            
-                            @php 
-                                $rear2 = collect($latestDraw->running_numbers)->first(fn($i) => isset($i['id']) && (stripos($i['id'], 'BackTwo') !== false));
-                                $rear2Nums = $rear2['number'] ?? ['XX'];
-                                if(is_string($rear2Nums)) $rear2Nums = [$rear2Nums];
-                            @endphp
-                            <div class="prize-box">
-                                <div class="prize-label">Last 2 Digits</div>
-                                <div class="prize-number">{{ $rear2Nums[0] ?? 'XX' }}</div>
-                                <div class="prize-reward">฿2,000</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Prize Lists -->
-                        <div class="prize-lists">
-                            @foreach([
-                                ['keys' => ['second_prize', 'prizeSecond'], 'name' => '2nd Prize', 'reward' => '200,000'],
-                                ['keys' => ['third_prize', 'prizeThird'], 'name' => '3rd Prize', 'reward' => '80,000'],
-                                ['keys' => ['fourth_prize', 'prizeForth'], 'name' => '4th Prize', 'reward' => '40,000'],
-                                ['keys' => ['fifth_prize', 'prizeFifth'], 'name' => '5th Prize', 'reward' => '20,000']
-                            ] as $meta)
-                                @php 
-                                    $prizeNums = [];
-                                    foreach($meta['keys'] as $k) {
-                                        if(isset($latestDraw->normalized_prizes[$k])) {
-                                            $prizeNums = $latestDraw->normalized_prizes[$k];
-                                            break;
-                                        }
-                                    }
-                                @endphp
-                                @if(!empty($prizeNums))
-                                    <div class="prize-list-item">
-                                        <div class="prize-list-header" onclick="this.classList.toggle('open'); this.nextElementSibling.classList.toggle('open');">
-                                            <div class="prize-list-title">
-                                                <span>{{ $meta['name'] }}</span>
-                                                <span class="reward">฿{{ $meta['reward'] }}</span>
-                                            </div>
-                                            <i data-lucide="chevron-down" size="16"></i>
-                                        </div>
-                                        <div class="prize-list-content open">
-                                            <div class="prize-list-numbers">
-                                                @foreach($prizeNums as $num)
-                                                    <div class="small-number">{{ $num }}</div>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endif
+            @if ($latestDraw)
+                @if ($drawDates->isNotEmpty())
+                    <div class="card-body" style="padding-bottom:0">
+                        <div class="chip-row" role="tablist" aria-label="Draw dates">
+                            @foreach ($drawDates as $draw)
+                                @php $d = $draw->draw_date->format('Y-m-d'); @endphp
+                                <a href="{{ route('public.lottery-check', ['date' => $d]) }}"
+                                    class="chip {{ $d === $latestDraw->draw_date->format('Y-m-d') ? 'is-active' : '' }}">
+                                    {{ $draw->date_en ?? $draw->draw_date->format('d M Y') }}
+                                </a>
                             @endforeach
                         </div>
                     </div>
-                @else
-                    <div class="empty-state">
-                        <i data-lucide="inbox" size="48"></i>
-                        <p>No draw results available</p>
-                    </div>
                 @endif
-            </div>
-            
-            <!-- Check Form -->
-            <div class="card check-card">
-                <div class="card-header">
-                    <i data-lucide="search"></i>
-                    <h2>Check Numbers</h2>
-                </div>
-                
+
                 <div class="card-body">
-                    <form id="checkForm">
-                        <label class="form-label">Enter 6-digit lottery numbers:</label>
-                        
-                        <div class="input-container" id="inputContainer">
-                            <div class="input-row">
-                                <input type="tel" class="lottery-input" maxlength="6" placeholder="000000" autofocus>
+                    <div class="draw-meta">
+                        <span class="prize-caption">Draw date</span>
+                        <div class="date">{{ $latestDraw->date_en ?? $latestDraw->draw_date->format('d F Y') }}</div>
+                        @if ($latestDraw->date_th)
+                            <div class="date-th">{{ $latestDraw->date_th }}</div>
+                        @endif
+                    </div>
+
+                    @php
+                        $prizes = $latestDraw->normalized_prizes ?? [];
+                        $firstPrize = $prizes['first_prize'] ?? ($prizes['prizeFirst'] ?? ($prizes['prize_1'] ?? null));
+                        $firstPrize = is_string($firstPrize) ? [$firstPrize] : (array) $firstPrize;
+
+                        $running = collect($latestDraw->running_numbers ?? []);
+                        $pick = function (string $needle) use ($running) {
+                            $hit = $running->first(fn($i) => isset($i['id']) && stripos($i['id'], $needle) !== false);
+                            $nums = $hit['number'] ?? [];
+                            return is_string($nums) ? [$nums] : (array) $nums;
+                        };
+                        $front3 = $pick('FrontThree');
+                        $back3 = $pick('BackThree');
+                        $back2 = $pick('BackTwo');
+                    @endphp
+
+                    <div class="first-prize">
+                        <span class="prize-caption">First prize</span>
+                        <div class="num num-hero">{{ $firstPrize[0] ?? '——————' }}</div>
+                        <div class="prize-reward">฿6,000,000</div>
+                    </div>
+
+                    <div class="running-grid">
+                        @foreach ([['Front 3 digits', $front3, '฿4,000'], ['Back 3 digits', $back3, '฿4,000'], ['Last 2 digits', $back2, '฿2,000']] as [$label, $nums, $reward])
+                            <div class="running-box">
+                                <span class="prize-caption">{{ $label }}</span>
+                                <div class="running-nums">
+                                    @forelse ($nums as $n)
+                                        <span class="num num-lg">{{ $n }}</span>
+                                    @empty
+                                        <span class="num num-lg" style="color:var(--text-dim)">—</span>
+                                    @endforelse
+                                </div>
+                                <div class="prize-reward">{{ $reward }}</div>
                             </div>
-                        </div>
-                        
-                        <button type="button" class="add-btn" id="addBtn">
-                            <i data-lucide="plus" size="16"></i>
-                            Add Number
-                        </button>
-                        
-                        <input type="hidden" id="drawDate" value="{{ $latestDraw ? $latestDraw->draw_date->format('Y-m-d') : '' }}">
-                        
-                        <button type="submit" class="check-btn" id="checkBtn">
-                            <i data-lucide="scan-line" size="20"></i>
-                            Check Now
-                        </button>
-                    </form>
+                        @endforeach
+                    </div>
+
+                    <div style="margin-top:1.25rem">
+                        @foreach ([['2nd prize', ['second_prize', 'prizeSecond'], '200,000'], ['3rd prize', ['third_prize', 'prizeThird'], '80,000'], ['4th prize', ['fourth_prize', 'prizeForth'], '40,000'], ['5th prize', ['fifth_prize', 'prizeFifth'], '20,000']] as $i => [$label, $keys, $reward])
+                            @php
+                                $nums = [];
+                                foreach ($keys as $k) {
+                                    if (!empty($prizes[$k])) {
+                                        $nums = (array) $prizes[$k];
+                                        break;
+                                    }
+                                }
+                            @endphp
+                            @if ($nums)
+                                <div class="tier">
+                                    <button type="button" class="tier-toggle" aria-expanded="{{ $i === 0 ? 'true' : 'false' }}"
+                                        aria-controls="tier-{{ $i }}">
+                                        <span class="tier-name">{{ $label }}</span>
+                                        <span class="tier-meta">
+                                            <span>฿{{ $reward }}</span>
+                                            <span>{{ count($nums) }} numbers</span>
+                                            <x-icon name="chevron-down" :size="16" class="caret" />
+                                        </span>
+                                    </button>
+                                    <div class="tier-body" id="tier-{{ $i }}" @if ($i !== 0) hidden @endif>
+                                        <div class="tier-nums">
+                                            @foreach ($nums as $n)
+                                                <span class="num num-chip">{{ $n }}</span>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
                 </div>
+            @else
+                <div class="empty">
+                    <x-icon name="inbox" :size="40" />
+                    <p class="empty-title">No draw results yet</p>
+                    <p>Results appear here once the next draw is published.</p>
+                </div>
+            @endif
+        </section>
+
+        {{-- ---------- Check form ---------- --}}
+        <section class="card check-panel">
+            <div class="card-head">
+                <h2><x-icon name="scan-line" :size="18" /> Check numbers</h2>
             </div>
-            
-        </div>
-    </div>
-    
-    <!-- Results Modal -->
-    <div class="modal-overlay" id="resultModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3>🎰 Check Results</h3>
-                <button class="modal-close" onclick="closeModal()">
-                    <i data-lucide="x" size="18"></i>
-                </button>
+            <div class="card-body">
+                <form id="checkForm" novalidate>
+                    <label class="field-label" for="num-0">Your 6-digit numbers</label>
+
+                    <div class="num-rows" id="numRows">
+                        <div class="num-row">
+                            <input id="num-0" class="num-input" type="text" inputmode="numeric" pattern="[0-9]*"
+                                maxlength="6" placeholder="000000" autocomplete="off" aria-label="Lottery number 1">
+                        </div>
+                    </div>
+
+                    <button type="button" class="add-row" id="addRow">
+                        <x-icon name="plus" :size="15" /> Add another number
+                    </button>
+
+                    <p class="form-error" id="formError" role="alert"></p>
+
+                    <button type="submit" class="btn btn-primary btn-block" id="checkBtn" style="margin-top:.75rem"
+                        @disabled(!$latestDraw)>
+                        <x-icon name="scan-line" :size="18" /> <span>Check now</span>
+                    </button>
+
+                    <p class="form-hint">Checked against the draw shown on the left.</p>
+                </form>
             </div>
-            <div class="modal-body">
-                <div class="modal-summary" id="modalSummary"></div>
-                <div class="result-list" id="resultList"></div>
-            </div>
-        </div>
+        </section>
     </div>
 
-    <script>
-        lucide.createIcons();
-        
-        const form = document.getElementById('checkForm');
-        const checkBtn = document.getElementById('checkBtn');
-        const inputContainer = document.getElementById('inputContainer');
-        const addBtn = document.getElementById('addBtn');
-        const resultModal = document.getElementById('resultModal');
-        const resultList = document.getElementById('resultList');
-        const modalSummary = document.getElementById('modalSummary');
-        
-        function addInput() {
-            const row = document.createElement('div');
-            row.className = 'input-row';
-            row.innerHTML = `
-                <input type="tel" class="lottery-input" maxlength="6" placeholder="000000">
-                <button type="button" class="remove-btn" onclick="this.parentElement.remove()">
-                    <i data-lucide="x" size="18"></i>
+    {{-- ---------- Result dialog ---------- --}}
+    <div class="sheet" id="resultSheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+        <div class="sheet-card">
+            <div class="sheet-head">
+                <h2 id="sheetTitle">Your results</h2>
+                <button type="button" class="sheet-close" id="sheetClose" aria-label="Close results">
+                    <x-icon name="x" :size="18" />
                 </button>
-            `;
-            inputContainer.appendChild(row);
-            row.querySelector('input').focus();
-            lucide.createIcons();
-            attachValidation(row.querySelector('input'));
-        }
-        
-        addBtn.addEventListener('click', addInput);
-        
-        function attachValidation(input) {
-            input.addEventListener('input', function() {
-                this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);
-            });
-            input.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    if (this.value.length === 6) addInput();
-                    else form.requestSubmit();
-                }
-            });
-        }
-        
-        document.querySelectorAll('.lottery-input').forEach(attachValidation);
-        
-        function closeModal() {
-            resultModal.classList.remove('open');
-        }
-        
-        resultModal.addEventListener('click', function(e) {
-            if (e.target === resultModal) closeModal();
-        });
-        
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const inputs = document.querySelectorAll('.lottery-input');
-            const numbers = Array.from(inputs).map(i => i.value).filter(v => v.length === 6);
-            
-            if (numbers.length === 0) {
-                alert('Please enter at least one valid 6-digit number.');
-                return;
-            }
-            
-            checkBtn.disabled = true;
-            checkBtn.innerHTML = '<i data-lucide="loader-2" class="animate-spin" size="20"></i> Checking...';
-            lucide.createIcons();
-            
-            try {
-                const response = await fetch('{{ route("public.lottery-check.submit") }}', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json', 
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content 
-                    },
-                    body: JSON.stringify({ 
-                        numbers: numbers.join(','), 
-                        draw_date: document.getElementById('drawDate').value 
-                    }),
+            </div>
+            <div class="sheet-body">
+                <div class="stat-grid" id="sheetSummary" style="margin-bottom:1.25rem"></div>
+                <div id="sheetResults"></div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@push('scripts')
+    <script>
+        (function () {
+            const form = document.getElementById('checkForm');
+            const rows = document.getElementById('numRows');
+            const addRow = document.getElementById('addRow');
+            const checkBtn = document.getElementById('checkBtn');
+            const errorBox = document.getElementById('formError');
+            const sheet = document.getElementById('resultSheet');
+            const summaryEl = document.getElementById('sheetSummary');
+            const resultsEl = document.getElementById('sheetResults');
+            const drawDate = @json($latestDraw?->draw_date?->format('Y-m-d') ?? '');
+            const endpoint = @json(route('public.lottery-check.submit'));
+            const csrf = document.querySelector('meta[name="csrf-token"]').content;
+
+            const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[c]);
+
+            const iconX = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`;
+
+            /* ---------- collapsible prize tiers ---------- */
+            document.querySelectorAll('.tier-toggle').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const open = btn.getAttribute('aria-expanded') === 'true';
+                    btn.setAttribute('aria-expanded', String(!open));
+                    document.getElementById(btn.getAttribute('aria-controls')).hidden = open;
                 });
-                const data = await response.json();
-                
-                if (data.success && data.results) {
-                    const wonCount = data.results.filter(r => r.won).length;
-                    const totalCount = data.results.length;
-                    
-                    // Calculate total prize amount
-                    let totalPrize = 0;
-                    data.results.forEach(res => {
-                        if (res.won && res.prizes) {
-                            res.prizes.forEach(p => {
-                                // Parse reward string (remove commas) to number
-                                const amount = parseInt(p.reward.replace(/,/g, '')) || 0;
-                                totalPrize += amount;
-                            });
-                        }
-                    });
-                    
-                    // Summary with total prize
-                    modalSummary.innerHTML = `
-                        <div class="summary-box won">
-                            <div class="value">${wonCount}</div>
-                            <div class="label">Won</div>
-                        </div>
-                        <div class="summary-box lost">
-                            <div class="value">${totalCount - wonCount}</div>
-                            <div class="label">Not Won</div>
-                        </div>
-                        <div class="summary-box" style="background: rgba(245, 158, 11, 0.15); border: 1px solid var(--gold);">
-                            <div class="value" style="color: var(--gold);">฿${totalPrize.toLocaleString()}</div>
-                            <div class="label">Total Won</div>
-                        </div>
-                    `;
-                    
-                    // Results
-                    resultList.innerHTML = data.results.map(res => {
-                        let prizesHtml = '';
-                        let ticketTotal = 0;
-                        
-                        if (res.won && res.prizes) {
-                            // Calculate total for THIS ticket
-                            res.prizes.forEach(p => {
-                                const amount = parseInt(p.reward.replace(/,/g, '')) || 0;
-                                ticketTotal += amount;
-                            });
-                            
-                            prizesHtml = res.prizes.map(p => `${p.name}: ฿${p.reward}`).join('<br>');
-                        }
-                        
-                        return `
-                            <div class="result-item ${res.won ? 'won' : ''}">
-                                <div class="result-number">${res.number}</div>
-                                <div class="result-status ${res.won ? 'won' : 'lost'}">
-                                    ${res.won ? '🎉 WINNER!' : 'Not Won'}
-                                </div>
-                                ${res.won ? `
-                                    <div class="result-prizes">${prizesHtml}</div>
-                                    <div style="margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px dashed rgba(255,255,255,0.15); font-weight: 700; color: var(--gold);">
-                                        Total: ฿${ticketTotal.toLocaleString()}
-                                    </div>
-                                ` : ''}
-                            </div>
-                        `;
-                    }).join('');
-                    
-                    resultModal.classList.add('open');
-                    lucide.createIcons();
-                } else if (data.error) {
-                    alert(data.error);
-                }
-            } catch(e) {
-                console.error(e);
-            } finally {
-                checkBtn.disabled = false;
-                checkBtn.innerHTML = '<i data-lucide="scan-line" size="20"></i> Check Now';
-                lucide.createIcons();
+            });
+
+            /* ---------- number inputs ---------- */
+            function bind(input) {
+                input.addEventListener('input', () => {
+                    input.value = input.value.replace(/\D/g, '').slice(0, 6);
+                    hideError();
+                });
+                input.addEventListener('keydown', (e) => {
+                    if (e.key !== 'Enter') return;
+                    e.preventDefault();
+                    if (input.value.length === 6) append();
+                    else form.requestSubmit();
+                });
             }
-        });
+
+            function append() {
+                const row = document.createElement('div');
+                row.className = 'num-row';
+                const index = rows.children.length + 1;
+                row.innerHTML =
+                    `<input class="num-input" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="000000" autocomplete="off" aria-label="Lottery number ${index}">` +
+                    `<button type="button" class="row-remove" aria-label="Remove number ${index}">${iconX}</button>`;
+                rows.appendChild(row);
+                row.querySelector('.row-remove').addEventListener('click', () => row.remove());
+                const input = row.querySelector('input');
+                bind(input);
+                input.focus();
+            }
+
+            rows.querySelectorAll('.num-input').forEach(bind);
+            addRow.addEventListener('click', append);
+
+            function showError(msg) {
+                errorBox.textContent = msg;
+                errorBox.classList.add('is-shown');
+            }
+
+            function hideError() {
+                errorBox.classList.remove('is-shown');
+            }
+
+            /* ---------- dialog ---------- */
+            function closeSheet() {
+                sheet.classList.remove('is-open');
+                document.body.style.overflow = '';
+            }
+
+            document.getElementById('sheetClose').addEventListener('click', closeSheet);
+            sheet.addEventListener('click', (e) => {
+                if (e.target === sheet) closeSheet();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && sheet.classList.contains('is-open')) closeSheet();
+            });
+
+            const baht = (n) => '฿' + n.toLocaleString('en-US');
+            const toNumber = (reward) => parseInt(String(reward).replace(/[^0-9]/g, ''), 10) || 0;
+
+            /* ---------- submit ---------- */
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                hideError();
+
+                const numbers = Array.from(rows.querySelectorAll('.num-input'))
+                    .map((i) => i.value.trim())
+                    .filter((v) => v.length === 6);
+
+                if (!numbers.length) {
+                    showError('Enter at least one complete 6-digit number.');
+                    return;
+                }
+
+                const label = checkBtn.querySelector('span');
+                const original = label.textContent;
+                checkBtn.disabled = true;
+                label.textContent = 'Checking…';
+                checkBtn.querySelector('svg').classList.add('spin');
+
+                try {
+                    const res = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrf,
+                        },
+                        body: JSON.stringify({ numbers: numbers.join(','), draw_date: drawDate }),
+                    });
+                    const data = await res.json();
+
+                    if (!data.success || !data.results) {
+                        showError(data.error || 'Could not check those numbers. Please try again.');
+                        return;
+                    }
+
+                    const won = data.results.filter((r) => r.won);
+                    const total = data.results.reduce((sum, r) =>
+                        sum + (r.prizes || []).reduce((s, p) => s + toNumber(p.reward), 0), 0);
+
+                    summaryEl.innerHTML = `
+                        <div class="stat">
+                            <div class="stat-value">${data.results.length}</div>
+                            <div class="stat-label">Checked</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" style="color:var(--green)">${won.length}</div>
+                            <div class="stat-label">Winners</div>
+                        </div>
+                        <div class="stat" style="border-color:var(--gold-line);background:var(--gold-soft)">
+                            <div class="stat-value" style="color:var(--gold)">${baht(total)}</div>
+                            <div class="stat-label">Total won</div>
+                        </div>`;
+
+                    resultsEl.innerHTML = data.results.map((r) => {
+                        const prizes = r.prizes || [];
+                        const sum = prizes.reduce((s, p) => s + toNumber(p.reward), 0);
+                        return `
+                            <div class="result-row ${r.won ? 'is-win' : ''}">
+                                <div>
+                                    <div class="num num-lg">${esc(r.number)}</div>
+                                    ${r.won ? `
+                                        <div class="result-prizes">
+                                            ${prizes.map((p) => `<span>${esc(p.name)} · <b>฿${esc(p.reward)}</b></span>`).join('')}
+                                        </div>
+                                        ${prizes.length > 1 ? `<div class="result-total">Total ${baht(sum)}</div>` : ''}
+                                    ` : ''}
+                                </div>
+                                <div class="result-verdict">
+                                    <span class="badge ${r.won ? 'badge-gold' : ''}">${r.won ? 'Winner' : 'No win'}</span>
+                                </div>
+                            </div>`;
+                    }).join('');
+
+                    document.getElementById('sheetTitle').textContent =
+                        won.length ? `${won.length} winning ${won.length === 1 ? 'number' : 'numbers'}` : 'No wins this draw';
+                    sheet.classList.add('is-open');
+                    document.body.style.overflow = 'hidden';
+                    document.getElementById('sheetClose').focus();
+                } catch (err) {
+                    showError('Network error. Please check your connection and try again.');
+                } finally {
+                    checkBtn.disabled = false;
+                    label.textContent = original;
+                    checkBtn.querySelector('svg').classList.remove('spin');
+                }
+            });
+        })();
     </script>
-</body>
-</html>
+@endpush

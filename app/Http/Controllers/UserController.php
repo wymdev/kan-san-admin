@@ -36,8 +36,8 @@ class UserController extends Controller
         $query = User::query();
 
         if (!empty($search)) {
-            $query->where('name', 'like', '%' . $search . '%')
-                ->orWhere('email', 'like', '%' . $search . '%');
+            $query->whereLike('name', '%' . $search . '%')
+                ->orWhereLike('email', '%' . $search . '%');
         }
 
         $users = $query->latest()->paginate(5);

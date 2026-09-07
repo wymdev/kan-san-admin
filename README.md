@@ -2,6 +2,12 @@
 
 Laravel 12 admin panel for managing Thai lottery ticket sales and results.
 
+Project guides: [architecture](docs/project-overview.md), [shared UI components](docs/ui-components.md), and [PostgreSQL migration and rollback](docs/postgresql-migration.md).
+
+Results provider: [public API setup and one-time history import](docs/results-api.md).
+
+Deployment: [Railway setup, database transfer and persistent uploads](docs/railway-deployment.md).
+
 ---
 
 ## 🎯 Secondary Sales Transaction System
@@ -135,6 +141,48 @@ $batchToken = $existingTransaction?->batch_token ?? Str::random(32);
 ---
 
 ## 🛠️ Development Commands
+
+### Running the app locally (and why it matters for speed)
+
+```bash
+composer serve      # http://127.0.0.1:8000
+```
+
+Use `composer serve`, **not** `php artisan serve`. Both run PHP's built-in
+server, but the `artisan serve` wrapper adds roughly 700 ms of overhead per
+request on Windows. Measured on this project, same code and same PHP build:
+
+| Server | Warm response |
+|---|---|
+| `php artisan serve` | 700–1,500 ms |
+| `composer serve` | 70–300 ms |
+
+### OPcache is required
+
+Without OPcache, PHP recompiles ~800 framework files on **every** request and
+pages take 2–5 seconds. OPcache is enabled in `C:\ServBay\etc\php\8.4\php.ini`
+under the `[opcache-servbay-dev]` section (a backup of the original sits beside
+it as `php.ini.bak-before-opcache`). Confirm it is loaded with:
+
+```bash
+php -i | grep -i "opcache.enable"     # expect: On
+```
+
+Production already covers this — `docker/php.ini` enables OPcache with JIT, and
+`docker/docker-entrypoint.sh` runs the config/route/view caches on boot.
+
+`opcache.validate_timestamps=1` is deliberate for development: edited PHP files
+are picked up within ~2 seconds without a restart.
+
+### Optional extra speed
+
+```bash
+composer optimize   # php artisan optimize — caches config, routes, events, views
+php artisan optimize:clear
+```
+
+Worth ~100 ms, but **config caching makes `.env` changes take effect only after
+re-running it**, so it is left off in development on purpose.
 
 ### Cron Setup
 ```bash

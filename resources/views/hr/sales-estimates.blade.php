@@ -11,20 +11,20 @@
         <div class="card-header">
             <div class="flex gap-3">
                 <div class="relative">
-                    <input class="form-input form-input-sm ps-11" placeholder="Search for...." type="email"/>
+                    <x-ui.input class="form-input form-input-sm ps-11" placeholder="Search for...." type="email" />
                     <div class="absolute inset-y-0 start-0 flex items-center ps-3">
                         <i class="size-4 flex items-center text-default-500" data-lucide="search"></i>
                     </div>
                 </div>
-                <select class="form-input form-input-sm lg:w-52 w-full" id="dateRangeFilterInput"
+                <x-ui.select class="form-input form-input-sm lg:w-52 w-full" id="dateRangeFilterInput"
                         placeholder="Select date" type="text">
                     <option selected="" value="Accepted">Accepted</option>
                     <option value="Declined">Declined</option>
                     <option value="Expired">Expired</option>
-                </select>
-                <input class="form-input form-input-sm lg:w-52 w-full" data-date-format="d M, Y"
+                </x-ui.select>
+                <x-ui.input class="form-input form-input-sm lg:w-52 w-full" data-date-format="d M, Y"
                        data-provider="flatpickr" data-range-date="true" id="dateRangeFilterInput"
-                       placeholder="Select date" type="text"/>
+                       placeholder="Select date" type="text" />
             </div>
             <a aria-controls="sales-estimates-add" aria-expanded="false" aria-haspopup="dialog"
                class="btn btn-sm bg-primary text-white" data-hs-overlay="#sales-estimates-add" href="#">
@@ -36,7 +36,7 @@
             <div class="overflow-x-auto">
                 <div class="min-w-full inline-block align-middle">
                     <div class="overflow-hidden">
-                        <table class="min-w-full">
+                        <x-ui.table class="min-w-full">
                             <thead class="bg-default-150">
                             <tr class="text-sm font-normal text-default-500">
                                 <th class="px-3.5 py-3 text-start" scope="col">Estimate Number</th>
@@ -273,7 +273,7 @@
                                 </td>
                             </tr>
                             </tbody>
-                        </table>
+                        </x-ui.table>
                     </div>
                 </div>
             </div>

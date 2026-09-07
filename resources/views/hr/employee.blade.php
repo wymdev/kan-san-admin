@@ -18,7 +18,7 @@
             <div class="overflow-x-auto">
                 <div class="min-w-full inline-block align-middle">
                     <div class="overflow-hidden">
-                        <table class="min-w-full divide-y divide-default-200">
+                        <x-ui.table class="min-w-full divide-y divide-default-200">
                             <thead class="bg-default-100 font-normal whitespace-nowrap">
                             <tr class="text-sm text-default-800">
                                 <th class="px-3.5 py-3 font-medium text-start" scope="col">Employee ID</th>
@@ -274,7 +274,7 @@
                                 </td>
                             </tr>
                             </tbody>
-                        </table>
+                        </x-ui.table>
                     </div>
                 </div>
             </div>

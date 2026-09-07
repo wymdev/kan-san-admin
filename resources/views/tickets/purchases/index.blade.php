@@ -6,23 +6,8 @@
 @section('content')
     @include('layouts.partials.page-title', ['subtitle' => 'Admin', 'title' => 'Ticket Purchases Management'])
 
-    @if ($message = Session::get('success'))
-        <div class="bg-success/10 border border-success/20 text-success px-4 py-3 rounded relative mb-4" role="alert">
-            <span class="block sm:inline">{{ $message }}</span>
-        </div>
-    @endif
 
-    @if ($message = Session::get('error'))
-        <div class="bg-danger/10 border border-danger/20 text-danger px-4 py-3 rounded relative mb-4" role="alert">
-            <span class="block sm:inline">{{ $message }}</span>
-        </div>
-    @endif
 
-    @if ($message = Session::get('warning'))
-        <div class="bg-warning/10 border border-warning/20 text-warning px-4 py-3 rounded relative mb-4" role="alert">
-            <span class="block sm:inline">{{ $message }}</span>
-        </div>
-    @endif
 
     {{-- Statistics Cards --}}
     @if(isset($stats))
@@ -139,41 +124,41 @@
         </div>
         <div class="card-header">
             <div class="md:flex items-center md:space-y-0 space-y-4 gap-3">
-                <form method="GET" action="{{ route('purchases.index') }}" class="flex gap-2 flex-wrap items-center">
+                <x-ui.filter action="{{ route('purchases.index') }}" class="flex gap-2 flex-wrap items-center">
                     <div class="relative" style="width: 12rem;">
-                        <input 
+                        <x-ui.input
                             class="ps-10 form-input form-input-sm w-full" 
                             placeholder="Search orders..." 
                             type="text" 
                             name="search" 
                             value="{{ request('search') }}"
-                        />
+                         />
                         <div class="absolute inset-y-0 left-0 flex items-center ps-3">
                             <i class="size-4 text-default-500" data-lucide="search"></i>
                         </div>
                     </div>
                     
-                    <input type="date" name="date_from" value="{{ request('date_from') }}" class="form-input form-input-sm" style="width: 8.5rem;" placeholder="From">
-                    <input type="date" name="date_to" value="{{ request('date_to') }}" class="form-input form-input-sm" style="width: 8.5rem;" placeholder="To">
+                    <x-ui.input type="date" name="date_from" value="{{ request('date_from') }}" class="form-input form-input-sm" style="width: 8.5rem;" placeholder="From" />
+                    <x-ui.input type="date" name="date_to" value="{{ request('date_to') }}" class="form-input form-input-sm" style="width: 8.5rem;" placeholder="To" />
                     
                     <div style="width: 9rem;">
-                        <select name="status" class="form-input form-input-sm w-full">
+                        <x-ui.select name="status" class="form-input form-input-sm w-full">
                             <option value="">All Status</option>
                             <option value="pending" {{ request('status')=='pending' ? 'selected' : '' }}>Pending</option>
                             <option value="approved" {{ request('status')=='approved' ? 'selected' : '' }}>Approved</option>
                             <option value="rejected" {{ request('status')=='rejected' ? 'selected' : '' }}>Rejected</option>
                             <option value="won" {{ request('status')=='won' ? 'selected' : '' }}>Won</option>
                             <option value="not_won" {{ request('status')=='not_won' ? 'selected' : '' }}>Not Won</option>
-                        </select>
+                        </x-ui.select>
                     </div>
 
                     <div style="width: 8rem;">
-                        <select name="result_status" class="form-input form-input-sm w-full">
+                        <x-ui.select name="result_status" class="form-input form-input-sm w-full">
                             <option value="">All Results</option>
                             <option value="unchecked" {{ request('result_status')=='unchecked' ? 'selected' : '' }}>Unchecked</option>
                             <option value="won" {{ request('result_status')=='won' ? 'selected' : '' }}>Winners</option>
                             <option value="not_won" {{ request('result_status')=='not_won' ? 'selected' : '' }}>Not Won</option>
-                        </select>
+                        </x-ui.select>
                     </div>
                     
                     <button type="submit" class="btn btn-xs bg-primary text-white">
@@ -184,14 +169,14 @@
                             Clear
                         </a>
                     @endif
-                </form>
+                </x-ui.filter>
             </div>
         </div>
         <div class="flex flex-col">
             <div class="overflow-x-auto">
                 <div class="min-w-full inline-block align-middle">
                     <div class="overflow-hidden">
-                        <table class="min-w-full divide-y divide-default-200">
+                        <x-ui.table class="min-w-full divide-y divide-default-200">
                             <thead class="bg-default-150">
                             <tr class="text-sm font-normal text-default-700 whitespace-nowrap">
                                 <th class="px-3.5 py-3 text-start" scope="col">No</th>
@@ -271,7 +256,7 @@
                                 </tr>
                             @endforelse
                             </tbody>
-                        </table>
+                        </x-ui.table>
                     </div>
                 </div>
             </div>

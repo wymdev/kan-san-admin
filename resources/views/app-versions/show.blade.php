@@ -20,7 +20,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <h5 class="text-sm font-semibold text-default-700 mb-2">Basic Information</h5>
-                        <table class="w-full text-sm">
+                        <x-ui.table class="w-full text-sm">
                             <tr class="border-b border-default-200">
                                 <td class="py-2 text-default-600">Version:</td>
                                 <td class="py-2 font-medium">{{ $version->version }}</td>
@@ -67,12 +67,12 @@
                                 <td class="py-2 text-default-600">Release Date:</td>
                                 <td class="py-2 font-medium">{{ $version->release_date ? $version->release_date->format('d M Y, H:i') : '-' }}</td>
                             </tr>
-                        </table>
+                        </x-ui.table>
                     </div>
 
                     <div>
                         <h5 class="text-sm font-semibold text-default-700 mb-2">Update Settings</h5>
-                        <table class="w-full text-sm">
+                        <x-ui.table class="w-full text-sm">
                             <tr class="border-b border-default-200">
                                 <td class="py-2 text-default-600">Force Update:</td>
                                 <td class="py-2">
@@ -109,7 +109,7 @@
                                 <td class="py-2 text-default-600">Display Order:</td>
                                 <td class="py-2 font-medium">{{ $version->display_order }}</td>
                             </tr>
-                        </table>
+                        </x-ui.table>
                     </div>
                 </div>
 

@@ -150,28 +150,28 @@
                     </div>
                     <h6 class="mb-3 text-[15px] font-semibold text-default-800">Select Color</h6>
                     <div class="flex gap-2">
-                        <input class="form-radio rounded-sm size-5 text-primary" id="color1" name="SelectColor"
-                               type="radio"/>
-                        <input class="form-radio rounded-sm size-5 text-red-300" id="color2" name="SelectColor"
-                               type="radio"/>
-                        <input class="form-radio rounded-sm size-5 text-green-300" id="color3" name="SelectColor"
-                               type="radio"/>
-                        <input class="form-radio rounded-sm size-5 text-default-500" id="color4" name="SelectColor"
-                               type="radio"/>
-                        <input class="form-radio rounded-sm size-5 text-purple-500" id="color5" name="SelectColor"
-                               type="radio"/>
-                        <input class="form-radio rounded-sm size-5 text-sky-500" id="color6" name="SelectColor"
-                               type="radio"/>
-                        <input class="form-radio rounded-sm size-5 text-yellow-500" id="color7" name="SelectColor"
-                               type="radio"/>
-                        <input class="form-radio rounded-sm size-5 text-green-500" id="color8" name="SelectColor"
-                               type="radio"/>
-                        <input class="form-radio rounded-sm size-5 text-default-800" id="color9" name="SelectColor"
-                               type="radio"/>
-                        <input class="form-radio rounded-sm size-5 text-default-200" id="color10" name="SelectColor"
-                               type="radio"/>
-                        <input class="form-radio rounded-sm size-5 text-emerald-300" id="color11" name="SelectColor"
-                               type="radio"/>
+                        <x-ui.input class="form-radio rounded-sm size-5 text-primary" id="color1" name="SelectColor"
+                               type="radio" />
+                        <x-ui.input class="form-radio rounded-sm size-5 text-red-300" id="color2" name="SelectColor"
+                               type="radio" />
+                        <x-ui.input class="form-radio rounded-sm size-5 text-green-300" id="color3" name="SelectColor"
+                               type="radio" />
+                        <x-ui.input class="form-radio rounded-sm size-5 text-default-500" id="color4" name="SelectColor"
+                               type="radio" />
+                        <x-ui.input class="form-radio rounded-sm size-5 text-purple-500" id="color5" name="SelectColor"
+                               type="radio" />
+                        <x-ui.input class="form-radio rounded-sm size-5 text-sky-500" id="color6" name="SelectColor"
+                               type="radio" />
+                        <x-ui.input class="form-radio rounded-sm size-5 text-yellow-500" id="color7" name="SelectColor"
+                               type="radio" />
+                        <x-ui.input class="form-radio rounded-sm size-5 text-green-500" id="color8" name="SelectColor"
+                               type="radio" />
+                        <x-ui.input class="form-radio rounded-sm size-5 text-default-800" id="color9" name="SelectColor"
+                               type="radio" />
+                        <x-ui.input class="form-radio rounded-sm size-5 text-default-200" id="color10" name="SelectColor"
+                               type="radio" />
+                        <x-ui.input class="form-radio rounded-sm size-5 text-emerald-300" id="color11" name="SelectColor"
+                               type="radio" />
                     </div>
                     <h6 class="mt-5 mb-3 card-title">Select Size</h6>
                     <div class="flex gap-2 items-center">
@@ -275,7 +275,7 @@
                     <div class="mt-5">
                         <h6 class="card-title">Features:</h6>
                         <div class="overflow-x-auto">
-                            <table class="w-full">
+                            <x-ui.table class="w-full">
                                 <tbody>
                                 <tr>
                                     <th class="px-3.5 py-2.5 font-semibold text-start text-sm w-64 text-default-500">
@@ -320,7 +320,7 @@
                                     <td class="px-3.5 py-2.5 text-sm text-default-700">Women</td>
                                 </tr>
                                 </tbody>
-                            </table>
+                            </x-ui.table>
                         </div>
                     </div>
                     <h6 class="mt-5 mb-3 card-title">Ratings &amp; Reviews</h6>

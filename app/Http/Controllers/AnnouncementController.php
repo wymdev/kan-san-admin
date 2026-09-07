@@ -26,8 +26,8 @@ class AnnouncementController extends Controller
         $query = Announcement::with('creator');
         
         if (!empty($search)) {
-            $query->where('title', 'like', '%' . $search . '%')
-                  ->orWhere('body', 'like', '%' . $search . '%');
+            $query->whereLike('title', '%' . $search . '%')
+                  ->orWhereLike('body', '%' . $search . '%');
         }
         
         if ($status === 'sent') {

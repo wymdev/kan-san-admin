@@ -37,9 +37,9 @@ class CustomerController extends Controller
         $query = Customer::query();
 
         if (!empty($search)) {
-            $query->where('phone_number', 'like', '%' . $search . '%')
-                ->orWhere('full_name', 'like', '%' . $search . '%')
-                ->orWhere('email', 'like', '%' . $search . '%');
+            $query->whereLike('phone_number', '%' . $search . '%')
+                ->orWhereLike('full_name', '%' . $search . '%')
+                ->orWhereLike('email', '%' . $search . '%');
         }
 
         $customers = $query->latest()->paginate(5);

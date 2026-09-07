@@ -72,14 +72,14 @@
     <div class="card">
         <div class="card-header">
             <div class="relative">
-                <input class="ps-11 form-input form-input-sm" placeholder="Search for...." type="email"/>
+                <x-ui.input class="ps-11 form-input form-input-sm" placeholder="Search for...." type="email" />
                 <div class="absolute inset-y-0 start-0 flex items-center ps-3">
                     <i class="size-3.5 flex items-center text-default-500" data-lucide="search"></i>
                 </div>
             </div>
             <div class="relative">
-                <input class="form-input form-input-sm ps-10" data-date-format="d M, Y" data-provider="flatpickr"
-                       data-range-date="true" placeholder="Select Date" readonly="readonly" type="text"/>
+                <x-ui.input class="form-input form-input-sm ps-10" data-date-format="d M, Y" data-provider="flatpickr"
+                       data-range-date="true" placeholder="Select Date" readonly="readonly" type="text" />
                 <i class="absolute top-1.5 start-3 size-4 flex items-center text-default-500"
                    data-lucide="calendar"></i>
             </div>
@@ -88,7 +88,7 @@
             <div class="overflow-x-auto">
                 <div class="min-w-full inline-block align-middle">
                     <div class="overflow-hidden">
-                        <table class="min-w-full divide-y divide-default-200">
+                        <x-ui.table class="min-w-full divide-y divide-default-200">
                             <thead class="bg-default-100 font-normal whitespace-nowrap">
                             <tr class="text-sm text-default-800">
                                 <th class="px-3.5 py-3 font-medium" scope="col">Employee Name</th>
@@ -930,7 +930,7 @@
                                 </td>
                             </tr>
                             </tbody>
-                        </table>
+                        </x-ui.table>
                     </div>
                 </div>
             </div>

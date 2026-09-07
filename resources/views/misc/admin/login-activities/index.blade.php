@@ -30,11 +30,6 @@
 @section('content')
 @include('layouts.partials/page-title', ['subtitle' => 'Security', 'title' => 'Login Activity'])
 
-@if(session('success'))
-    <div class="bg-success/10 border border-success/20 text-success px-4 py-3 rounded relative mb-4">
-        <span class="block sm:inline">{{ session('success') }}</span>
-    </div>
-@endif
 
 <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
     <div class="card stat-card bg-primary/5 border border-primary/10">
@@ -111,45 +106,45 @@
     </div>
 
     <div class="filter-section">
-        <form method="GET" action="{{ route('login-activities.index') }}">
+        <x-ui.filter action="{{ route('login-activities.index') }}">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
-                    <input class="form-input form-input-sm w-full" placeholder="Email, IP, browser..." type="text" name="search" value="{{ request('search') }}">
+                    <x-ui.input class="form-input form-input-sm w-full" placeholder="Email, IP, browser..." type="text" name="search" value="{{ request('search') }}" />
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                    <select name="status" class="form-select form-select-sm w-full">
+                    <x-ui.select name="status" class="form-select form-select-sm w-full">
                         <option value="">All Status</option>
                         <option value="success" {{ request('status') == 'success' ? 'selected' : '' }}>Success</option>
                         <option value="failed" {{ request('status') == 'failed' ? 'selected' : '' }}>Failed</option>
                         <option value="blocked" {{ request('status') == 'blocked' ? 'selected' : '' }}>Blocked</option>
                         <option value="locked" {{ request('status') == 'locked' ? 'selected' : '' }}>Locked</option>
-                    </select>
+                    </x-ui.select>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">User Type</label>
-                    <select name="user_type" class="form-select form-select-sm w-full">
+                    <x-ui.select name="user_type" class="form-select form-select-sm w-full">
                         <option value="">All Types</option>
                         <option value="App\Models\User" {{ request('user_type') == 'App\Models\User' ? 'selected' : '' }}>Admin User</option>
                         <option value="App\Models\Customer" {{ request('user_type') == 'App\Models\Customer' ? 'selected' : '' }}>Customer</option>
-                    </select>
+                    </x-ui.select>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Records per page</label>
-                    <select name="per_page" class="form-select form-select-sm w-full">
+                    <x-ui.select name="per_page" class="form-select form-select-sm w-full">
                         <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25</option>
                         <option value="50" {{ request('per_page', 50) == '50' ? 'selected' : '' }}>50</option>
                         <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100</option>
-                    </select>
+                    </x-ui.select>
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
-                    <input type="text" name="daterange" id="daterange" class="form-input form-input-sm w-full" placeholder="Select date range" value="{{ request('start_date') && request('end_date') ? request('start_date') . ' - ' . request('end_date') : '' }}">
-                    <input type="hidden" name="start_date" id="start_date" value="{{ request('start_date') }}">
-                    <input type="hidden" name="end_date" id="end_date" value="{{ request('end_date') }}">
+                    <x-ui.input type="text" name="daterange" id="daterange" class="form-input form-input-sm w-full" placeholder="Select date range" value="{{ request('start_date') && request('end_date') ? request('start_date') . ' - ' . request('end_date') : '' }}" />
+                    <x-ui.input type="hidden" name="start_date" id="start_date" value="{{ request('start_date') }}" />
+                    <x-ui.input type="hidden" name="end_date" id="end_date" value="{{ request('end_date') }}" />
                 </div>
                 <div class="flex items-end">
                     <button type="submit" class="btn btn-sm bg-primary text-white mr-2">
@@ -158,14 +153,14 @@
                     <a href="{{ route('login-activities.index') }}" class="btn btn-sm bg-default-200 text-default-600">Reset</a>
                 </div>
             </div>
-        </form>
+        </x-ui.filter>
     </div>
 
     <div class="flex flex-col">
         <div class="overflow-x-auto">
             <div class="min-w-full inline-block align-middle">
                 <div class="overflow-hidden">
-                    <table class="min-w-full divide-y divide-default-200">
+                    <x-ui.table class="min-w-full divide-y divide-default-200">
                         <thead class="bg-default-150">
                             <tr class="text-sm font-normal text-default-700 whitespace-nowrap">
                                 <th class="px-3.5 py-3 text-start">#</th>
@@ -260,7 +255,7 @@
                                 </tr>
                             @endforelse
                         </tbody>
-                    </table>
+                    </x-ui.table>
                 </div>
             </div>
         </div>
@@ -284,7 +279,7 @@
         </h6>
     </div>
     <div class="table-responsive">
-        <table class="table">
+        <x-ui.table class="table">
             <thead class="bg-default-150">
                 <tr class="text-sm font-normal text-default-700">
                     <th class="px-3.5 py-2 text-start">User</th>
@@ -303,7 +298,7 @@
                 </tr>
                 @endforeach
             </tbody>
-        </table>
+        </x-ui.table>
     </div>
 </div>
 @endif

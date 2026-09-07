@@ -242,8 +242,8 @@
                 <div class="card-header">
                     <h6 class="card-title">Sales Revenue Overview</h6>
                     <div class="relative">
-                        <input class="form-input form-input-sm ps-9" data-date-format="d M, Y" data-provider="flatpickr"
-                            data-range-date="true" placeholder="Select Date" type="text" />
+                        <x-ui.input class="form-input form-input-sm ps-9" data-date-format="d M, Y" data-provider="flatpickr"
+                            data-range-date="true" placeholder="Select Date" type="text"  />
                         <div class="absolute inset-y-0 start-0 flex items-center ps-3">
                             <i class="size-4 text-default-500" data-lucide="calendar-range"></i>
                         </div>
@@ -349,7 +349,7 @@
                 <h6 class="card-title">Product Orders</h6>
                 <div class="flex gap-3 items-center">
                     <div class="relative">
-                        <input class="form-input form-input-sm ps-9" placeholder="Search for...." type="email" />
+                        <x-ui.input class="form-input form-input-sm ps-9" placeholder="Search for...." type="email"  />
                         <div class="absolute inset-y-0 start-0 flex items-center ps-3">
                             <i class="size-3.5 text-default-500" data-lucide="search"></i>
                         </div>
@@ -363,7 +363,7 @@
                 <div class="overflow-x-auto">
                     <div class="min-w-full inline-block align-middle">
                         <div class="overflow-hidden">
-                            <table class="min-w-full divide-y divide-default-200">
+                            <x-ui.table class="min-w-full divide-y divide-default-200">
                                 <thead class="bg-default-150">
                                     <tr class="text-sm font-normal text-default-500 whitespace-nowrap">
                                         <th class="px-3.5 py-3 text-start" scope="col">#</th>
@@ -682,7 +682,7 @@
                                         </td>
                                     </tr>
                                 </tbody>
-                            </table>
+                            </x-ui.table>
                         </div>
                     </div>
                 </div>

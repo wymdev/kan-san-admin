@@ -4,163 +4,127 @@
     @include('layouts.partials/page-title', ['subtitle' => 'Admin', 'title' => 'Edit Customer'])
 
     {{-- Display All Validation Errors --}}
-    @if ($errors->any())
-        <div class="bg-danger/10 border border-danger/20 text-danger px-4 py-3 rounded relative mb-4" role="alert">
-            <h6 class="font-semibold mb-2">Validation Errors:</h6>
-            <ul class="list-disc list-inside space-y-1">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
 
-    <div class="card max-w-3xl mx-auto">
-        <div class="card-header">
-            <h6 class="card-title">Update Customer Profile</h6>
-        </div>
-        <form action="{{ route('customers.update', $customer->id) }}" method="POST" class="card-body space-y-4">
+    <x-ui.card title="Update Customer Profile" class="max-w-3xl mx-auto">
+        <form action="{{ route('customers.update', $customer->id) }}" method="POST" class="space-y-4">
             @csrf
             @method('PUT')
 
-            <div class="grid grid-cols-2 gap-4">
-                <div class="form-group">
-                    <label class="form-label" for="phone_number">Phone Number <span class="text-red-600">*</span></label>
-                    <input 
-                        class="form-input @error('phone_number') border-red-500 @enderror" 
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <x-ui.field name="phone_number" label="Phone Number" required>
+                    <x-ui.input required :aria-describedby="$errors->has('phone_number') ? 'phone_number-error' : null"
+                        class="form-input "
                         id="phone_number"
                         name="phone_number"
                         type="text"
                         placeholder="+66812345678"
                         value="{{ old('phone_number', $customer->phone_number) }}"
                     />
-                    @error('phone_number')
-                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
 
-                <div class="form-group">
-                    <label class="form-label" for="full_name">Full Name <span class="text-red-600">*</span></label>
-                    <input 
-                        class="form-input @error('full_name') border-red-500 @enderror" 
+                </x-ui.field>
+
+                <x-ui.field name="full_name" label="Full Name" required>
+                    <x-ui.input required :aria-describedby="$errors->has('full_name') ? 'full_name-error' : null"
+                        class="form-input "
                         id="full_name"
                         name="full_name"
                         type="text"
                         value="{{ old('full_name', $customer->full_name) }}"
                     />
-                    @error('full_name')
-                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
 
-                <div class="form-group">
-                    <label class="form-label" for="email">Email</label>
-                    <input 
-                        class="form-input @error('email') border-red-500 @enderror" 
+                </x-ui.field>
+
+                <x-ui.field name="email" label="Email">
+                    <x-ui.input :aria-describedby="$errors->has('email') ? 'email-error' : null"
+                        class="form-input "
                         id="email"
                         name="email"
                         type="email"
                         value="{{ old('email', $customer->email) }}"
                     />
-                    @error('email')
-                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
 
-                <div class="form-group">
-                    <label class="form-label" for="gender">Gender</label>
-                    <select class="form-input" id="gender" name="gender">
+                </x-ui.field>
+
+                <x-ui.field name="gender" label="Gender">
+                    <x-ui.select :aria-describedby="$errors->has('gender') ? 'gender-error' : null" class="form-input" id="gender" name="gender">
                         <option value="">Select Gender</option>
                         <option value="M" {{ old('gender', $customer->gender) == 'M' ? 'selected' : '' }}>Male</option>
                         <option value="F" {{ old('gender', $customer->gender) == 'F' ? 'selected' : '' }}>Female</option>
                         <option value="Other" {{ old('gender', $customer->gender) == 'Other' ? 'selected' : '' }}>Other</option>
-                    </select>
-                </div>
+                    </x-ui.select>
+                </x-ui.field>
 
-                <div class="form-group">
-                    <label class="form-label" for="dob">Date of Birth</label>
-                    <input 
+                <x-ui.field name="dob" label="Date of Birth">
+                    <x-ui.input :aria-describedby="$errors->has('dob') ? 'dob-error' : null"
                         class="form-input" 
                         id="dob"
                         name="dob"
                         type="date"
                         value="{{ old('dob', $customer->dob?->format('Y-m-d')) }}"
-                    />
-                    @error('dob')
-                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+                     />
 
-                <div class="form-group">
-                    <label class="form-label" for="thai_pin">Location PIN</label>
-                    <input 
-                        class="form-input @error('thai_pin') border-red-500 @enderror" 
+                </x-ui.field>
+
+                <x-ui.field name="thai_pin" label="Location PIN">
+                    <x-ui.input :aria-describedby="$errors->has('thai_pin') ? 'thai_pin-error' : null"
+                        class="form-input "
                         id="thai_pin"
                         name="thai_pin"
                         type="text"
                         placeholder="123456"
                         value="{{ old('thai_pin', $customer->thai_pin) }}"
                     />
-                    @error('thai_pin')
-                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+
+                </x-ui.field>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="address">Address</label>
-                <textarea 
+            <x-ui.field name="address" label="Address">
+                <x-ui.textarea :aria-describedby="$errors->has('address') ? 'address-error' : null"
                     class="form-input" 
                     id="address"
                     name="address"
                     rows="3"
-                >{{ old('address', $customer->address) }}</textarea>
-            </div>
+                >{{ old('address', $customer->address) }}</x-ui.textarea>
+            </x-ui.field>
 
             <hr class="my-4">
 
             <h6 class="font-semibold text-sm mb-3">Change Password <span class="text-default-500 text-xs font-normal">(Optional - only fill if you want to change password)</span></h6>
 
-            <div class="grid grid-cols-2 gap-4">
-                <div class="form-group">
-                    <label class="form-label" for="password">New Password</label>
-                    <input 
-                        class="form-input @error('password') border-red-500 @enderror" 
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <x-ui.field name="password" label="New Password">
+                    <x-ui.input :aria-describedby="$errors->has('password') ? 'password-error' : null"
+                        class="form-input "
                         id="password"
                         name="password"
                         type="password"
                         placeholder="Leave blank to keep current password"
                         autocomplete="new-password"
                     />
-                    @error('password')
-                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
 
-                <div class="form-group">
-                    <label class="form-label" for="password_confirmation">Confirm Password</label>
-                    <input 
-                        class="form-input @error('password_confirmation') border-red-500 @enderror" 
+                </x-ui.field>
+
+                <x-ui.field name="password_confirmation" label="Confirm Password">
+                    <x-ui.input :aria-describedby="$errors->has('password_confirmation') ? 'password_confirmation-error' : null"
+                        class="form-input "
                         id="password_confirmation"
                         name="password_confirmation"
                         type="password"
                         placeholder="Must match password field"
                         autocomplete="new-password"
                     />
-                    @error('password_confirmation')
-                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+
+                </x-ui.field>
             </div>
 
             <div class="flex gap-3 pt-4">
-                <button type="submit" class="btn bg-primary text-white">
+                <x-ui.button type="submit">
                     <i class="size-4 me-1" data-lucide="save"></i>Update Customer
-                </button>
-                <a href="{{ route('customers.index') }}" class="btn bg-default-200 text-default-700">
+                </x-ui.button>
+                <x-ui.button href="{{ route('customers.index') }}" variant="secondary">
                     Cancel
-                </a>
+                </x-ui.button>
             </div>
         </form>
-    </div>
+    </x-ui.card>
 @endsection

@@ -105,33 +105,9 @@
     @include('layouts.partials.page-title', ['subtitle' => 'Secondary Sales', 'title' => 'Check Lottery Results'])
 
     {{-- Alerts --}}
-    @if ($message = Session::get('success'))
-        <div class="alert-box bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 mb-4">
-            <i class="size-5" data-lucide="check-circle"></i>
-            <span>{!! $message !!}</span>
-        </div>
-    @endif
     
-    @if ($message = Session::get('warning'))
-        <div class="alert-box bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 mb-4">
-            <i class="size-5" data-lucide="alert-triangle"></i>
-            <span>{!! $message !!}</span>
-        </div>
-    @endif
     
-    @if ($message = Session::get('error'))
-        <div class="alert-box bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 mb-4">
-            <i class="size-5" data-lucide="alert-circle"></i>
-            <span>{!! $message !!}</span>
-        </div>
-    @endif
     
-    @if ($message = Session::get('info'))
-        <div class="alert-box bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800 text-cyan-700 dark:text-cyan-300 mb-4">
-            <i class="size-5" data-lucide="info"></i>
-            <span>{!! $message !!}</span>
-        </div>
-    @endif
 
     {{-- Statistics --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -229,7 +205,7 @@
             </div>
             @if($readyToCheck->count() > 0)
                 <div class="overflow-x-auto">
-                    <table class="min-w-full">
+                    <x-ui.table class="min-w-full">
                         <thead class="bg-gray-50 dark:bg-gray-800">
                             <tr class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
                                 <th class="px-4 py-3 text-left">Ticket</th>
@@ -248,7 +224,7 @@
                                 </tr>
                             @endforeach
                         </tbody>
-                    </table>
+                    </x-ui.table>
                 </div>
                 <div class="p-3 border-t border-gray-200 dark:border-gray-700">
                     {{ $readyToCheck->links() }}
@@ -273,7 +249,7 @@
             </div>
             @if($statusGroups['waiting_for_draw']->count() > 0)
                 <div class="overflow-x-auto">
-                    <table class="min-w-full">
+                    <x-ui.table class="min-w-full">
                         <thead class="bg-gray-50 dark:bg-gray-800">
                             <tr class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
                                 <th class="px-4 py-3 text-left">Ticket</th>
@@ -292,7 +268,7 @@
                                 </tr>
                             @endforeach
                         </tbody>
-                    </table>
+                    </x-ui.table>
                 </div>
             @else
                 <div class="module-body text-center py-8">
@@ -316,17 +292,17 @@
                 
                 <div class="module-body">
                     {{-- Search and Filter Form --}}
-                    <form method="GET" class="mb-4 flex flex-col sm:flex-row gap-3">
+                    <x-ui.filter class="mb-4 flex flex-col sm:flex-row gap-3">
                         <div class="flex-1">
-                            <input type="text" name="search" value="{{ request('search') }}" 
+                            <x-ui.input type="text" name="search" value="{{ request('search') }}"
                                    placeholder="Search by ticket, customer, phone..." 
-                                   class="form-input w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700">
+                                   class="form-input w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
                         </div>
-                        <select name="status_filter" class="form-select rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700">
+                        <x-ui.select name="status_filter" class="form-select rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700">
                             <option value="">All Status</option>
                             <option value="won" {{ request('status_filter') == 'won' ? 'selected' : '' }}>Won Only</option>
                             <option value="not_won" {{ request('status_filter') == 'not_won' ? 'selected' : '' }}>Not Won Only</option>
-                        </select>
+                        </x-ui.select>
                         <button type="submit" class="btn bg-primary text-white rounded-lg flex items-center gap-2 px-4">
                             <i class="size-4" data-lucide="search"></i> Search
                         </button>
@@ -336,7 +312,7 @@
                                 <i class="size-4" data-lucide="x"></i> Clear
                             </a>
                         @endif
-                    </form>
+                    </x-ui.filter>
 
                     {{-- Recheck All Button --}}
                     <form action="{{ route('secondary-transactions.recheck-all') }}" method="POST" class="mb-4">
@@ -347,7 +323,7 @@
                     </form>
                     
                     <div class="overflow-x-auto">
-                        <table class="min-w-full">
+                        <x-ui.table class="min-w-full">
                             <thead class="bg-gray-50 dark:bg-gray-800">
                                 <tr class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
                                     <th class="px-4 py-3 text-left">Ticket</th>
@@ -384,7 +360,7 @@
                                             <div class="flex items-center justify-center gap-1">
                                                 <form action="{{ route('secondary-transactions.recheck-selected') }}" method="POST" style="display:inline;">
                                                     @csrf
-                                                    <input type="hidden" name="transaction_ids[]" value="{{ $transaction->id }}">
+                                                    <x-ui.input type="hidden" name="transaction_ids[]" value="{{ $transaction->id }}" />
                                                     <button type="submit" class="action-btn bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40" 
                                                             title="Recheck this transaction">
                                                         <i class="size-4" data-lucide="refresh-cw"></i>
@@ -406,7 +382,7 @@
                                     </tr>
                                 @endforelse
                             </tbody>
-                        </table>
+                        </x-ui.table>
                     </div>
 
                     {{-- Pagination --}}
@@ -430,7 +406,7 @@
                 <span class="badge bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300">{{ $recentWinners->count() }}</span>
             </div>
             <div class="overflow-x-auto">
-                <table class="min-w-full">
+                <x-ui.table class="min-w-full">
                     <thead class="bg-gray-50 dark:bg-gray-800">
                         <tr class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
                             <th class="px-4 py-3 text-left">Ticket</th>
@@ -459,7 +435,7 @@
                             </tr>
                         @endforeach
                     </tbody>
-                </table>
+                </x-ui.table>
             </div>
         </div>
      @endif

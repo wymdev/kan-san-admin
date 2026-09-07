@@ -9,7 +9,7 @@
 
     <div class="flex justify-between gap-3 flex-wrap items-center mb-5">
         <div class="relative">
-            <input class="ps-11 form-input" placeholder="Search for..." type="email"/>
+            <x-ui.input class="ps-11 form-input" placeholder="Search for..." type="email" />
             <div class="absolute inset-y-0 start-0 flex items-center ps-3">
                 <i class="size-4 flex items-center text-default-500" data-lucide="search"></i>
             </div>

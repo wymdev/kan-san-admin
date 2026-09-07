@@ -22,8 +22,8 @@ class AppVersionController extends Controller
         $query = AppVersion::query();
         
         if (!empty($search)) {
-            $query->where('version', 'like', '%' . $search . '%')
-                  ->orWhere('release_notes', 'like', '%' . $search . '%');
+            $query->whereLike('version', '%' . $search . '%')
+                  ->orWhereLike('release_notes', '%' . $search . '%');
         }
         
         if (!empty($platform)) {

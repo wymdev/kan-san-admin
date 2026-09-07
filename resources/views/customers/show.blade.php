@@ -7,16 +7,6 @@
 @section('content')
 @include('layouts.partials/page-title', ['subtitle' => 'Admin', 'title' => 'Customer Details'])
 
-@if(session('success'))
-    <div class="bg-success/10 border border-success/20 text-success px-4 py-3 rounded relative mb-4">
-        <span>{{ session('success') }}</span>
-    </div>
-@endif
-@if(session('warning'))
-    <div class="bg-warning/10 border border-warning/20 text-warning px-4 py-3 rounded relative mb-4">
-        <span>{{ session('warning') }}</span>
-    </div>
-@endif
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <div class="lg:col-span-1">
@@ -218,7 +208,7 @@
                 <h6 class="card-title">Recent Purchases</h6>
             </div>
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-default-200">
+                <x-ui.table class="min-w-full divide-y divide-default-200">
                     <thead class="bg-default-150">
                         <tr class="text-sm font-normal text-default-700 whitespace-nowrap">
                             <th class="px-3.5 py-3 text-start">Order #</th>
@@ -273,7 +263,7 @@
                         </tr>
                         @endforelse
                     </tbody>
-                </table>
+                </x-ui.table>
             </div>
         </div>
     </div>
@@ -297,7 +287,7 @@
                     @csrf
                     <div class="mb-4">
                         <label class="form-label">Reason for Blocking</label>
-                        <textarea name="block_reason" class="form-input" rows="4" required placeholder="Why is this account being blocked?"></textarea>
+                        <x-ui.textarea name="block_reason" class="form-input" rows="4" required placeholder="Why is this account being blocked?"></x-ui.textarea>
                     </div>
                     <div class="flex gap-3">
                         <button type="submit" class="btn bg-danger text-white">Confirm Block</button>

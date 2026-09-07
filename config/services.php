@@ -44,9 +44,12 @@ return [
         'gemini_api_key' => env('GOOGLE_GENERATIVE_AI_API_KEY'),
     ],
 
-    'rapidapi' => [
-        'key' => env('RAPIDAPI_KEY'),
-        'host' => env('RAPIDAPI_HOST', 'thai-lottery3.p.rapidapi.com'),
+    'brevo' => [
+        'key' => env('BREVO_KEY'),
+    ],
+
+    'lottery_results' => [
+        'base_url' => env('LOTTERY_RESULTS_BASE_URL', 'https://xn--t3cmiit.com'),
     ],
 
 ];

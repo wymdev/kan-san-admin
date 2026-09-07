@@ -23,8 +23,8 @@ class AppPageController extends Controller
         $query = AppPage::query();
         
         if (!empty($search)) {
-            $query->where('page_name', 'like', '%' . $search . '%')
-                  ->orWhere('page_key', 'like', '%' . $search . '%');
+            $query->whereLike('page_name', '%' . $search . '%')
+                  ->orWhereLike('page_key', '%' . $search . '%');
         }
         
         if (!empty($type)) {

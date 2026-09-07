@@ -11,28 +11,28 @@
         <div class="card-header">
             <div class="flex gap-3">
                 <div class="relative">
-                    <input class="form-input form-input-sm ps-9" placeholder="Search for...." type="email"/>
+                    <x-ui.input class="form-input form-input-sm ps-9" placeholder="Search for...." type="email" />
                     <div class="absolute inset-y-0 start-0 flex items-center pointer-events-none ps-4">
                         <i class="size-4 flex items-center text-default-500" data-lucide="search"></i>
                     </div>
                 </div>
-                <input class="form-input form-input-sm" data-date-format="d M, Y" data-provider="flatpickr"
-                       data-range-date="true" id="dateRangeFilterInput" placeholder="Select date" type="text"/>
+                <x-ui.input class="form-input form-input-sm" data-date-format="d M, Y" data-provider="flatpickr"
+                       data-range-date="true" id="dateRangeFilterInput" placeholder="Select date" type="text" />
             </div>
             <div>
-                <select class="form-input form-input-sm" id="dateRangeFilterInput" placeholder="Select date"
+                <x-ui.select class="form-input form-input-sm" id="dateRangeFilterInput" placeholder="Select date"
                         type="text">
                     <option value="Accepted">Failed</option>
                     <option selected="" value="Declined">Paid</option>
                     <option value="Expired">Pending</option>
-                </select>
+                </x-ui.select>
             </div>
         </div>
         <div class="flex flex-col">
             <div class="overflow-x-auto">
                 <div class="min-w-full inline-block align-middle">
                     <div class="overflow-hidden">
-                        <table class="min-w-full divide-y divide-default-200">
+                        <x-ui.table class="min-w-full divide-y divide-default-200">
                             <thead class="bg-default-150">
                             <tr class="text-sm font-normal text-default-500">
                                 <th class="px-3.5 py-3 text-start" scope="col">Payment ID</th>
@@ -196,7 +196,7 @@
                                 </td>
                             </tr>
                             </tbody>
-                        </table>
+                        </x-ui.table>
                     </div>
                 </div>
             </div>

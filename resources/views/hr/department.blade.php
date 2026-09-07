@@ -17,7 +17,7 @@
             <div class="overflow-x-auto">
                 <div class="min-w-full inline-block align-middle">
                     <div class="overflow-hidden">
-                        <table class="min-w-full divide-y divide-default-200">
+                        <x-ui.table class="min-w-full divide-y divide-default-200">
                             <thead class="font-semibold whitespace-nowrap">
                                 <tr class="text-sm text-default-800 divide-x divide-default-200">
                                     <th class="px-3.5 py-3 font-medium text-start" scope="col">#</th>
@@ -151,7 +151,7 @@
                                     </td>
                                 </tr>
                             </tbody>
-                        </table>
+                        </x-ui.table>
                     </div>
                 </div>
             </div>
@@ -243,31 +243,31 @@
                         <div class="lg:col-span-12">
                             <label for="Department Name" class="inline-block mb-2 text-base font-medium">Department
                                 Name</label>
-                            <input type="text" id="Department Name" class="form-input" placeholder="Department Name">
+                            <x-ui.input type="text" id="Department Name" class="form-input" placeholder="Department Name" />
                         </div>
 
                         <!-- Date -->
                         <div class="lg:col-span-12">
                             <label for="Head of Dep. Name" class="inline-block mb-2 text-base font-medium">Head of Dep.
                                 Name</label>
-                            <input type="text" placeholder="Head name" class="form-input">
+                            <x-ui.input type="text" placeholder="Head name" class="form-input" />
                         </div>
 
                         <div class="lg:col-span-12">
                             <label for="Phone Number" class="inline-block mb-2 text-base font-medium">Phone Number</label>
-                            <input type="text" id="Phone Number" class="form-input" placeholder="1234567890">
+                            <x-ui.input type="text" id="Phone Number" class="form-input" placeholder="1234567890" />
                         </div>
 
                         <!-- Date -->
                         <div class="lg:col-span-12">
                             <label for="Email" class="inline-block mb-2 text-base font-medium">Email</label>
-                            <input type="text" placeholder="Enter Email" class="form-input">
+                            <x-ui.input type="text" placeholder="Enter Email" class="form-input" />
                         </div>
 
                         <div class="lg:col-span-12">
                             <label for="Total Employee" class="inline-block mb-2 text-base font-medium">Total
                                 Employee</label>
-                            <input type="text" placeholder="0" class="form-input">
+                            <x-ui.input type="text" placeholder="0" class="form-input" />
                         </div>
                     </div>
 

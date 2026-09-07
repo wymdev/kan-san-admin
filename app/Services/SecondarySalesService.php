@@ -18,7 +18,7 @@ class SecondarySalesService
         $prefix = date('ym');
 
         $latestTransaction = DB::table('secondary_sales_transactions')
-            ->where('transaction_number', 'like', $prefix . '%')
+            ->whereLike('transaction_number', $prefix . '%')
             ->orderByRaw('LENGTH(transaction_number) DESC')
             ->orderBy('transaction_number', 'desc')
             ->value('transaction_number');

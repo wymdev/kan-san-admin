@@ -8,8 +8,8 @@
 
     <div class="flex justify-between gap-3 flex-wrap items-center mb-5">
         <div class="relative">
-            <input class="form-input form-input-sm ps-9" placeholder="Search for name,email,phone number etc..."
-                type="email" />
+            <x-ui.input class="form-input form-input-sm ps-9" placeholder="Search for name,email,phone number etc..."
+                type="email"  />
             <div class="absolute inset-y-0 start-4 flex items-center">
                 <i class="size-3.5 flex items-center text-default-500" data-lucide="search"></i>
             </div>
@@ -616,47 +616,47 @@
                 <div class="card-body h-130" data-simplebar>
                     <div class="mb-4">
                         <label class="inline-block mb-2 text-sm text-default-800 font-medium">User ID</label>
-                        <input type="text"
+                        <x-ui.input type="text"
                             class="block w-full border-default-200 bg-default-100 rounded-md text-sm text-default-500 placeholder:text-default-400"
-                            placeholder="#TW1500004" disabled>
+                            placeholder="#TW1500004" disabled />
                     </div>
 
                     <div class="mb-4">
                         <label for="invoiceNo" class="inline-block mb-2 text-sm text-default-800 font-medium">Joining
                             Date</label>
-                        <input type="date" id="invoiceNo" class="form-input" placeholder="Invoice Date"
-                            data-provider="flatpickr" data-date-format="d M, Y" required="">
+                        <x-ui.input type="date" id="invoiceNo" class="form-input" placeholder="Invoice Date"
+                            data-provider="flatpickr" data-date-format="d M, Y" required="" />
                     </div>
 
                     <div class="mb-4">
                         <label class="inline-block mb-2 text-sm text-default-800 font-medium">Name</label>
-                        <input type="text" class="form-input" placeholder="Enter Name">
+                        <x-ui.input type="text" class="form-input" placeholder="Enter Name" />
                     </div>
 
                     <div class="mb-4">
                         <label class="inline-block mb-2 text-sm text-default-800 font-medium">Email</label>
-                        <input type="text" class="form-input" placeholder="Enter email">
+                        <x-ui.input type="text" class="form-input" placeholder="Enter email" />
                     </div>
 
                     <div class="mb-4">
                         <label class="inline-block mb-2 text-sm text-default-800 font-medium">Phone Number</label>
-                        <input type="text" class="form-input" placeholder="12345 67890">
+                        <x-ui.input type="text" class="form-input" placeholder="12345 67890" />
                     </div>
 
                     <div class="mb-4">
                         <label class="inline-block mb-2 text-sm text-default-800 font-medium">Status</label>
-                        <select type="text" class="form-input">
+                        <x-ui.select type="text" class="form-input">
                             <option value="" selected>Select Status</option>
                             <option value="Verified">Verified</option>
                             <option value="Waiting">Waiting</option>
                             <option value="Rejected">Rejected</option>
-                        </select>
+                        </x-ui.select>
                     </div>
 
                     <div class="mb-4">
                         <label for=""
                             class="inline-block mb-2 text-sm text-default-800 font-medium">Location</label>
-                        <input id="" type="text" class="form-input" placeholder="Location">
+                        <x-ui.input id="" type="text" class="form-input" placeholder="Location" />
                     </div>
                 </div>
 

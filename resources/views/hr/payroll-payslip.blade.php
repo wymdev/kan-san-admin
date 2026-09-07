@@ -33,7 +33,7 @@
                     <div class="overflow-x-auto">
                         <div class="min-w-full inline-block align-middle">
                             <div class="overflow-hidden">
-                                <table class="min-w-full divide-y divide-default-200">
+                                <x-ui.table class="min-w-full divide-y divide-default-200">
                                     <thead class="bg-default-150">
                                     <tr class="text-sm font-normal text-default-800 whitespace-nowrap">
                                         <th class="px-3.5 py-2.5 text-start" scope="col">Month</th>
@@ -83,7 +83,7 @@
                                         </td>
                                     </tr>
                                     </tbody>
-                                </table>
+                                </x-ui.table>
                             </div>
                         </div>
                     </div>

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\DatabaseSql;
+
 use App\Models\LotteryTicket;
 use Illuminate\Http\Request;
 use App\Exports\TicketsExport;
@@ -25,13 +27,13 @@ class TicketController extends Controller
         // Filtering
         if ($search = $request->input('search')) {
             $q->where(function ($query) use ($search) {
-                $query->where('bar_code', 'like', "%$search%")
-                    ->orWhere('ticket_name', 'like', "%$search%")
-                    ->orWhere('signature', 'like', "%$search%")
-                    ->orWhere('period', 'like', "%$search%")
-                    ->orWhere('big_num', 'like', "%$search%")
+                $query->whereLike('bar_code', "%$search%")
+                    ->orWhereLike('ticket_name', "%$search%")
+                    ->orWhereLike('signature', "%$search%")
+                    ->orWhereLike('period', "%$search%")
+                    ->orWhereLike('big_num', "%$search%")
                     // Search within JSON numbers array
-                    ->orWhereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(numbers, '\"', ''), '[', ''), ']', ''), ',', ''), ' ', '') LIKE ?", ["%$search%"]);
+                    ->orWhereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(".DatabaseSql::jsonText('numbers').", '\"', ''), '[', ''), ']', ''), ',', ''), ' ', '') LIKE ?", ["%$search%"]);
             });
         }
         if ($ticketType = $request->input('ticket_type')) {

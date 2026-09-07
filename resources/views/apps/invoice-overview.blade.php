@@ -105,7 +105,7 @@
                         </div>
                     </div>
                     <div class="mt-8 overflow-x-auto">
-                        <table class="w-full whitespace-nowrap">
+                        <x-ui.table class="w-full whitespace-nowrap">
                             <thead>
                             <tr class="font-semibold border-b border-default-200 text-default-500 text-sm">
                                 <th class="px-3.5 py-2.5 text-start">#</th>
@@ -194,7 +194,7 @@
                                 </td>
                             </tr>
                             </tbody>
-                        </table>
+                        </x-ui.table>
                     </div>
                     <div class="my-5 text-default-500 text-sm">
                         <p class="mb-2 text-sm uppercase">Payments Details</p>

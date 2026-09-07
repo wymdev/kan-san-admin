@@ -38,8 +38,8 @@
                                 <button class="size-7 btn minusBtn bg-default-200" type="button">
                                     <i class="size-4 text-default-500" data-lucide="minus"></i>
                                 </button>
-                                <input class="text-center product-quantity ps-2 w-15 h-7 border-0 ring-0 bg-transparent"
-                                    max="100" min="0" readonly="" type="number" value="2" />
+                                <x-ui.input class="text-center product-quantity ps-2 w-15 h-7 border-0 ring-0 bg-transparent"
+                                    max="100" min="0" readonly="" type="number" value="2"  />
                                 <button class="size-7 plusBtn btn bg-default-200" type="button">
                                     <i class="size-4 text-default-500" data-lucide="plus"></i>
                                 </button>
@@ -85,8 +85,8 @@
                                 <button class="size-7 btn minusBtn bg-default-200" type="button">
                                     <i class="size-4 text-default-500" data-lucide="minus"></i>
                                 </button>
-                                <input class="text-center product-quantity ps-2 w-15 h-7 border-0 ring-0 bg-transparent"
-                                    max="100" min="0" readonly="" type="number" value="2" />
+                                <x-ui.input class="text-center product-quantity ps-2 w-15 h-7 border-0 ring-0 bg-transparent"
+                                    max="100" min="0" readonly="" type="number" value="2"  />
                                 <button class="size-7 plusBtn btn bg-default-200" type="button">
                                     <i class="size-4 text-default-500" data-lucide="plus"></i>
                                 </button>
@@ -133,8 +133,8 @@
                                 <button class="size-7 btn minusBtn bg-default-200" type="button">
                                     <i class="size-4 text-default-500" data-lucide="minus"></i>
                                 </button>
-                                <input class="text-center product-quantity ps-2 w-15 h-7 border-0 ring-0 bg-transparent"
-                                    max="100" min="0" readonly="" type="number" value="2" />
+                                <x-ui.input class="text-center product-quantity ps-2 w-15 h-7 border-0 ring-0 bg-transparent"
+                                    max="100" min="0" readonly="" type="number" value="2"  />
                                 <button class="size-7 plusBtn btn bg-default-200" type="button">
                                     <i class="size-4 text-default-500" data-lucide="plus"></i>
                                 </button>
@@ -163,7 +163,7 @@
                 <div class="p-5 card mb-5">
                     <h6 class="card-title mb-4">Order Summary</h6>
                     <div class="overflow-x-auto">
-                        <table class="w-full">
+                        <x-ui.table class="w-full">
                             <tbody class="table-total">
                                 <tr class="text-sm">
                                     <td class="py-2 text-default-500"> Sub Total</td>
@@ -186,7 +186,7 @@
                                     <td class="pt-2 cart-total"> $988.09</td>
                                 </tr>
                             </tbody>
-                        </table>
+                        </x-ui.table>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-2 mb-5">

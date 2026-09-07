@@ -1,0 +1,74 @@
+/* Shared admin design. Existing screens and Blade components use these tokens. */
+.admin-theme {
+    --ui-radius: .75rem;
+    --ui-control-radius: .5rem;
+    --ui-control-height: 2.625rem;
+    --ui-border: var(--color-default-200);
+    --ui-muted: var(--color-default-500);
+    --ui-shadow: 0 2px 6px rgb(0 0 0 / .025);
+    line-height: 1.5;
+}
+.admin-theme main { padding-bottom: 2rem; }
+.admin-theme .card { border: 1px solid var(--ui-border); border-radius: var(--ui-radius); box-shadow: var(--ui-shadow); }
+.admin-theme .card-header, .admin-theme .card-footer { padding: 1rem 1.25rem; gap: .75rem; flex-wrap: wrap; }
+.admin-theme .card-title { font-size: .9375rem; line-height: 1.5; font-weight: 650; }
+.admin-theme .card-body { padding: 1.25rem; }
+.ui-page-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-block: .5rem 1.5rem; }
+.ui-page-header h1 { font-size: clamp(1.35rem, 2vw, 1.75rem); font-weight: 700; color: var(--color-default-900); letter-spacing: -.025em; line-height: 1.3; }
+.ui-eyebrow { color: var(--ui-muted); font-size: .75rem; font-weight: 600; margin-bottom: .375rem; }
+.ui-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.admin-theme .btn { border-radius: var(--ui-control-radius); font-weight: 600; gap: .375rem; transition: background-color .15s, box-shadow .15s; }
+.admin-theme .btn:not([class*="size-"]) { min-height: var(--ui-control-height); height: auto; }
+.admin-theme .btn:focus-visible, .admin-theme a:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+.admin-theme .btn:disabled { opacity: .5; cursor: not-allowed; }
+.ui-button--primary { background: var(--color-primary); color: white; }
+.ui-button--secondary { background: var(--color-default-100); border: 1px solid var(--ui-border); color: var(--color-default-700); }
+.ui-button--danger { background: var(--color-danger); color: white; }
+.ui-button--success { background: var(--color-success); color: white; }
+.ui-button:hover { filter: brightness(.96); }
+.admin-theme .form-input, .admin-theme .form-select {
+    min-height: var(--ui-control-height); height: auto; width: 100%; border: 1px solid var(--ui-border);
+    border-radius: var(--ui-control-radius); background-color: var(--color-card); color: var(--color-default-800);
+    font-size: .875rem; line-height: 1.5; padding-block: .625rem; box-shadow: none;
+}
+.admin-theme .form-select { padding-inline-start: .875rem; }
+.admin-theme .form-input:focus, .admin-theme .form-select:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 15%, transparent); outline: none; }
+.admin-theme .form-input[aria-invalid=true], .admin-theme .form-select[aria-invalid=true] { border-color: var(--color-danger); }
+.admin-theme .form-input:disabled, .admin-theme .form-select:disabled { background-color: var(--color-default-100); opacity: .65; }
+.admin-theme textarea.form-input { min-height: 7rem; resize: vertical; }
+.admin-theme .form-label { display: block; margin-bottom: .5rem; font-size: .875rem; font-weight: 600; color: var(--color-default-800); }
+.ui-field-hint, .ui-field-error { font-size: .75rem; margin-top: .375rem; }
+.ui-field-hint { color: var(--ui-muted); }
+.ui-field-error { color: var(--color-danger); }
+.ui-filter { width: 100%; padding-block: .25rem; }
+.ui-filter.flex { flex-wrap: wrap; gap: .75rem; }
+.ui-filter > .relative { min-width: min(100%, 14rem); }
+.ui-table { width: 100%; border-collapse: collapse; text-align: start; font-size: .875rem; }
+.ui-table thead { background: var(--color-default-50); }
+.ui-table th { padding: .875rem 1rem; color: var(--color-default-600); font-size: .75rem; font-weight: 650; white-space: nowrap; border-bottom: 1px solid var(--ui-border); }
+.ui-table td { padding: .875rem 1rem; border-bottom: 1px solid var(--ui-border); color: var(--color-default-800); }
+.ui-table tbody tr:last-child td { border-bottom: 0; }
+.ui-table tbody tr:hover { background-color: color-mix(in srgb, var(--color-primary) 3%, transparent); }
+.ui-alert { --alert-color: var(--color-info); padding: 1rem 1.125rem; border: 1px solid color-mix(in srgb, var(--alert-color) 25%, transparent); border-radius: var(--ui-control-radius); background: color-mix(in srgb, var(--alert-color) 8%, var(--color-card)); color: var(--color-default-800); border-inline-start: 3px solid var(--alert-color); overflow-wrap: anywhere; }
+.ui-alert--success { --alert-color: var(--color-success); }
+.ui-alert--danger { --alert-color: var(--color-danger); }
+.ui-alert--warning { --alert-color: var(--color-warning); }
+.ui-messages:has(> *) { display: grid; gap: .75rem; margin-bottom: 1.25rem; }
+.ui-empty-state { padding: 2.5rem 1rem; text-align: center; }
+.ui-badge { --alert-color: var(--color-info); display: inline-flex; align-items: center; padding: .25rem .625rem; border-radius: 999px; font-size: .75rem; font-weight: 600; color: var(--color-default-800); background: color-mix(in srgb, var(--alert-color) 12%, var(--color-card)); }
+.ui-badge.ui-alert--success { --alert-color: var(--color-success); }
+.ui-badge.ui-alert--danger { --alert-color: var(--color-danger); }
+.ui-badge.ui-alert--warning { --alert-color: var(--color-warning); }
+.admin-theme .stat-card, .admin-theme .filter-card, .admin-theme .table-container {
+    background: var(--color-card); border: 1px solid var(--ui-border); border-radius: var(--ui-radius); box-shadow: var(--ui-shadow);
+}
+.admin-theme .stat-card:hover { transform: none; box-shadow: var(--ui-shadow); }
+.admin-theme .stat-label { color: var(--color-default-500); text-transform: none; letter-spacing: normal; }
+.admin-theme .stat-value { color: var(--color-default-900); }
+.admin-theme .filter-card { padding: 1.25rem; }
+.admin-theme .action-btn { border-radius: var(--ui-control-radius); }
+@media (max-width: 640px) {
+    .admin-theme .card-header, .admin-theme .card-body, .admin-theme .card-footer { padding: 1rem; }
+    .ui-filter.flex > .relative, .ui-filter.flex > .form-input, .ui-filter.flex > .form-select { flex: 1 1 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .admin-theme *, .admin-theme *::before, .admin-theme *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }

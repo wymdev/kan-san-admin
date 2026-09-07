@@ -39,10 +39,10 @@ class PurchasesExport implements FromCollection, WithHeadings, WithMapping, With
         if (!empty($this->filters['search'])) {
             $search = $this->filters['search'];
             $query->where(function($q) use ($search) {
-                $q->where('order_number', 'like', "%$search%")
+                $q->whereLike('order_number', "%$search%")
                   ->orWhereHas('customer', function($cq) use ($search) {
-                      $cq->where('full_name', 'like', "%$search%")
-                         ->orWhere('phone_number', 'like', "%$search%");
+                      $cq->whereLike('full_name', "%$search%")
+                         ->orWhereLike('phone_number', "%$search%");
                   });
             });
         }

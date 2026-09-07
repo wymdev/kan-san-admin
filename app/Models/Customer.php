@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Support\DatabaseSql;
+
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Relations\HasMany; 
@@ -202,7 +204,7 @@ class Customer extends Authenticatable
 
     public function totalPrizeWon(): float
     {
-        return $this->purchases()->where('status', 'won')->sum('prize_won');
+        return $this->purchases()->where('status', 'won')->sum(\Illuminate\Support\Facades\DB::raw(DatabaseSql::numericText('prize_won')));
     }
 
     public function biggestWin(): ?TicketPurchase
@@ -226,13 +228,14 @@ class Customer extends Authenticatable
 
     public function monthlyPurchases(int $months = 6)
     {
-        return TicketPurchase::selectRaw('
-                DATE_FORMAT(created_at, "%Y-%m") as month,
+        $periodSql = DatabaseSql::period('created_at', '%Y-%m');
+        return TicketPurchase::selectRaw("
+                {$periodSql} as month,
                 COUNT(*) as total_orders,
-                SUM(CASE WHEN status = "won" THEN 1 ELSE 0 END) as wins,
-                SUM(CASE WHEN status IN ("won", "not_won") THEN 1 ELSE 0 END) as checked,
+                SUM(CASE WHEN status = 'won' THEN 1 ELSE 0 END) as wins,
+                SUM(CASE WHEN status IN ('won', 'not_won') THEN 1 ELSE 0 END) as checked,
                 SUM(total_price) as total_spent
-            ')
+            ")
             ->where('customer_id', $this->id)
             ->where('created_at', '>=', now()->subMonths($months))
             ->whereIn('status', ['approved', 'won', 'not_won'])
@@ -243,11 +246,12 @@ class Customer extends Authenticatable
 
     public function winLossTrend()
     {
-        $data = TicketPurchase::selectRaw('
-                DATE_FORMAT(checked_at, "%Y-%m-%d") as date,
-                COUNT(CASE WHEN status = "won" THEN 1 END) as wins,
-                COUNT(CASE WHEN status = "not_won" THEN 1 END) as losses
-            ')
+        $periodSql = DatabaseSql::period('checked_at', '%Y-%m-%d');
+        $data = TicketPurchase::selectRaw("
+                {$periodSql} as date,
+                COUNT(CASE WHEN status = 'won' THEN 1 END) as wins,
+                COUNT(CASE WHEN status = 'not_won' THEN 1 END) as losses
+            ")
             ->where('customer_id', $this->id)
             ->whereNotNull('checked_at')
             ->whereIn('status', ['won', 'not_won'])

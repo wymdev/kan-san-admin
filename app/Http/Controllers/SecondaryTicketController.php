@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\DatabaseSql;
+
 use App\Models\SecondaryLotteryTicket;
 use App\Services\OcrService;
 use Illuminate\Http\Request;
@@ -28,10 +30,10 @@ class SecondaryTicketController extends Controller
         // Search filter
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
-                $q->where('bar_code', 'like', "%{$search}%")
-                    ->orWhere('source_seller', 'like', "%{$search}%")
+                $q->whereLike('bar_code', "%{$search}%")
+                    ->orWhereLike('source_seller', "%{$search}%")
                     // Search within JSON array ["1","2",...] by stripping format chars and spaces
-                    ->orWhereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(numbers, '\"', ''), '[', ''), ']', ''), ',', ''), ' ', '') LIKE ?", ["%{$search}%"]);
+                    ->orWhereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(".DatabaseSql::jsonText('numbers').", '\"', ''), '[', ''), ']', ''), ',', ''), ' ', '') LIKE ?", ["%{$search}%"]);
             });
         }
 

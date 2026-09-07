@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\DatabaseSql;
+
 use App\Models\Customer;
 use App\Models\TicketPurchase;
 use App\Models\LotteryTicket;
@@ -104,7 +106,7 @@ class AnalyticsDashboardController extends Controller
     private function getKPIs($dateRange)
     {
         // Calculate previous period for comparison
-        $duration = $dateRange['end']->diffInDays($dateRange['start']);
+        $duration = $dateRange['start']->diffInDays($dateRange['end'], true);
         $prevStart = $dateRange['start']->copy()->subDays($duration);
         $prevEnd = $dateRange['start']->copy()->subSeconds(1);
         
@@ -147,10 +149,11 @@ class AnalyticsDashboardController extends Controller
     private function getRevenueAnalytics($dateRange)
     {
         $groupBy = $this->getGroupByFormat($dateRange);
+        $periodSql = DatabaseSql::period('created_at', $groupBy);
         
         // Revenue trend over time
         $revenueTrend = TicketPurchase::selectRaw("
-                DATE_FORMAT(created_at, '{$groupBy}') as period,
+                {$periodSql} as period,
                 SUM(total_price) as revenue,
                 COUNT(*) as orders
             ")
@@ -186,10 +189,11 @@ class AnalyticsDashboardController extends Controller
     private function getCustomerAnalytics($dateRange)
     {
         $groupBy = $this->getGroupByFormat($dateRange);
+        $periodSql = DatabaseSql::period('created_at', $groupBy);
         
         // New customers over time
         $newCustomers = Customer::selectRaw("
-                DATE_FORMAT(created_at, '{$groupBy}') as period,
+                {$periodSql} as period,
                 COUNT(*) as count
             ")
             ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
@@ -324,10 +328,11 @@ class AnalyticsDashboardController extends Controller
     private function getActivityTrends($dateRange)
     {
         $groupBy = $this->getGroupByFormat($dateRange);
+        $periodSql = DatabaseSql::period('created_at', $groupBy);
         
         // Daily activity
         $dailyActivity = ActivityLog::selectRaw("
-                DATE_FORMAT(created_at, '{$groupBy}') as period,
+                {$periodSql} as period,
                 COUNT(*) as activities,
                 COUNT(DISTINCT actor_id) as unique_users
             ")
@@ -357,7 +362,7 @@ class AnalyticsDashboardController extends Controller
         // Total prizes
         $totalPrizes = TicketPurchase::whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
             ->where('status', 'won')
-            ->sum('prize_won');
+            ->sum(\Illuminate\Support\Facades\DB::raw(DatabaseSql::numericText('prize_won')));
         
         // Win rate
         $totalChecked = $wonCount + $lostCount;
@@ -373,13 +378,14 @@ class AnalyticsDashboardController extends Controller
     
     private function getAgeDistribution()
     {
+        $ageSql = DatabaseSql::age('dob');
         // Use SQL CASE WHEN instead of loading all customers into PHP
         $results = Customer::selectRaw("
-                SUM(CASE WHEN TIMESTAMPDIFF(YEAR, dob, CURDATE()) BETWEEN 18 AND 25 THEN 1 ELSE 0 END) as age_18_25,
-                SUM(CASE WHEN TIMESTAMPDIFF(YEAR, dob, CURDATE()) BETWEEN 26 AND 35 THEN 1 ELSE 0 END) as age_26_35,
-                SUM(CASE WHEN TIMESTAMPDIFF(YEAR, dob, CURDATE()) BETWEEN 36 AND 45 THEN 1 ELSE 0 END) as age_36_45,
-                SUM(CASE WHEN TIMESTAMPDIFF(YEAR, dob, CURDATE()) BETWEEN 46 AND 55 THEN 1 ELSE 0 END) as age_46_55,
-                SUM(CASE WHEN TIMESTAMPDIFF(YEAR, dob, CURDATE()) > 55 THEN 1 ELSE 0 END) as age_56_plus
+                SUM(CASE WHEN {$ageSql} BETWEEN 18 AND 25 THEN 1 ELSE 0 END) as age_18_25,
+                SUM(CASE WHEN {$ageSql} BETWEEN 26 AND 35 THEN 1 ELSE 0 END) as age_26_35,
+                SUM(CASE WHEN {$ageSql} BETWEEN 36 AND 45 THEN 1 ELSE 0 END) as age_36_45,
+                SUM(CASE WHEN {$ageSql} BETWEEN 46 AND 55 THEN 1 ELSE 0 END) as age_46_55,
+                SUM(CASE WHEN {$ageSql} > 55 THEN 1 ELSE 0 END) as age_56_plus
             ")
             ->whereNotNull('dob')
             ->first();
@@ -395,14 +401,14 @@ class AnalyticsDashboardController extends Controller
     
     private function getGroupByFormat($dateRange)
     {
-        $days = $dateRange['end']->diffInDays($dateRange['start']);
+        $days = $dateRange['start']->diffInDays($dateRange['end'], true);
         
         if ($days <= 1) {
             return '%Y-%m-%d %H:00'; // Hourly
         } elseif ($days <= 31) {
             return '%Y-%m-%d'; // Daily
         } elseif ($days <= 90) {
-            return '%Y Week %u'; // Weekly
+            return '%x Week %v'; // Weekly
         } else {
             return '%Y-%m'; // Monthly
         }
@@ -427,11 +433,12 @@ class AnalyticsDashboardController extends Controller
         $retentionRate = $totalCustomers > 0 ? ($repeatCustomers / $totalCustomers) * 100 : 0;
 
         // 3. Peak Hours Analysis
-        $peakHours = TicketPurchase::selectRaw('
-                HOUR(created_at) as hour,
+        $hourSql = DatabaseSql::part('created_at', 'hour');
+        $peakHours = TicketPurchase::selectRaw("
+                {$hourSql} as hour,
                 COUNT(*) as orders,
                 SUM(total_price) as revenue
-            ')
+            ")
             ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
             ->whereIn('status', ['approved', 'won', 'not_won'])
             ->groupBy('hour')
@@ -441,15 +448,15 @@ class AnalyticsDashboardController extends Controller
         $busiestHour = $peakHours->sortByDesc('orders')->first();
 
         // 4. Day of Week Analysis
-        $dayOfWeek = TicketPurchase::selectRaw('
-                DAYNAME(created_at) as day,
-                DAYOFWEEK(created_at) as day_num,
+        $daySql = DatabaseSql::part('created_at', 'dow');
+        $dayOfWeek = TicketPurchase::selectRaw("
+                {$daySql} as day_num,
                 COUNT(*) as orders,
                 SUM(total_price) as revenue
-            ')
+            ")
             ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
             ->whereIn('status', ['approved', 'won', 'not_won'])
-            ->groupBy('day', 'day_num')
+            ->groupBy('day_num')
             ->orderBy('day_num')
             ->get();
 
@@ -461,7 +468,7 @@ class AnalyticsDashboardController extends Controller
             ->sum('total_price');
         $totalPrizes = TicketPurchase::whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
             ->where('status', 'won')
-            ->sum('prize_won');
+            ->sum(\Illuminate\Support\Facades\DB::raw(DatabaseSql::numericText('prize_won')));
         $payoutRatio = $totalRevenue > 0 ? ($totalPrizes / $totalRevenue) * 100 : 0;
 
         // 6. Customer Segments
@@ -502,7 +509,7 @@ class AnalyticsDashboardController extends Controller
                 'hourlyLabels' => $peakHours->pluck('hour')->map(fn($h) => sprintf('%02d:00', $h))->toArray(),
             ],
             'bestDay' => $bestDay ? [
-                'day' => $bestDay->day,
+                'day' => ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][$bestDay->day_num - 1],
                 'revenue' => $bestDay->revenue,
                 'orders' => $bestDay->orders,
             ] : null,
@@ -530,7 +537,7 @@ class AnalyticsDashboardController extends Controller
         $customersWithMultiple = TicketPurchase::whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
             ->select('customer_id', DB::raw('MIN(created_at) as first_purchase, MAX(created_at) as last_purchase, COUNT(*) as count'))
             ->groupBy('customer_id')
-            ->having('count', '>', 1)
+            ->havingRaw('COUNT(*) > 1')
             ->get();
 
         if ($customersWithMultiple->isEmpty()) {
@@ -584,7 +591,7 @@ class AnalyticsDashboardController extends Controller
             ->where('is_paid', false)->sum('amount_mmk');
 
         $wonTransactions = SecondarySalesTransaction::whereBetween('purchased_at', [$start, $end])
-            ->where('status', 'won')->sum('prize_won');
+            ->where('status', 'won')->sum(\Illuminate\Support\Facades\DB::raw(DatabaseSql::numericText('prize_won')));
 
         $dailyTrend = SecondarySalesTransaction::whereBetween('purchased_at', [$start, $end])
             ->selectRaw('DATE(purchased_at) as date')

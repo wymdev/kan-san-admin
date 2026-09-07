@@ -137,8 +137,8 @@ Route::middleware(['auth', 'otp.verified', 'sanitizeInput', 'fileTypeCheck'])->g
      Route::resource('app-versions', AppVersionController::class);
 
      Route::get('/draw_results', [DrawResultController::class, 'index'])->name('draw_results.index');
-     Route::get('/draw_results/syncLatest', [DrawResultController::class, 'syncLatest'])->name('draw_results.syncLatest');
-     Route::get('/draw_results/syncAll', [DrawResultController::class, 'syncAll'])->name('draw_results.syncAll');
+     Route::post('/draw_results/syncLatest', [DrawResultController::class, 'syncLatest'])->middleware('permission:lottery-edit')->name('draw_results.syncLatest');
+     Route::post('/draw_results/syncAll', [DrawResultController::class, 'syncAll'])->middleware('permission:lottery-edit')->name('draw_results.syncAll');
      Route::get('/draw_results/{id}/detail', [DrawResultController::class, 'showDetail'])->name('draw_results.show');
      Route::get('/draw_results/{id}', [DrawResultController::class, 'show']); // AJAX endpoint for modal
 

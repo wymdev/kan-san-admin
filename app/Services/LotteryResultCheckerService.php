@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Support\DatabaseSql;
+
 use App\Models\TicketPurchase;
 use App\Models\SecondarySalesTransaction;
 use App\Models\DrawResult;
@@ -88,7 +90,7 @@ class LotteryResultCheckerService
                 $targetDate->copy()->subDays(self::MAX_POSTPONE_DAYS),
                 $targetDate->copy()->addDays(self::MAX_POSTPONE_DAYS),
             ])
-                ->orderByRaw("ABS(DATEDIFF(draw_date, ?))", [$targetDate])
+                ->orderByRaw(DatabaseSql::dateDistance('draw_date'), [$targetDate])
                 ->first();
 
             if ($drawResult) {

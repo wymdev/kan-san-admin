@@ -11,7 +11,7 @@
         <div class="col-span-1">
             <div class="mb-5">
                 <label class="inline-block card-title" for="deliveryStatusSelect">Select Employee</label>
-                <select class="form-input" id="typeSelect" name="typeSelect">
+                <x-ui.select class="form-input" id="typeSelect" name="typeSelect">
                     <option value="">Select Employee</option>
                     <option value="Willie Torres">Willie Torres</option>
                     <option value="Patricia Garcia">Patricia Garcia</option>
@@ -21,7 +21,7 @@
                     <option value="Nancy Reynolds">Nancy Reynolds</option>
                     <option value="Holly Kavanaugh">Holly Kavanaugh</option>
                     <option value="Jonas Frederiksen">Jonas Frederiksen</option>
-                </select>
+                </x-ui.select>
             </div>
             <div class="card">
                 <div class="card-body">
@@ -33,7 +33,7 @@
                         <p class="text-default-500">Product Designer</p>
                     </div>
                     <div class="mt-5 overflow-x-auto">
-                        <table class="w-full mb-0">
+                        <x-ui.table class="w-full mb-0">
                             <tbody>
                             <tr>
                                 <td class="py-2.5 text-default-500">Employee ID</td>
@@ -68,7 +68,7 @@
                                 <td class="py-2.5 font-semibold">22.40 Hrs</td>
                             </tr>
                             </tbody>
-                        </table>
+                        </x-ui.table>
                     </div>
                 </div>
             </div>
@@ -125,13 +125,13 @@
                 <div class="card-header">
                     <div class="flex gap-3 items-center">
                         <div class="relative">
-                            <input class="ps-11 form-input form-input-sm" placeholder="Search for...." type="email"/>
+                            <x-ui.input class="ps-11 form-input form-input-sm" placeholder="Search for...." type="email" />
                             <div class="absolute inset-y-0 start-0 flex items-center pointer-events-none ps-4">
                                 <i class="size-3.5 flex items-center text-default-500" data-lucide="search"></i>
                             </div>
                         </div>
-                        <input class="form-input form-input-sm" data-date-format="d M, Y" data-provider="flatpickr"
-                               data-range-date="true" placeholder="Select Date" readonly="readonly" type="text"/>
+                        <x-ui.input class="form-input form-input-sm" data-date-format="d M, Y" data-provider="flatpickr"
+                               data-range-date="true" placeholder="Select Date" readonly="readonly" type="text" />
                     </div>
                     <div class="flex gap-3 items-center">
                         <button
@@ -148,7 +148,7 @@
                     <div class="overflow-x-auto">
                         <div class="min-w-full inline-block align-middle">
                             <div class="overflow-hidden">
-                                <table class="min-w-full divide-y divide-default-200">
+                                <x-ui.table class="min-w-full divide-y divide-default-200">
                                     <thead class="bg-default-100 font-normal whitespace-nowrap">
                                     <tr class="text-sm text-default-800">
                                         <th class="px-3.5 py-3 font-medium text-start" scope="col">Date</th>
@@ -401,7 +401,7 @@
                                         </td>
                                     </tr>
                                     </tbody>
-                                </table>
+                                </x-ui.table>
                             </div>
                         </div>
                     </div>

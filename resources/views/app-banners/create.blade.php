@@ -11,7 +11,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="form-label">Title <span class="text-red-500">*</span></label>
-                            <input type="text" name="title" value="{{ old('title') }}" class="form-input @error('title') border-red-500 @enderror" required maxlength="255" />
+                            <x-ui.input type="text" name="title" value="{{ old('title') }}" class="form-input " required maxlength="255"  />
                             @error('title')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
@@ -19,12 +19,12 @@
 
                         <div>
                             <label class="form-label">Banner Type <span class="text-red-500">*</span></label>
-                            <select name="banner_type" class="form-input @error('banner_type') border-red-500 @enderror" required>
+                            <x-ui.select name="banner_type" class="form-input " required>
                                 <option value="">Select Type</option>
                                 <option value="news" {{ old('banner_type') == 'news' ? 'selected' : '' }}>News</option>
                                 <option value="promotion" {{ old('banner_type') == 'promotion' ? 'selected' : '' }}>Promotion</option>
                                 <option value="announcement" {{ old('banner_type') == 'announcement' ? 'selected' : '' }}>Announcement</option>
-                            </select>
+                            </x-ui.select>
                             @error('banner_type')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
@@ -32,7 +32,7 @@
 
                         <div class="md:col-span-2">
                             <label class="form-label">Description</label>
-                            <textarea name="description" rows="3" class="form-input @error('description') border-red-500 @enderror">{{ old('description') }}</textarea>
+                            <x-ui.textarea name="description" rows="3" class="form-input ">{{ old('description') }}</x-ui.textarea>
                             @error('description')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
@@ -40,7 +40,7 @@
 
                         <div class="md:col-span-2">
                             <label class="form-label">Image <span class="text-red-500">*</span></label>
-                            <input type="file" name="image" id="image" accept="image/*" class="form-input @error('image') border-red-500 @enderror" onchange="previewImage(this)" required />
+                            <x-ui.input type="file" name="image" id="image" accept="image/*" class="form-input " onchange="previewImage(this)" required  />
                             @error('image')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
@@ -51,7 +51,7 @@
 
                         <div>
                             <label class="form-label">Action URL (optional)</label>
-                            <input type="url" name="action_url" value="{{ old('action_url') }}" class="form-input @error('action_url') border-red-500 @enderror" />
+                            <x-ui.input type="url" name="action_url" value="{{ old('action_url') }}" class="form-input "  />
                             @error('action_url')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
@@ -59,12 +59,12 @@
 
                         <div>
                             <label class="form-label">Action Type (optional)</label>
-                            <select name="action_type" class="form-input @error('action_type') border-red-500 @enderror">
+                            <x-ui.select name="action_type" class="form-input ">
                                 <option value="">Select Type</option>
                                 <option value="internal" {{ old('action_type') == 'internal' ? 'selected' : '' }}>Internal</option>
                                 <option value="external" {{ old('action_type') == 'external' ? 'selected' : '' }}>External</option>
                                 <option value="deeplink" {{ old('action_type') == 'deeplink' ? 'selected' : '' }}>Deeplink</option>
-                            </select>
+                            </x-ui.select>
                             @error('action_type')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
@@ -77,7 +77,7 @@
 
                         <div>
                             <label class="form-label">Start Date (optional)</label>
-                            <input type="date" name="start_date" value="{{ old('start_date') }}" class="form-input @error('start_date') border-red-500 @enderror" />
+                            <x-ui.input type="date" name="start_date" value="{{ old('start_date') }}" class="form-input "  />
                             @error('start_date')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
@@ -85,7 +85,7 @@
 
                         <div>
                             <label class="form-label">End Date (optional)</label>
-                            <input type="date" name="end_date" value="{{ old('end_date') }}" class="form-input @error('end_date') border-red-500 @enderror" />
+                            <x-ui.input type="date" name="end_date" value="{{ old('end_date') }}" class="form-input "  />
                             @error('end_date')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
@@ -93,7 +93,7 @@
 
                         <div>
                             <label class="form-label">Display Order</label>
-                            <input type="number" name="display_order" value="{{ old('display_order', 0) }}" min="0" class="form-input @error('display_order') border-red-500 @enderror" />
+                            <x-ui.input type="number" name="display_order" value="{{ old('display_order', 0) }}" min="0" class="form-input "  />
                             @error('display_order')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror

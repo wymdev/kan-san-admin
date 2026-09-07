@@ -9,16 +9,6 @@
         'title' => 'Purchase Detail'
     ])
 
-    @if(session('success'))
-        <div class="bg-success/10 border border-success/20 text-success px-4 py-3 rounded relative mb-4">
-            <span>{{ session('success') }}</span>
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="bg-danger/10 border border-danger/20 text-danger px-4 py-3 rounded relative mb-4">
-            <span>{{ session('error') }}</span>
-        </div>
-    @endif
 
     <div class="grid lg:grid-cols-3 gap-6">
         <div class="col-span-2">
@@ -119,16 +109,16 @@
                                     @csrf
                                     <div>
                                         <label class="form-label text-sm font-semibold text-default-700 mb-1">Rejection Reason *</label>
-                                        <textarea required name="rejection_reason"
+                                        <x-ui.textarea required name="rejection_reason"
                                                   class="form-input w-full border-2 border-red-300 focus:border-red-500 focus:ring-red-300"
                                                   rows="3" 
-                                                  placeholder="Provide detailed reason for rejection..."></textarea>
+                                                  placeholder="Provide detailed reason for rejection..."></x-ui.textarea>
                                     </div>
                                     
                                     <div class="bg-danger/10 border-2 border-danger/30 rounded-lg p-3">
                                         <label class="flex items-start gap-3 cursor-pointer group">
-                                            <input type="checkbox" name="block_customer" value="1" id="block_customer" 
-                                                   class="form-checkbox text-danger mt-0.5 size-5 rounded border-2 border-danger/50">
+                                            <x-ui.input type="checkbox" name="block_customer" value="1" id="block_customer"
+                                                   class="form-checkbox text-danger mt-0.5 size-5 rounded border-2 border-danger/50" />
                                             <div class="flex-1">
                                                 <div class="flex items-center gap-2">
                                                     <i class="size-5 text-danger" data-lucide="shield-alert"></i>

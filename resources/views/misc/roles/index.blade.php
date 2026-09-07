@@ -6,66 +6,19 @@
 @section('content')
     @include('layouts.partials/page-title', ['subtitle' => 'Menu', 'title' => 'Roles Management'])
 
-    @if ($message = Session::get('success'))
-        <div id="successToast" 
-            class="fixed top-13 right-4 z-50 mb-4 p-4 bg-success/10 border border-success text-success rounded-md animate-fade-in"
-            style="animation: slideIn 0.3s ease-out;">
-            <div class="flex items-center justify-between gap-3">
-                <span>{{ $message }}</span>
-                <button onclick="document.getElementById('successToast').remove()" 
-                    class="text-success hover:opacity-70">
-                    <i data-lucide="x" class="size-4"></i>
-                </button>
-            </div>
-        </div>
-
-        <style>
-            @keyframes slideIn {
-                from {
-                    transform: translateX(400px);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-            }
-            
-            @keyframes slideOut {
-                from {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-                to {
-                    transform: translateX(400px);
-                    opacity: 0;
-                }
-            }
-        </style>
-
-        <script>
-            setTimeout(() => {
-                const toast = document.getElementById('successToast');
-                if (toast) {
-                    toast.style.animation = 'slideOut 0.3s ease-out forwards';
-                    setTimeout(() => toast.remove(), 300);
-                }
-            }, 4000); // Auto-dismiss after 4 seconds
-        </script>
-    @endif
 
     <div class="card mb-5">
         <div class="card-header">
             <div class="md:flex items-center md:space-y-0 space-y-4 gap-3 justify-between w-full">
-                <form method="GET" action="{{ route('roles.index') }}" class="flex gap-3 flex-1">
+                <x-ui.filter action="{{ route('roles.index') }}" class="flex gap-3 flex-1">
                     <div class="relative flex-1">
-                        <input 
+                        <x-ui.input
                             class="form-input form-input-sm ps-9 w-full" 
                             placeholder="Search for role name..." 
                             type="text" 
                             name="search" 
                             value="{{ request('search') }}"
-                        />
+                         />
                         <div class="absolute inset-y-0 start-0 flex items-center ps-3">
                             <i class="size-3.5" data-lucide="search"></i>
                         </div>
@@ -78,7 +31,7 @@
                             Clear
                         </a>
                     @endif
-                </form>
+                </x-ui.filter>
                 <div class="flex gap-3">
                     <button aria-controls="addRoleModal" aria-expanded="false" aria-haspopup="dialog"
                         class="btn btn-sm bg-primary text-white" data-hs-overlay="#addRoleModal" type="button">
@@ -183,8 +136,8 @@
                     <div class="card-body h-auto" data-simplebar>
                         <div class="mb-4">
                             <label class="inline-block mb-2 text-sm text-default-800 font-medium">Role Name <span class="text-red-500">*</span></label>
-                            <input type="text" name="name" class="form-input @error('name') border-red-500 @enderror"
-                                placeholder="Enter role name" value="{{ old('name') }}" required>
+                            <x-ui.input type="text" name="name" class="form-input "
+                                placeholder="Enter role name" value="{{ old('name') }}" required />
                             @error('name')
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                             @enderror

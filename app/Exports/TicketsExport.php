@@ -25,11 +25,11 @@ class TicketsExport implements FromCollection, WithHeadings, WithMapping, WithSt
         if (!empty($this->filters['search'])) {
             $search = $this->filters['search'];
             $query->where(function($q) use ($search) {
-                $q->where('bar_code', 'like', "%$search%")
-                    ->orWhere('ticket_name', 'like', "%$search%")
-                    ->orWhere('signature', 'like', "%$search%")
-                    ->orWhere('period', 'like', "%$search%")
-                    ->orWhere('big_num', 'like', "%$search%");
+                $q->whereLike('bar_code', "%$search%")
+                    ->orWhereLike('ticket_name', "%$search%")
+                    ->orWhereLike('signature', "%$search%")
+                    ->orWhereLike('period', "%$search%")
+                    ->orWhereLike('big_num', "%$search%");
             });
         }
         
